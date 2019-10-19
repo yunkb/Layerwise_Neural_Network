@@ -36,17 +36,17 @@ class Layerwise:
         
         # Construct weights and biases
         if construct_flag == 1:
-            with tf.variable_scope("autoencoder") as scope:
-                for l in range(0, num_layers): 
-                        W = tf.get_variable("W" + str(l+1), dtype = tf.float64, shape = [self.layers[l], self.layers[l + 1]], initializer = tf.random_normal_initializer())
-                        b = tf.get_variable("b" + str(l+1), dtype = tf.float64, shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value))                                  
-                        tf.summary.histogram("weights" + str(l+1), W)
-                        tf.summary.histogram("biases" + str(l+1), b)
-                        self.weights.append(W)
-                        self.biases.append(b)
+            with tf.variable_scope("NN_layerwise") as scope:
+                for l in range(0, num_layers-1): 
+                    W = tf.get_variable("W" + str(l+1), dtype = tf.float64, shape = [self.layers[l], self.layers[l + 1]], initializer = tf.random_normal_initializer())
+                    b = tf.get_variable("b" + str(l+1), dtype = tf.float64, shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value))                                  
+                    tf.summary.histogram("weights" + str(l+1), W)
+                    tf.summary.histogram("biases" + str(l+1), b)
+                    self.weights.append(W)
+                    self.biases.append(b)
             
             # Ensures train.Saver only saves the weights and biases                
-            self.saver_NN = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "NN_layerwise")
+            self.saver_NN_layerwise = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "NN_layerwise")
         
         # Load trained model  
         if construct_flag == 0: 
@@ -69,13 +69,13 @@ class Layerwise:
 ############################################################################### 
     def forward_prop(self, X, num_layers):  
         with tf.variable_scope("fwd_prop") as scope:
-            for l in range(0, truncation_layer - 1):
+            for l in range(0, num_layers-2):
                 W = self.weights[l]
                 b = self.biases[l]
                 X = tf.tanh(tf.add(tf.matmul(X, W), b))
                 #tf.summary.histogram("activation" + str(l+1), X)
-            W = self.weights[num_layers - 1]
-            b = self.biases[num_layers - 1]
+            W = self.weights[-1]
+            b = self.biases[-1]
             output = tf.add(tf.matmul(X, W), b)
             return output
     

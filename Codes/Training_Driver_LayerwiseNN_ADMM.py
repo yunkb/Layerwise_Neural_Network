@@ -14,7 +14,6 @@ import numpy as np
 import pandas as pd
 
 from NN_Layerwise import Layerwise
-from random_mini_batches import random_mini_batches
 
 import time
 import shutil # for deleting directories
@@ -33,7 +32,7 @@ np.random.seed(1234)
 #                       Hyperparameters and Filenames                         #
 ###############################################################################
 class HyperParameters:
-    max_num_hidden_layers = 3
+    num_hidden_layers = 3
     num_hidden_nodes  = 200
     penalty           = 0.1
     num_training_data = 20
@@ -42,7 +41,9 @@ class HyperParameters:
     gpu               = '1'
     
 class RunOptions:
-    def __init__(self, hyper_p):          
+    def __init__(self, hyper_p):     
+        self.data_type = 'MNIST'
+        
         # Other options
         self.num_testing_data = 200
         
@@ -54,7 +55,7 @@ class RunOptions:
             penalty_string = str(hyper_p.penalty)
             penalty_string = 'pt' + penalty_string[2:]
 
-        self.filename = hyper_p.data_type + '_hl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.max_num_hidden_layers, hyper_p.num_hidden_nodes, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = self.data_type + '_hl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.num_hidden_nodes, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
 
         # Saving neural network
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
@@ -73,6 +74,8 @@ def trainer(hyper_p, run_options):
     
     # Load Train and Test Data  
     mnist = input_data.read_data_sets("/tmp/data/", one_hot = True)
+    testing_data = mnist.test.images
+    testing_labels = mnist.test.labels
      
     ###########################
     #   Training Properties   #
@@ -82,12 +85,13 @@ def trainer(hyper_p, run_options):
     
     # Loss functional
     with tf.variable_scope('loss') as scope:
-        loss = tf.reduce_mean( tf.nn.softmax_cross_entropy_with_logits(logits = prediction, labels = NN.labels_tf) )    
+        loss = tf.reduce_mean( tf.nn.softmax_cross_entropy_with_logits(logits = NN.prediction_train, labels = NN.labels_train_tf) )    
         tf.summary.scalar("loss",loss)
         
     # Relative Error
     with tf.variable_scope('test_accuracy') as scope:
-        test_accuracy = tf.norm(NN.parameter_input_test_tf - NN.autoencoder_pred_test, 2)/tf.norm(NN.parameter_input_test_tf, 2)
+        test_class = tf.equal(tf.argmax(NN.prediction_test, 1), tf.argmax(NN.labels_test_tf, 1))
+        test_accuracy = tf.reduce_mean(tf.cast(test_class, 'float'))
         tf.summary.scalar("test_accuracy", test_accuracy)
                 
     # Set optimizers
@@ -124,7 +128,7 @@ def trainer(hyper_p, run_options):
     writer = tf.summary.FileWriter('../Tensorboard/' + run_options.filename)
     
     # Saver for saving trained neural network
-    saver = tf.train.Saver(NN.saver_autoencoder)
+    saver = tf.train.Saver(NN.saver_NN_layerwise)
     
     ########################
     #   Train Autoencoder  #
@@ -141,23 +145,12 @@ def trainer(hyper_p, run_options):
         start_time = time.time()
         num_batches = int(hyper_p.num_training_data/hyper_p.batch_size)
         for epoch in range(hyper_p.num_epochs):
-            if num_batches == 1:
-                tf_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train,
-                           NN.parameter_input_test_tf: parameter_test, NN.state_obs_test_tf: state_obs_test, NN.state_obs_inverse_input_tf: state_obs_test} 
-                loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict)  
-                if run_options.check_gradients == 1:
-                    print('Checking gradient')
-                    check_gradients_directional_derivative(sess, NN, loss, gradients_tf, tf_dict)
-                    pdb.set_trace()
+            for batch_num in range(num_batches):
+                data_train_batch, labels_train_batch = mnist.train.next_batch(hyper_p.batch_size)
+                tf_dict = {NN.data_train_tf: data_train_batch, NN.labels_train_tf: labels_train_batch,
+                           NN.data_test_tf: testing_data, NN.labels_test_tf: testing_labels} 
+                loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict) 
                 writer.add_summary(s, epoch)
-            else:
-                minibatches = random_mini_batches(parameter_train.T, state_obs_train.T, hyper_p.batch_size, 1234)
-                for batch_num in range(num_batches):
-                    parameter_train_batch = minibatches[batch_num][0].T
-                    state_obs_train_batch = minibatches[batch_num][1].T
-                    tf_dict = {NN.parameter_input_tf: parameter_train_batch, NN.state_obs_tf: state_obs_train_batch} 
-                    loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict) 
-                    writer.add_summary(s, epoch)
                 
             # print to monitor results
             if epoch % 100 == 0:
@@ -193,7 +186,7 @@ if __name__ == "__main__":
     hyper_p = HyperParameters()
     
     if len(sys.argv) > 1:
-            hyper_p.max_num_hidden_layers = int(sys.argv[2])
+            hyper_p.num_hidden_layers = int(sys.argv[2])
             hyper_p.num_hidden_nodes  = int(sys.argv[4])
             hyper_p.penalty           = float(sys.argv[5])
             hyper_p.num_training_data = int(sys.argv[6])
