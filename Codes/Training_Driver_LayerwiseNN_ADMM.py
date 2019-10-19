@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from NN_Layerwise import Layerwise
-from ADMM_methods import construct_ADMM_objects, update_z_and_lagrange_multiplier
+from ADMM_methods import construct_ADMM_objects, ADMM_penalty_term, update_z_and_lagrange_multiplier
 
 import time
 import shutil # for deleting directories
@@ -28,13 +28,14 @@ os.environ['OMP_NUM_THREADS'] = '6'
 sys.path.insert(0, '../../Utilities/')
 
 np.random.seed(1234)
+tf.set_random_seed(1234)
 
 ###############################################################################
 #                       Hyperparameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
     num_hidden_layers = 1
-    num_hidden_nodes  = 200
+    num_hidden_nodes  = 100
     regularization    = 1
     penalty           = 1
     num_training_data = 20
@@ -99,7 +100,7 @@ def trainer(hyper_p, run_options):
     # Loss functional
     with tf.variable_scope('loss') as scope:
         data_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits = NN.prediction_train, labels = NN.labels_train_tf))    
-        ADMM_penalty = pen/2 * tf.pow(tf.norm(NN.r_pred - z + lagrange/pen, 2), 2)
+        ADMM_penalty = ADMM_penalty_term(NN, pen, z_weights, z_biases, lagrange_weights, lagrange_biases)       
         loss = data_loss + ADMM_penalty
         tf.summary.scalar("loss",loss)
         
@@ -154,6 +155,11 @@ def trainer(hyper_p, run_options):
         
         # Save neural network
         saver.save(sess, run_options.NN_savefile_name)
+        
+        # Assign initial value of z to be equal to w
+        for l in range(0, len(NN.weights)): 
+            sess.run(tf.assign(z_weights[l], NN.weights[l])) 
+            sess.run(tf.assign(z_biases[l], NN.biases[l]))  
         
         # Train neural network
         print('Beginning Training\n')

@@ -31,7 +31,6 @@ class Layerwise:
         self.weights = [] # This will be a list of tensorflow variables
         self.biases = [] # This will be a list of tensorflow variables
         num_layers = len(self.layers)
-        weights_init_value = 0.05
         biases_init_value = 0       
         
         # Construct weights and biases

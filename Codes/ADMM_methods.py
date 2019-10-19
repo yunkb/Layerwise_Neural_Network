@@ -20,7 +20,6 @@ def construct_ADMM_objects(NN):
     lagrange_weights = [] # This will be a list of tensorflow variables
     lagrange_biases = [] # This will be a list of tensorflow variables
 
-    weights_init_value = 0.05
     biases_init_value = 0  
         
     for l in range(0, len(NN.layers)-1): 
@@ -37,9 +36,21 @@ def construct_ADMM_objects(NN):
     return z_weights, z_biases, lagrange_weights, lagrange_biases
 
 ###############################################################################
+#                               ADMM Penalty Term                             #
+###############################################################################
+def ADMM_penalty_term(NN, pen, z_weights, z_biases, lagrange_weights, lagrange_biases):
+    ADMM_penalty = 0
+    for l in range(0, len(NN.weights)):  
+        weights_norm = pen/2 * tf.pow(tf.norm(NN.weights[l] - z_weights[l] + lagrange_weights[l]/pen, 2), 2)
+        biases_norm = pen/2 * tf.pow(tf.norm(NN.biases[l] - z_biases[l] + lagrange_biases[l]/pen, 2), 2)
+        ADMM_penalty += weights_norm + biases_norm
+        
+    return ADMM_penalty
+
+###############################################################################
 #                      Update z and Lagrange Multiplier                       #
 ###############################################################################
-def update_z_and_lagrange_multiplier(sess, NN, alpha, pen, z_weights, z_biases, lagrange_weights, lagrange_biases, pen):   
+def update_z_and_lagrange_multiplier(sess, NN, alpha, pen, z_weights, z_biases, lagrange_weights, lagrange_biases):   
     for l in range(0, len(NN.weights)):  
         sess.run(tf.assign(z_weights[l], soft_threshold_weights(NN, lagrange_weights, lagrange_biases, alpha, pen)))
         sess.run(tf.assign(z_biases[l], soft_threshold_biases(NN, lagrange_weights, lagrange_biases, alpha, pen)))
@@ -47,7 +58,7 @@ def update_z_and_lagrange_multiplier(sess, NN, alpha, pen, z_weights, z_biases, 
         sess.run(tf.assign(lagrange_biases[l], pen*(NN.biases[l] - z_biases[l])))
       
 ###############################################################################
-#                             Soft Thresholding                               #
+#                       Soft Thresholding Operator                            #
 ###############################################################################   
 def soft_threshold_weights(NN, lagrange_weights, lagrange_biases, alpha, pen):
     weights_val = []
