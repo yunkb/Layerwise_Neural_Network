@@ -19,11 +19,11 @@ class Layerwise:
 #                    Constuct Neural Network Architecture                     #
 ###############################################################################        
         # Initialize placeholders
-        self.data_train_tf = tf.placeholder(tf.float64, shape=[None, data_dimension], name = "data_train_tf")
-        self.labels_train_tf = tf.placeholder(tf.float64, shape=[None, labels_dimension], name = "labels_train_tf") # This is needed for batching during training, else can just use state_data
+        self.data_train_tf = tf.placeholder(tf.float32, shape=[None, data_dimension], name = "data_train_tf")
+        self.labels_train_tf = tf.placeholder(tf.float32, shape=[None, labels_dimension], name = "labels_train_tf") # This is needed for batching during training, else can just use state_data
             
-        self.data_test_tf = tf.placeholder(tf.float64, shape=[None, data_dimension], name = "data_test_tf")
-        self.labels_test_tf = tf.placeholder(tf.float64, shape=[None, labels_dimension], name = "labels_test_tf") # This is needed for batching during training, else can just use state_data
+        self.data_test_tf = tf.placeholder(tf.float32, shape=[None, data_dimension], name = "data_test_tf")
+        self.labels_test_tf = tf.placeholder(tf.float32, shape=[None, labels_dimension], name = "labels_test_tf") # This is needed for batching during training, else can just use state_data
        
         # Initialize weights and biases
         self.layers = [data_dimension] + [hyper_p.num_hidden_nodes]*hyper_p.num_hidden_layers + [labels_dimension]
@@ -37,8 +37,8 @@ class Layerwise:
         if construct_flag == 1:
             with tf.variable_scope("NN_layerwise") as scope:
                 for l in range(0, num_layers-1): 
-                    W = tf.get_variable("W" + str(l+1), dtype = tf.float64, shape = [self.layers[l], self.layers[l + 1]], initializer = tf.random_normal_initializer())
-                    b = tf.get_variable("b" + str(l+1), dtype = tf.float64, shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value))                                  
+                    W = tf.get_variable("W" + str(l+1), dtype = tf.float32, shape = [self.layers[l], self.layers[l + 1]], initializer = tf.random_normal_initializer())
+                    b = tf.get_variable("b" + str(l+1), dtype = tf.float32, shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value))                                  
                     tf.summary.histogram("weights" + str(l+1), W)
                     tf.summary.histogram("biases" + str(l+1), b)
                     self.weights.append(W)

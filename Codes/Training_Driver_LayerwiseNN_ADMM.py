@@ -36,8 +36,8 @@ tf.set_random_seed(1234)
 class HyperParameters:
     num_hidden_layers = 1
     num_hidden_nodes  = 100
-    regularization    = 1
-    penalty           = 1
+    regularization    = 1.0
+    penalty           = 1.0
     num_training_data = 20
     batch_size        = 20
     num_epochs        = 2000
@@ -94,8 +94,8 @@ def trainer(hyper_p, run_options):
     
     # Initialize ADMM objects
     z_weights, z_biases, lagrange_weights, lagrange_biases = construct_ADMM_objects(NN)
-    alpha = tf.constant(hyper_p.regularization)
-    pen = tf.constant(hyper_p.penalty)
+    alpha = tf.constant(hyper_p.regularization, dtype = tf.float32)
+    pen = tf.constant(hyper_p.penalty, dtype = tf.float32)
 
     # Loss functional
     with tf.variable_scope('loss') as scope:

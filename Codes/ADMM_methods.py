@@ -23,13 +23,13 @@ def construct_ADMM_objects(NN):
     biases_init_value = 0  
         
     for l in range(0, len(NN.layers)-1): 
-        z_W = tf.get_variable("z_W" + str(l+1), dtype = tf.float64, shape = [NN.layers[l], NN.layers[l + 1]], initializer = tf.random_normal_initializer(), trainable=False)
-        z_b = tf.get_variable("z_b" + str(l+1), dtype = tf.float64, shape = [1, NN.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value), trainable=False)                                  
+        z_W = tf.get_variable("z_W" + str(l+1), dtype = tf.float32, shape = [NN.layers[l], NN.layers[l + 1]], initializer = tf.random_normal_initializer(), trainable=False)
+        z_b = tf.get_variable("z_b" + str(l+1), dtype = tf.float32, shape = [1, NN.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value), trainable=False)                                  
         z_weights.append(z_W)
         z_biases.append(z_b)
         
-        lagrange_W = tf.get_variable("lagrange_W" + str(l+1), dtype = tf.float64, shape = [NN.layers[l], NN.layers[l + 1]], initializer = tf.random_normal_initializer(), trainable=False)
-        lagrange_b = tf.get_variable("lagrange_b" + str(l+1), dtype = tf.float64, shape = [1, NN.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value), trainable=False)                                  
+        lagrange_W = tf.get_variable("lagrange_W" + str(l+1), dtype = tf.float32, shape = [NN.layers[l], NN.layers[l + 1]], initializer = tf.random_normal_initializer(), trainable=False)
+        lagrange_b = tf.get_variable("lagrange_b" + str(l+1), dtype = tf.float32, shape = [1, NN.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value), trainable=False)                                  
         lagrange_weights.append(lagrange_W)
         lagrange_biases.append(lagrange_b)
         
@@ -39,7 +39,7 @@ def construct_ADMM_objects(NN):
 #                               ADMM Penalty Term                             #
 ###############################################################################
 def ADMM_penalty_term(NN, pen, z_weights, z_biases, lagrange_weights, lagrange_biases):
-    ADMM_penalty = 0
+    ADMM_penalty = 0.0
     for l in range(0, len(NN.weights)):  
         weights_norm = pen/2 * tf.pow(tf.norm(NN.weights[l] - z_weights[l] + lagrange_weights[l]/pen, 2), 2)
         biases_norm = pen/2 * tf.pow(tf.norm(NN.biases[l] - z_biases[l] + lagrange_biases[l]/pen, 2), 2)
