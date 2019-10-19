@@ -9,10 +9,11 @@ Created on Sat Oct 19 10:43:31 2019
 import tensorflow as tf # for some reason this must be first! Or else I get segmentation fault
 tf.reset_default_graph()
 tf.logging.set_verbosity(tf.logging.FATAL) # Suppresses all the messages when run begins
+from tensorflow.examples.tutorials.mnist import input_data
 import numpy as np
 import pandas as pd
 
-from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
+from NN_Layerwise import Layerwise
 from random_mini_batches import random_mini_batches
 
 import time
@@ -32,10 +33,8 @@ np.random.seed(1234)
 #                       Hyperparameters and Filenames                         #
 ###############################################################################
 class HyperParameters:
-    data_type         = 'full'
-    num_hidden_layers = 1
-    truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 1446
+    max_num_hidden_layers = 3
+    num_hidden_nodes  = 200
     penalty           = 0.1
     num_training_data = 20
     batch_size        = 20
@@ -43,28 +42,9 @@ class HyperParameters:
     gpu               = '1'
     
 class RunOptions:
-    def __init__(self, hyper_p):  
-        # Data type
-        self.use_full_domain_data = 0
-        self.use_bnd_data = 0
-        self.use_bnd_data_only = 0
-        if hyper_p.data_type == 'full':
-            self.use_full_domain_data = 1
-        if hyper_p.data_type == 'bnd':
-            self.use_bnd_data = 1
-        if hyper_p.data_type == 'bndonly':
-            self.use_bnd_data_only = 1
-        
-        # Observation Dimensions
-        self.full_domain_dimensions = 1446 
-        if self.use_full_domain_data == 1:
-            self.state_obs_dimensions = self.full_domain_dimensions 
-        if self.use_bnd_data == 1 or self.use_bnd_data_only == 1:
-            self.state_obs_dimensions = 614
-        
+    def __init__(self, hyper_p):          
         # Other options
         self.num_testing_data = 200
-        self.check_gradients = 0
         
         # File name
         if hyper_p.penalty >= 1:
@@ -74,22 +54,8 @@ class RunOptions:
             penalty_string = str(hyper_p.penalty)
             penalty_string = 'pt' + penalty_string[2:]
 
-        self.filename = hyper_p.data_type + '_hl%d_tl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = hyper_p.data_type + '_hl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.max_num_hidden_layers, hyper_p.num_hidden_nodes, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
 
-        # Loading and saving data
-        if self.use_full_domain_data == 1:
-            self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_full_domain'
-            self.parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(hyper_p.num_training_data) 
-            self.state_obs_train_savefilepath = '../Data/' + 'state_train_%d' %(hyper_p.num_training_data) 
-            self.parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(self.num_testing_data) 
-            self.state_obs_test_savefilepath = '../Data/' + 'state_test_%d' %(self.num_testing_data) 
-        if self.use_bnd_data == 1 or self.use_bnd_data_only == 1:
-            self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_bnd_indices'
-            self.parameter_train_savefilepath = '../Data/' + 'parameter_train_bnd_%d' %(hyper_p.num_training_data) 
-            self.state_obs_train_savefilepath = '../Data/' + 'state_train_bnd_%d' %(hyper_p.num_training_data) 
-            self.parameter_test_savefilepath = '../Data/' + 'parameter_test_bnd_%d' %(self.num_testing_data) 
-            self.state_obs_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(self.num_testing_data)             
-        
         # Saving neural network
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
@@ -105,49 +71,24 @@ def trainer(hyper_p, run_options):
         
     hyper_p.batch_size = hyper_p.num_training_data
     
-    # Load observation indices   
-    print('Loading Boundary Indices')
-    df_obs_indices = pd.read_csv(run_options.observation_indices_savefilepath + '.csv')    
-    obs_indices = df_obs_indices.to_numpy()    
     # Load Train and Test Data  
-    print('Loading Training Data')
-    df_parameter_train = pd.read_csv(run_options.parameter_train_savefilepath + '.csv')
-    df_state_obs_train = pd.read_csv(run_options.state_obs_train_savefilepath + '.csv')
-    parameter_train = df_parameter_train.to_numpy()
-    state_obs_train = df_state_obs_train.to_numpy()
-    parameter_train = parameter_train.reshape((hyper_p.num_training_data, 9))
-    state_obs_train = state_obs_train.reshape((hyper_p.num_training_data, run_options.state_obs_dimensions))
-    print('Loading Testing Data')
-    df_parameter_test = pd.read_csv(run_options.parameter_test_savefilepath + '.csv')
-    df_state_obs_test = pd.read_csv(run_options.state_obs_test_savefilepath + '.csv')
-    parameter_test = df_parameter_test.to_numpy()
-    state_obs_test = df_state_obs_test.to_numpy()
-    parameter_test = parameter_test.reshape((run_options.num_testing_data, 9))
-    state_obs_test = state_obs_test.reshape((run_options.num_testing_data, run_options.state_obs_dimensions))
+    mnist = input_data.read_data_sets("/tmp/data/", one_hot = True)
      
     ###########################
     #   Training Properties   #
     ###########################   
     # Neural network
-    NN = AutoencoderFwdInv(hyper_p, run_options, parameter_train.shape[1], run_options.full_domain_dimensions, obs_indices, construct_flag = 1)
+    NN = Layerwise(hyper_p, run_options, 1024, 10, construct_flag = 1)
     
     # Loss functional
     with tf.variable_scope('loss') as scope:
-        auto_encoder_loss = tf.pow(tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2, name= 'auto_encoder_loss'), 2)
-        fwd_loss = hyper_p.penalty*tf.pow(tf.norm(NN.state_obs_tf - NN.forward_obs_pred, 2, name= 'fwd_loss'), 2)
-        loss = tf.add(auto_encoder_loss, fwd_loss, name="loss")
-        tf.summary.scalar("auto_encoder_loss",auto_encoder_loss)
-        tf.summary.scalar("fwd_loss",fwd_loss)
+        loss = tf.reduce_mean( tf.nn.softmax_cross_entropy_with_logits(logits = prediction, labels = NN.labels_tf) )    
         tf.summary.scalar("loss",loss)
         
     # Relative Error
-    with tf.variable_scope('relative_error') as scope:
-        parameter_autoencoder_relative_error = tf.norm(NN.parameter_input_test_tf - NN.autoencoder_pred_test, 2)/tf.norm(NN.parameter_input_test_tf, 2)
-        parameter_inverse_problem_relative_error = tf.norm(NN.parameter_input_test_tf - NN.inverse_pred, 2)/tf.norm(NN.parameter_input_test_tf, 2)
-        state_obs_relative_error = tf.norm(NN.state_obs_test_tf - NN.forward_obs_pred_test, 2)/tf.norm(NN.state_obs_test_tf, 2)
-        tf.summary.scalar("parameter_autoencoder_relative_error", parameter_autoencoder_relative_error)
-        tf.summary.scalar("parameter_inverse_problem_relative_error", parameter_inverse_problem_relative_error)
-        tf.summary.scalar("state_obs_relative_error", state_obs_relative_error)        
+    with tf.variable_scope('test_accuracy') as scope:
+        test_accuracy = tf.norm(NN.parameter_input_test_tf - NN.autoencoder_pred_test, 2)/tf.norm(NN.parameter_input_test_tf, 2)
+        tf.summary.scalar("test_accuracy", test_accuracy)
                 
     # Set optimizers
     with tf.variable_scope('Training') as scope:
@@ -247,15 +188,12 @@ def trainer(hyper_p, run_options):
 #                                 Driver                                      #
 ###############################################################################     
 if __name__ == "__main__":     
-    
 
     # Hyperparameters    
     hyper_p = HyperParameters()
     
     if len(sys.argv) > 1:
-            hyper_p.data_type         = str(sys.argv[1])
-            hyper_p.num_hidden_layers = int(sys.argv[2])
-            hyper_p.truncation_layer  = int(sys.argv[3])
+            hyper_p.max_num_hidden_layers = int(sys.argv[2])
             hyper_p.num_hidden_nodes  = int(sys.argv[4])
             hyper_p.penalty           = float(sys.argv[5])
             hyper_p.num_training_data = int(sys.argv[6])
