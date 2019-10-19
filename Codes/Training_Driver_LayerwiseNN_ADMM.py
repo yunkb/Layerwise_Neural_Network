@@ -32,7 +32,7 @@ np.random.seed(1234)
 #                       Hyperparameters and Filenames                         #
 ###############################################################################
 class HyperParameters:
-    num_hidden_layers = 3
+    num_hidden_layers = 1
     num_hidden_nodes  = 200
     penalty           = 0.1
     num_training_data = 20
@@ -81,7 +81,7 @@ def trainer(hyper_p, run_options):
     #   Training Properties   #
     ###########################   
     # Neural network
-    NN = Layerwise(hyper_p, run_options, 1024, 10, construct_flag = 1)
+    NN = Layerwise(hyper_p, run_options, 784, 10, construct_flag = 1)
     
     # Loss functional
     with tf.variable_scope('loss') as scope:
@@ -149,8 +149,9 @@ def trainer(hyper_p, run_options):
                 data_train_batch, labels_train_batch = mnist.train.next_batch(hyper_p.batch_size)
                 tf_dict = {NN.data_train_tf: data_train_batch, NN.labels_train_tf: labels_train_batch,
                            NN.data_test_tf: testing_data, NN.labels_test_tf: testing_labels} 
-                loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict) 
-                writer.add_summary(s, epoch)
+                #loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict) 
+                #writer.add_summary(s, epoch)
+                loss_value = sess.run(loss, tf_dict) 
                 
             # print to monitor results
             if epoch % 100 == 0:
