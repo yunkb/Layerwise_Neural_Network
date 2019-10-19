@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 
 from NN_Layerwise import Layerwise
+from ADMM_methods import construct_ADMM_objects, compute_z
 
 import time
 import shutil # for deleting directories
@@ -29,7 +30,7 @@ sys.path.insert(0, '../../Utilities/')
 np.random.seed(1234)
 
 ###############################################################################
-#                       Hyperparameters and Filenames                         #
+#                       Hyperparameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
     num_hidden_layers = 1
@@ -63,7 +64,7 @@ class RunOptions:
 
         # Creating Directories
         if not os.path.exists(self.NN_savefile_directory):
-            os.makedirs(self.NN_savefile_directory)
+            os.makedirs(self.NN_savefile_directory)    
 
 ###############################################################################
 #                                 Training                                    #
@@ -83,6 +84,16 @@ def trainer(hyper_p, run_options):
     # Neural network
     NN = Layerwise(hyper_p, run_options, 784, 10, construct_flag = 1)
     
+    # Initialize ADMM objects
+    z_weights, z_biases, lagrange_weights, lagrange_biases = construct_ADMM_objects(NN)
+    pen = tf.constant(hyper_p.pen)
+    alpha = 1/hyper_p.N_r # replaced below for trapezoidal rule
+    
+    # assign operations for soft-thresholding operator and lagrange update  
+    lagrange_weights_update = tf.assign(lagrange_weights, )
+    lagrange_update = lagrange.assign(lagrange + pen * (NN.r_pred - z))
+    z_update = z.assign(compute_z(NN, lagrange, alpha, pen))
+
     # Loss functional
     with tf.variable_scope('loss') as scope:
         loss = tf.reduce_mean( tf.nn.softmax_cross_entropy_with_logits(logits = NN.prediction_train, labels = NN.labels_train_tf) )    
