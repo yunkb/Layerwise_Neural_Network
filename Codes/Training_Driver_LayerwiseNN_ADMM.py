@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from NN_Layerwise import Layerwise
-from ADMM_methods import construct_ADMM_objects, compute_z
+from ADMM_methods import construct_ADMM_objects, update_z_and_lagrange_multiplier
 
 import time
 import shutil # for deleting directories
@@ -35,7 +35,8 @@ np.random.seed(1234)
 class HyperParameters:
     num_hidden_layers = 1
     num_hidden_nodes  = 200
-    penalty           = 0.1
+    regularization    = 1
+    penalty           = 1
     num_training_data = 20
     batch_size        = 20
     num_epochs        = 2000
@@ -49,6 +50,12 @@ class RunOptions:
         self.num_testing_data = 200
         
         # File name
+        if hyper_p.regularization >= 1:
+            hyper_p.regularization = int(hyper_p.regularization)
+            regularization_string = str(hyper_p.regularization)
+        else:
+            regularization_string = str(hyper_p.regularization)
+            regularization_string = 'pt' + regularization_string[2:]
         if hyper_p.penalty >= 1:
             hyper_p.penalty = int(hyper_p.penalty)
             penalty_string = str(hyper_p.penalty)
@@ -56,7 +63,7 @@ class RunOptions:
             penalty_string = str(hyper_p.penalty)
             penalty_string = 'pt' + penalty_string[2:]
 
-        self.filename = self.data_type + '_hl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.num_hidden_nodes, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = self.data_type + '_hl%d_hn%d_r%s_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.num_hidden_nodes, regularization_string, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
 
         # Saving neural network
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
@@ -86,17 +93,14 @@ def trainer(hyper_p, run_options):
     
     # Initialize ADMM objects
     z_weights, z_biases, lagrange_weights, lagrange_biases = construct_ADMM_objects(NN)
-    pen = tf.constant(hyper_p.pen)
-    alpha = 1/hyper_p.N_r # replaced below for trapezoidal rule
-    
-    # assign operations for soft-thresholding operator and lagrange update  
-    lagrange_weights_update = tf.assign(lagrange_weights, )
-    lagrange_update = lagrange.assign(lagrange + pen * (NN.r_pred - z))
-    z_update = z.assign(compute_z(NN, lagrange, alpha, pen))
+    alpha = tf.constant(hyper_p.regularization)
+    pen = tf.constant(hyper_p.penalty)
 
     # Loss functional
     with tf.variable_scope('loss') as scope:
-        loss = tf.reduce_mean( tf.nn.softmax_cross_entropy_with_logits(logits = NN.prediction_train, labels = NN.labels_train_tf) )    
+        data_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits = NN.prediction_train, labels = NN.labels_train_tf))    
+        ADMM_penalty = pen/2 * tf.pow(tf.norm(NN.r_pred - z + lagrange/pen, 2), 2)
+        loss = data_loss + ADMM_penalty
         tf.summary.scalar("loss",loss)
         
     # Relative Error
@@ -170,7 +174,8 @@ def trainer(hyper_p, run_options):
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
                 print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
-                start_time = time.time()     
+                start_time = time.time()    
+                update_z_and_lagrange_multiplier(sess, NN, alpha, pen, z_weights, z_biases, lagrange_weights, lagrange_biases)
                 
             # save every 1000 epochs
             if epoch % 1000 == 0:
@@ -198,13 +203,14 @@ if __name__ == "__main__":
     hyper_p = HyperParameters()
     
     if len(sys.argv) > 1:
-            hyper_p.num_hidden_layers = int(sys.argv[2])
-            hyper_p.num_hidden_nodes  = int(sys.argv[4])
-            hyper_p.penalty           = float(sys.argv[5])
-            hyper_p.num_training_data = int(sys.argv[6])
-            hyper_p.batch_size        = int(sys.argv[7])
-            hyper_p.num_epochs        = int(sys.argv[8])
-            hyper_p.gpu               = str(sys.argv[9])
+            hyper_p.num_hidden_layers = int(sys.argv[1])
+            hyper_p.num_hidden_nodes  = int(sys.argv[2])
+            hyper_p.regularization    = float(sys.argv[3])
+            hyper_p.penalty           = float(sys.argv[4])
+            hyper_p.num_training_data = int(sys.argv[5])
+            hyper_p.batch_size        = int(sys.argv[6])
+            hyper_p.num_epochs        = int(sys.argv[7])
+            hyper_p.gpu               = str(sys.argv[8])
             
     # Set run options         
     run_options = RunOptions(hyper_p)
