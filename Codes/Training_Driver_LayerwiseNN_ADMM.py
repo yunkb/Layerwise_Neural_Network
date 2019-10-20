@@ -11,6 +11,7 @@ tf.reset_default_graph()
 tf.logging.set_verbosity(tf.logging.FATAL) # Suppresses all the messages when run begins
 from tensorflow.examples.tutorials.mnist import input_data
 import numpy as np
+from matplotlib import pyplot as plt
 import pandas as pd
 
 from NN_Layerwise import Layerwise
@@ -34,12 +35,11 @@ tf.set_random_seed(1234)
 #                       Hyperparameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    num_hidden_layers = 1
-    num_hidden_nodes  = 100
-    regularization    = 1.0
-    penalty           = 1.0
-    num_training_data = 20
-    batch_size        = 20
+    num_hidden_layers = 3
+    num_hidden_nodes  = 500
+    regularization    = 1
+    penalty           = 1
+    batch_size        = 100
     num_epochs        = 2000
     gpu               = '1'
     
@@ -64,7 +64,7 @@ class RunOptions:
             penalty_string = str(hyper_p.penalty)
             penalty_string = 'pt' + penalty_string[2:]
 
-        self.filename = self.data_type + '_hl%d_hn%d_r%s_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.num_hidden_nodes, regularization_string, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = self.data_type + '_hl%d_hn%d_r%s_p%s_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.num_hidden_nodes, regularization_string, penalty_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         # Saving neural network
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
@@ -78,11 +78,10 @@ class RunOptions:
 #                                 Training                                    #
 ###############################################################################
 def trainer(hyper_p, run_options):
-        
-    hyper_p.batch_size = hyper_p.num_training_data
-    
+            
     # Load Train and Test Data  
     mnist = input_data.read_data_sets("/tmp/data/", one_hot = True)
+    hyper_p.num_training_data = mnist.train.num_examples
     testing_data = mnist.test.images
     testing_labels = mnist.test.labels
      
@@ -174,6 +173,10 @@ def trainer(hyper_p, run_options):
                 #loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict) 
                 #writer.add_summary(s, epoch)
                 loss_value = sess.run(loss, tf_dict) 
+            
+            # Start updating weights after warm-start
+            if epoch >= 10:
+                update_z_and_lagrange_multiplier(sess, len(NN.weights))
                 
             # print to monitor results
             if epoch % 100 == 0:
@@ -182,24 +185,35 @@ def trainer(hyper_p, run_options):
                 print('GPU: ' + hyper_p.gpu)
                 print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
                 start_time = time.time()  
-                update_z_and_lagrange_multiplier(sess, len(NN.weights))
                 
             # save every 1000 epochs
             if epoch % 1000 == 0:
                 saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)
                  
         # Optimize with LBFGS
-        print('Optimizing with LBFGS\n')   
-        optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
-        [loss_value, s] = sess.run([loss,summ], tf_dict)
-        writer.add_summary(s,hyper_p.num_epochs)
-        print('LBFGS Optimization Complete\n') 
-        elapsed = time.time() - start_time
-        print('Loss: %.3e, Time: %.2f\n' %(loss_value, elapsed))
+# =============================================================================
+#         print('Optimizing with LBFGS\n')   
+#         optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
+#         [loss_value, s] = sess.run([loss,summ], tf_dict)
+#         writer.add_summary(s,hyper_p.num_epochs)
+#         print('LBFGS Optimization Complete\n') 
+#         elapsed = time.time() - start_time
+#         print('Loss: %.3e, Time: %.2f\n' %(loss_value, elapsed))
+# =============================================================================
         
         # Save final model
         saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)   
         print('Final Model Saved')  
+        
+        #=== Network Predictions ===#
+        index = 4389 # There are 10,000 training examples in MNIST
+        mnist_digit = mnist.test.images[index]
+        digit = np.array(mnist_digit, dtype='float')
+        pixels = digit.reshape((28, 28))
+        plt.imshow(pixels, cmap='gray')
+        plt.show()
+
+        print(sess.run(NN.classify, feed_dict={NN.data_test_tf: mnist_digit.reshape(1,784)}))
     
 ###############################################################################
 #                                 Driver                                      #

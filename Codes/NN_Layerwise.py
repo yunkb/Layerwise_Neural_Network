@@ -63,6 +63,8 @@ class Layerwise:
         self.prediction_train = self.forward_prop(self.data_train_tf, num_layers)        
         self.prediction_test = self.forward_prop(self.data_test_tf, num_layers)
         
+        self.classify = tf.argmax(self.prediction_test, 1)
+        
 ###############################################################################
 #                                Methods                                      #
 ############################################################################### 
