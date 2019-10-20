@@ -57,8 +57,8 @@ def update_z_and_lagrange_multiplier_tf_operations(NN, alpha, pen, z_weights, z_
         
         tf.assign(z_weights[l], soft_threshold_weights(NN, l, lagrange_weights, lagrange_biases, alpha, pen), name = "z_weights_update" + str(l+1))
         tf.assign(z_biases[l], soft_threshold_biases(NN, l, lagrange_weights, lagrange_biases, alpha, pen), name = "z_biases_update" + str(l+1))
-        tf.assign(lagrange_weights[l], pen*(NN.weights[l] - z_weights[l]), name = "lagrange_weights_update" + str(l+1))
-        tf.assign(lagrange_biases[l], pen*(NN.biases[l] - z_biases[l]), name = "lagrange_biases_update" + str(l+1))
+        tf.assign(lagrange_weights[l], lagrange_weights[l] + pen*(NN.weights[l] - z_weights[l]), name = "lagrange_weights_update" + str(l+1))
+        tf.assign(lagrange_biases[l], lagrange_biases[l] + pen*(NN.biases[l] - z_biases[l]), name = "lagrange_biases_update" + str(l+1))
 
 def update_z_and_lagrange_multiplier(sess, num_weight_layers):   
     for l in range(0, num_weight_layers):  
