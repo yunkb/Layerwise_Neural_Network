@@ -99,14 +99,14 @@ def trainer(hyper_p, run_options):
 
     # Loss functional
     with tf.variable_scope('loss') as scope:
-        data_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits = NN.prediction_train, labels = NN.labels_train_tf))    
+        data_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits = NN.prediction, labels = NN.labels_tf))    
         ADMM_penalty = ADMM_penalty_term(NN, pen, z_weights, z_biases, lagrange_weights, lagrange_biases)       
         loss = data_loss + ADMM_penalty
         tf.summary.scalar("loss",loss)
         
     # Accuracy
     with tf.variable_scope('test_accuracy') as scope:
-        num_correct_tests = tf.equal(tf.argmax(NN.prediction_test, 1), tf.argmax(NN.labels_test_tf, 1))
+        num_correct_tests = tf.equal(tf.argmax(NN.prediction, 1), tf.argmax(NN.labels_tf, 1))
         test_accuracy = tf.reduce_mean(tf.cast(num_correct_tests, 'float'))
         tf.summary.scalar("test_accuracy", test_accuracy)
                 
@@ -168,18 +168,16 @@ def trainer(hyper_p, run_options):
         for epoch in range(hyper_p.num_epochs):
             for batch_num in range(num_batches):
                 data_train_batch, labels_train_batch = mnist.train.next_batch(hyper_p.batch_size)
-                tf_dict = {NN.data_train_tf: data_train_batch, NN.labels_train_tf: labels_train_batch,
-                           NN.data_test_tf: testing_data, NN.labels_test_tf: testing_labels} 
-                #loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict) 
+                #loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
                 #writer.add_summary(s, epoch)
-                loss_value, _ = sess.run([loss, optimizer_Adam_op], tf_dict) 
+                loss_value, _ = sess.run([loss, optimizer_Adam_op], feed_dict = {NN.data_train_tf: data_train_batch, NN.labels_train_tf: labels_train_batch}) 
                 update_z_and_lagrange_multiplier(sess, len(NN.weights))
                 
             elapsed = time.time() - start_time
             print(run_options.filename)
             print('GPU: ' + hyper_p.gpu)
             print('Epoch: %d, Loss: %.3e, Time: %.2f' %(epoch, loss_value, elapsed))
-            print('Accuracy: %.2f\n' %(test_accuracy.eval(tf_dict)))
+            print('Accuracy: %.2f\n' %(test_accuracy.eval(feed_dict = {NN.data_tf: testing_data, NN.labels_tf: testing_labels})))
             saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)
             start_time = time.time()   
                

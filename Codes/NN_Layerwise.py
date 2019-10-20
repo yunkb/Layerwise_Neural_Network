@@ -19,12 +19,9 @@ class Layerwise:
 #                    Constuct Neural Network Architecture                     #
 ###############################################################################        
         # Initialize placeholders
-        self.data_train_tf = tf.placeholder(tf.float32, shape=[None, data_dimension], name = "data_train_tf")
-        self.labels_train_tf = tf.placeholder(tf.float32, shape=[None, labels_dimension], name = "labels_train_tf") # This is needed for batching during training, else can just use state_data
-            
-        self.data_test_tf = tf.placeholder(tf.float32, shape=[None, data_dimension], name = "data_test_tf")
-        self.labels_test_tf = tf.placeholder(tf.float32, shape=[None, labels_dimension], name = "labels_test_tf") # This is needed for batching during training, else can just use state_data
-       
+        self.data_tf = tf.placeholder(tf.float32, shape=[None, data_dimension], name = "data_tf")
+        self.labels_tf = tf.placeholder(tf.float32, shape=[None, labels_dimension], name = "labels_tf") # This is needed for batching during training, else can just use state_data
+                   
         # Initialize weights and biases
         self.layers = [data_dimension] + [hyper_p.num_hidden_nodes]*hyper_p.num_hidden_layers + [labels_dimension]
         print(self.layers)
@@ -59,10 +56,7 @@ class Layerwise:
 ###############################################################################
 #                           Network Propagation                               #
 ###############################################################################                  
-        # Training and Testing Placeholders
-        self.prediction_train = self.forward_prop(self.data_train_tf, num_layers)        
-        self.prediction_test = self.forward_prop(self.data_test_tf, num_layers)
-        
+        self.prediction = self.forward_prop(self.data_tf, num_layers)                
         self.classify = tf.argmax(self.prediction_test, 1)
         
 ###############################################################################
