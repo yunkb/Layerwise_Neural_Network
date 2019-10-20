@@ -13,7 +13,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 tf.set_random_seed(1234)
 
 class Layerwise:
-    def __init__(self, hyper_p, run_options, data_dimension, labels_dimension, weight_list_counter):
+    def __init__(self, hyper_p, run_options, data_dimension, labels_dimension, weight_list_counter, savefilepath):
         
 ###############################################################################
 #                    Constuct Neural Network Architecture                     #
@@ -33,14 +33,15 @@ class Layerwise:
         #   Initial Architecture   #
         ############################
         # If first iteration, initialize output layer
-        if weight_list_counter == 0: 
-            for l in range(0, 2):
-                W = tf.get_variable("W" + str(l+1), dtype = tf.float32, shape = [self.layers[l], self.layers[l + 1]], initializer = tf.random_normal_initializer())
-                b = tf.get_variable("b" + str(l+1), dtype = tf.float32, shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(0))                                  
-                tf.summary.histogram("weights" + str(l+1), W)
-                tf.summary.histogram("biases" + str(l+1), b)
-                self.weights.append(W)
-                self.biases.append(b)
+        with tf.variable_scope("NN_layerwise") as scope: 
+            if weight_list_counter == 0: 
+                for l in range(0, 2):
+                    W = tf.get_variable("W" + str(l+1), dtype = tf.float32, shape = [self.layers[l], self.layers[l + 1]], initializer = tf.random_normal_initializer())
+                    b = tf.get_variable("b" + str(l+1), dtype = tf.float32, shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(0))                                  
+                    tf.summary.histogram("weights" + str(l+1), W)
+                    tf.summary.histogram("biases" + str(l+1), b)
+                    self.weights.append(W)
+                    self.biases.append(b)
         
         ##############################
         #   Extending Architecture   #
@@ -54,8 +55,10 @@ class Layerwise:
                 self.weights.append(W)
                 self.biases.append(b)
             self.weights.append(W) # add a copy of the output weights which also extends list of weights
-            self.weights.append(b) # add a copy of the output biases which also extends list of biases
-        
+            self.biases.append(b) # add a copy of the output biases which also extends list of biases
+            
+            pdb.set_trace()
+            
             # Initialize new hidden layer as 0           
             with tf.variable_scope("NN_layerwise") as scope: 
                 l = weight_list_counter
@@ -68,14 +71,14 @@ class Layerwise:
         
         # List of weights and biases to train: last hidden layer weights and output layer weights
         self.trainable_parameters_list = []
-        self.trainable_parameters_list[1] = "NN_layerwise/W" + str(weight_list_counter+1) + ':0'
-        self.trainable_parameters_list[2] = "NN_layerwise/b" + str(weight_list_counter+1) + ':0'
-        self.trainable_parameters_list[3] = "NN_layerwise/W" + str(weight_list_counter+2) + ':0'
-        self.trainable_parameters_list[4] = "NN_layerwise/b" + str(weight_list_counter+2) + ':0'
-        
+        self.trainable_parameters_list.append("NN_layerwise/W" + str(weight_list_counter+1) + ':0')
+        self.trainable_parameters_list.append("NN_layerwise/b" + str(weight_list_counter+1) + ':0')
+        self.trainable_parameters_list.append("NN_layerwise/W" + str(weight_list_counter+2) + ':0')
+        self.trainable_parameters_list.append("NN_layerwise/b" + str(weight_list_counter+2) + ':0')
+
         # Ensures train.Saver only saves the weights and biases                
-        self.saver_NN_layerwise = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "NN_layerwise")
-                
+        self.saver_NN_layerwise = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "NN_layerwise")      
+        
 ###############################################################################
 #                           Network Propagation                               #
 ###############################################################################                  
@@ -91,7 +94,10 @@ class Layerwise:
                 current_input = X
                 W = self.weights[l]
                 b = self.biases[l]
-                X = current_input + tf.nn.relu(tf.add(tf.matmul(X, W), b))
+                if l == 0: 
+                    X = tf.nn.relu(tf.add(tf.matmul(X, W), b))
+                else:
+                    X = current_input + tf.nn.relu(tf.add(tf.matmul(X, W), b))
                 #tf.summary.histogram("activation" + str(l+1), X)
             W = self.weights[-1]
             b = self.biases[-1]

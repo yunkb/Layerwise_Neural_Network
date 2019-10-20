@@ -15,6 +15,7 @@ from matplotlib import pyplot as plt
 import pandas as pd
 
 from NN_Layerwise import Layerwise
+from save_trained_parameters import save_weights_and_biases
 
 import time
 import shutil # for deleting directories
@@ -52,10 +53,10 @@ class RunOptions:
         error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
         error_TOL_string = error_TOL_string[-1]
         
-        self.filename = self.data_type + '_L2_hn%d_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.num_hidden_nodes, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = self.data_type + '_L2_hn%d_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.num_hidden_nodes, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         #=== Saving neural network ===#
-        self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
+        self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Saving trained weights
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
 
         #=== Creating Directories ===#
@@ -82,8 +83,7 @@ def trainer(hyper_p, run_options):
         #   Training Properties   #
         ###########################   
         #=== Neural network ===#
-        NN = Layerwise(hyper_p, run_options, 784, 10, weight_list_counter)
-        weight_list_counter += 1
+        NN = Layerwise(hyper_p, run_options, 784, 10, weight_list_counter, run_options.NN_savefile_name)
         
         #=== Loss functional ===#
         with tf.variable_scope('loss') as scope:
@@ -129,19 +129,13 @@ def trainer(hyper_p, run_options):
         if os.path.exists('../Tensorboard/' + run_options.filename): # Remove existing directory because Tensorboard graphs mess up of you write over it
             shutil.rmtree('../Tensorboard/' + run_options.filename)  
         writer = tf.summary.FileWriter('../Tensorboard/' + run_options.filename)
-        
-        # Saver for saving trained neural network
-        saver = tf.train.Saver(NN.saver_NN_layerwise)
-        
+                
         ###########################
         #   Train Neural Network  #
         ###########################          
         with tf.Session(config=gpu_config) as sess:
             sess.run(tf.initialize_all_variables()) 
             writer.add_graph(sess.graph)
-            
-            #=== Save neural network ===#
-            saver.save(sess, run_options.NN_savefile_name)
             
             #=== Train neural network ===#
             print('Beginning Training\n')
@@ -158,12 +152,11 @@ def trainer(hyper_p, run_options):
                 elapsed = time.time() - start_time
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
-                print('Epoch: %d, Loss: %.3e, Time: %.2f' %(epoch, loss_value, elapsed))
+                print('Hidden Layers: %d, Epoch: %d, Loss: %.3e, Time: %.2f' %(weight_list_counter+1, epoch, loss_value, elapsed))
                 accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: testing_data, NN.labels_tf: testing_labels}) 
                 writer.add_summary(s, epoch)
                 #accuracy = sess.run(test_accuracy, feed_dict = {NN.data_tf: testing_data, NN.labels_tf: testing_labels}) 
                 print('Accuracy: %.2f\n' %(accuracy))
-                saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)
                 start_time = time.time()    
                      
             #=== Optimize with LBFGS ===#
@@ -178,7 +171,7 @@ def trainer(hyper_p, run_options):
     # =============================================================================
             
             # Save final model
-            saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)   
+            save_weights_and_biases(sess, weight_list_counter, run_options.NN_savefile_name)
             print('Final Model Saved')  
             
             #=== Network Predictions ===#
@@ -190,9 +183,12 @@ def trainer(hyper_p, run_options):
             plt.show()    
             print(sess.run(NN.classify, feed_dict={NN.data_tf: mnist_digit.reshape(1,784)}))
             
-            #=== Reset Graph and Close Session ===#
-            tf.reset_default_graph()
+            #=== Close Session and Reset Graph ===#
             sess.close() 
+            
+        tf.reset_default_graph()
+        weight_list_counter += 1
+            
 
     
 ###############################################################################
