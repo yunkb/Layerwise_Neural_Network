@@ -88,9 +88,10 @@ class Layerwise:
     def forward_prop(self, X, num_layers):  
         with tf.variable_scope("fwd_prop") as scope:
             for l in range(0, num_layers-2):
+                current_input = X
                 W = self.weights[l]
                 b = self.biases[l]
-                X = tf.nn.relu(tf.add(tf.matmul(X, W), b))
+                X = current_input + tf.nn.relu(tf.add(tf.matmul(X, W), b))
                 #tf.summary.histogram("activation" + str(l+1), X)
             W = self.weights[-1]
             b = self.biases[-1]
