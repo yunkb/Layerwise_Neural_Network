@@ -81,7 +81,7 @@ def trainer(hyper_p, run_options):
             
     # Load Train and Test Data  
     mnist = input_data.read_data_sets("/tmp/data/", one_hot = True)
-    hyper_p.num_training_data = mnist.train.num_examples
+    num_training_data = mnist.train.num_examples
     testing_data = mnist.test.images
     testing_labels = mnist.test.labels
      
@@ -104,10 +104,10 @@ def trainer(hyper_p, run_options):
         loss = data_loss + ADMM_penalty
         tf.summary.scalar("loss",loss)
         
-    # Relative Error
+    # Accuracy
     with tf.variable_scope('test_accuracy') as scope:
-        test_class = tf.equal(tf.argmax(NN.prediction_test, 1), tf.argmax(NN.labels_test_tf, 1))
-        test_accuracy = tf.reduce_mean(tf.cast(test_class, 'float'))
+        num_correct_tests = tf.equal(tf.argmax(NN.prediction_test, 1), tf.argmax(NN.labels_test_tf, 1))
+        test_accuracy = tf.reduce_mean(tf.cast(num_correct_tests, 'float'))
         tf.summary.scalar("test_accuracy", test_accuracy)
                 
     # Set optimizers
@@ -164,7 +164,7 @@ def trainer(hyper_p, run_options):
         # Train neural network
         print('Beginning Training\n')
         start_time = time.time()
-        num_batches = int(hyper_p.num_training_data/hyper_p.batch_size)
+        num_batches = int(num_training_data/hyper_p.batch_size)
         for epoch in range(hyper_p.num_epochs):
             for batch_num in range(num_batches):
                 data_train_batch, labels_train_batch = mnist.train.next_batch(hyper_p.batch_size)
@@ -172,24 +172,17 @@ def trainer(hyper_p, run_options):
                            NN.data_test_tf: testing_data, NN.labels_test_tf: testing_labels} 
                 #loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict) 
                 #writer.add_summary(s, epoch)
-                loss_value = sess.run(loss, tf_dict) 
-            
-            # Start updating weights after warm-start
-            if epoch >= 10:
+                loss_value, _ = sess.run([loss, optimizer_Adam_op], tf_dict) 
                 update_z_and_lagrange_multiplier(sess, len(NN.weights))
                 
-            # print to monitor results
-            if epoch % 100 == 0:
-                elapsed = time.time() - start_time
-                print(run_options.filename)
-                print('GPU: ' + hyper_p.gpu)
-                print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
-                start_time = time.time()  
-                
-            # save every 1000 epochs
-            if epoch % 1000 == 0:
-                saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)
-                 
+            elapsed = time.time() - start_time
+            print(run_options.filename)
+            print('GPU: ' + hyper_p.gpu)
+            print('Epoch: %d, Loss: %.3e, Time: %.2f' %(epoch, loss_value, elapsed))
+            print('Accuracy: %.2f\n' %(test_accuracy.eval(tf_dict)))
+            saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)
+            start_time = time.time()   
+               
         # Optimize with LBFGS
 # =============================================================================
 #         print('Optimizing with LBFGS\n')   
