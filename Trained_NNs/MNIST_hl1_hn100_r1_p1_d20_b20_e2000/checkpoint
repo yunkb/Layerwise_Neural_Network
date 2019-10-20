@@ -1,2 +1,0 @@
-model_checkpoint_path: "MNIST_hl1_hn100_r1_p1_d20_b20_e2000"
-all_model_checkpoint_paths: "MNIST_hl1_hn100_r1_p1_d20_b20_e2000"
