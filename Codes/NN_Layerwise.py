@@ -13,7 +13,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 tf.set_random_seed(1234)
 
 class Layerwise:
-    def __init__(self, hyper_p, run_options, data_dimension, labels_dimension, weight_layer_counter):
+    def __init__(self, hyper_p, run_options, data_dimension, labels_dimension, weight_list_counter):
         
 ###############################################################################
 #                    Constuct Neural Network Architecture                     #
@@ -23,7 +23,7 @@ class Layerwise:
         self.labels_tf = tf.placeholder(tf.float32, shape=[None, labels_dimension], name = "labels_tf") # This is needed for batching during training, else can just use state_data
                            
         # Initialize weights and biases storage
-        self.layers = [data_dimension] + [hyper_p.num_hidden_nodes]*weight_layer_counter + [labels_dimension]
+        self.layers = [data_dimension] + [hyper_p.num_hidden_nodes]*(weight_list_counter+1) + [labels_dimension]
         print(self.layers)
         self.weights = [] # This will be a list of tensorflow variables
         self.biases = [] # This will be a list of tensorflow variables
@@ -32,7 +32,8 @@ class Layerwise:
         ############################
         #   Initial Architecture   #
         ############################
-        if weight_layer_counter == 0: # If first iteration, initialize output layer
+        # If first iteration, initialize output layer
+        if weight_list_counter == 0: 
             for l in range(0, 2):
                 W = tf.get_variable("W" + str(l+1), dtype = tf.float32, shape = [self.layers[l], self.layers[l + 1]], initializer = tf.random_normal_initializer())
                 b = tf.get_variable("b" + str(l+1), dtype = tf.float32, shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(0))                                  
@@ -44,26 +45,33 @@ class Layerwise:
         ##############################
         #   Extending Architecture   #
         ##############################   
-        if weight_layer_counter > 0: # Load pre-trained hidden layer weights and output layer weights
+        # Load pre-trained hidden layer weights and output layer weights
+        if weight_list_counter > 0: 
             graph = tf.get_default_graph()
-            for l in range(0, weight_layer_counter):
+            for l in range(0, weight_list_counter):
                 W = graph.get_tensor_by_name("NN_layerwise/W" + str(l+1) + ':0')
                 b = graph.get_tensor_by_name("NN_layerwise/b" + str(l+1) + ':0')
                 self.weights.append(W)
                 self.biases.append(b)
             self.weights.append(W) # add a copy of the output weights which also extends list of weights
+            self.weights.append(b) # add a copy of the output biases which also extends list of biases
         
-        # Initialize new hidden layer as 0           
-        with tf.variable_scope("NN_layerwise") as scope: 
-            l = weight_layer_counter
-            W = tf.get_variable("W" + str(l+1), dtype = tf.float32, shape = [self.layers[l], self.layers[l + 1]], initializer = tf.constant_initializer(0))
-            b = tf.get_variable("b" + str(l+1), dtype = tf.float32, shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(0))                                  
-            tf.summary.histogram("weights" + str(l+1), W)
-            tf.summary.histogram("biases" + str(l+1), b)
-            self.weights[l] = W
-            self.biases[l] = b
+            # Initialize new hidden layer as 0           
+            with tf.variable_scope("NN_layerwise") as scope: 
+                l = weight_list_counter
+                W = tf.get_variable("W" + str(l+1), dtype = tf.float32, shape = [self.layers[l], self.layers[l + 1]], initializer = tf.constant_initializer(0))
+                b = tf.get_variable("b" + str(l+1), dtype = tf.float32, shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(0))                                  
+                tf.summary.histogram("weights" + str(l+1), W)
+                tf.summary.histogram("biases" + str(l+1), b)
+                self.weights[l] = W # replace list entry for last hidden layer of weights; was previously equal to output weights
+                self.biases[l] = b  # replace list entry for last hidden layer of biases; was previously equal to output biases
         
-        # Dictionary of weights and biases to train
+        # List of weights and biases to train: last hidden layer weights and output layer weights
+        self.trainable_parameters_list = []
+        self.trainable_parameters_list[1] = "NN_layerwise/W" + str(l+1) + ':0'
+        self.trainable_parameters_list[2] = "NN_layerwise/b" + str(l+1) + ':0'
+        self.trainable_parameters_list[3] = "NN_layerwise/W" + str(l+1) + ':0'
+        self.trainable_parameters_list[4] = "NN_layerwise/b" + str(l+1) + ':0'
         
         # Ensures train.Saver only saves the weights and biases                
         self.saver_NN_layerwise = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "NN_layerwise")

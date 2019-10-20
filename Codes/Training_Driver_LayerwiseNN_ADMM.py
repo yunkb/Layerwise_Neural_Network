@@ -91,7 +91,7 @@ def trainer(hyper_p, run_options):
     testing_labels = mnist.test.labels
     
     loss_value = 1e5
-    weight_layer_counter = 0
+    weight_list_counter = 0
     
     while loss_value > hyper_p.error_TOL:
      
@@ -99,7 +99,7 @@ def trainer(hyper_p, run_options):
         #   Training Properties   #
         ###########################   
         # Neural network
-        NN = Layerwise(hyper_p, run_options, 784, 10, weight_layer_counter)
+        NN = Layerwise(hyper_p, run_options, 784, 10, weight_list_counter)
         
         # Initialize ADMM objects
         z_weights, z_biases, lagrange_weights, lagrange_biases = construct_ADMM_objects(NN)
