@@ -67,7 +67,7 @@ class Layerwise:
             for l in range(0, num_layers-2):
                 W = self.weights[l]
                 b = self.biases[l]
-                X = tf.tanh(tf.add(tf.matmul(X, W), b))
+                X = tf.nn.relu(tf.add(tf.matmul(X, W), b))
                 #tf.summary.histogram("activation" + str(l+1), X)
             W = self.weights[-1]
             b = self.biases[-1]

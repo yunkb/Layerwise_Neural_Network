@@ -47,9 +47,6 @@ class RunOptions:
     def __init__(self, hyper_p):     
         self.data_type = 'MNIST'
         
-        # Other options
-        self.num_testing_data = 200
-        
         # File name
         if hyper_p.regularization >= 1:
             hyper_p.regularization = int(hyper_p.regularization)
