@@ -68,10 +68,10 @@ class Layerwise:
         
         # List of weights and biases to train: last hidden layer weights and output layer weights
         self.trainable_parameters_list = []
-        self.trainable_parameters_list[1] = "NN_layerwise/W" + str(l+1) + ':0'
-        self.trainable_parameters_list[2] = "NN_layerwise/b" + str(l+1) + ':0'
-        self.trainable_parameters_list[3] = "NN_layerwise/W" + str(l+1) + ':0'
-        self.trainable_parameters_list[4] = "NN_layerwise/b" + str(l+1) + ':0'
+        self.trainable_parameters_list[1] = "NN_layerwise/W" + str(weight_list_counter+1) + ':0'
+        self.trainable_parameters_list[2] = "NN_layerwise/b" + str(weight_list_counter+1) + ':0'
+        self.trainable_parameters_list[3] = "NN_layerwise/W" + str(weight_list_counter+2) + ':0'
+        self.trainable_parameters_list[4] = "NN_layerwise/b" + str(weight_list_counter+2) + ':0'
         
         # Ensures train.Saver only saves the weights and biases                
         self.saver_NN_layerwise = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "NN_layerwise")

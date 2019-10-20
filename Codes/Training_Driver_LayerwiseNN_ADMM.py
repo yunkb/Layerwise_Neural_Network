@@ -100,6 +100,7 @@ def trainer(hyper_p, run_options):
         ###########################   
         # Neural network
         NN = Layerwise(hyper_p, run_options, 784, 10, weight_list_counter)
+        weight_list_counter += 1
         
         # Initialize ADMM objects
         z_weights, z_biases, lagrange_weights, lagrange_biases = construct_ADMM_objects(NN)
@@ -132,7 +133,7 @@ def trainer(hyper_p, run_options):
                                                                               'ftol':1.0 * np.finfo(float).eps})
             # Track gradients
             l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
-            gradients_tf = optimizer_Adam.compute_gradients(loss = loss)
+            gradients_tf = optimizer_Adam.compute_gradients(loss = loss, var_list = NN.trainable_parameters_list)
             for gradient, variable in gradients_tf:
                 tf.summary.histogram("gradients_norm/" + variable.name, l2_norm(gradient))
             optimizer_Adam_op = optimizer_Adam.apply_gradients(gradients_tf)
