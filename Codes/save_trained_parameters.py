@@ -21,12 +21,10 @@ def save_weights_and_biases(sess, weight_list_counter, savefilepath):
     
     #=== Save Output Weights and Biases ===# Note that these get replaced everytime
     trained_output_weights = {"Woutput": [sess.run("NN_layerwise/W" + str(l+2) + ':0')]}
-    trained_output_biases = {"boutput"+str(l+2): [sess.run("NN_layerwise/b" + str(l+2) + ':0')]}
+    trained_output_biases = {"boutput": [sess.run("NN_layerwise/b" + str(l+2) + ':0')]}
     df_trained_output_weights = pd.DataFrame(trained_output_weights)
     df_trained_output_biases = pd.DataFrame(trained_output_biases)
     df_trained_output_weights.to_csv(savefilepath + "_Woutput" + '.csv', index=False)
     df_trained_output_biases.to_csv(savefilepath + "_boutput" + '.csv', index=False)
-    
-    pdb.set_trace()
     
     

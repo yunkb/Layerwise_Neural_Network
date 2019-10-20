@@ -8,6 +8,7 @@ Created on Sun Sep 15 14:29:36 2019
 
 import tensorflow as tf
 import numpy as np
+import pandas as pd
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 tf.set_random_seed(1234)
@@ -46,14 +47,28 @@ class Layerwise:
         ##############################
         #   Extending Architecture   #
         ##############################   
-        # Load pre-trained hidden layer weights and output layer weights
         if weight_list_counter > 0: 
-            graph = tf.get_default_graph()
+            # Load pre-trained hidden layer weights
             for l in range(0, weight_list_counter):
-                W = graph.get_tensor_by_name("NN_layerwise/W" + str(l+1) + ':0')
-                b = graph.get_tensor_by_name("NN_layerwise/b" + str(l+1) + ':0')
+                df_trained_weights = pd.read_csv(savefilepath + "_W" + str(l+1) + '.csv')
+                df_trained_biases = pd.read_csv(savefilepath + "_b" + str(l+1) + '.csv')
+                restored_W = df_trained_weights.at[0, "W"+str(l+1)]
+                restored_b = df_trained_biases.at[0, "b"+str(l+1)]
+                W = tf.get_variable("W" + str(l+1), dtype = tf.float32, shape = [self.layers[l], self.layers[l + 1]], initializer = restored_W, trainable = False)
+                b = tf.get_variable("b" + str(l+1), dtype = tf.float32, shape = [1, self.layers[l + 1]], initializer = restored_b, trainable = False)                                  
                 self.weights.append(W)
                 self.biases.append(b)
+            # Create list entry for new layer
+            self.weights.append("new_layer")
+            self.biases.append("new_layer")
+            # Load output layer weights
+            l = weight_list_counter + 1
+            df_trained_weights = pd.read_csv(savefilepath + "_Woutput" + '.csv')
+            df_trained_biases = pd.read_csv(savefilepath + "_boutput" + '.csv')
+            restored_W = df_trained_weights.at[0, "Woutput"]
+            restored_b = df_trained_biases.at[0, "boutput"]
+            W = tf.get_variable("W" + str(l+1), dtype = tf.float32, shape = [self.layers[l], self.layers[l + 1]], initializer = restored_W)
+            b = tf.get_variable("b" + str(l+1), dtype = tf.float32, shape = [1, self.layers[l + 1]], initializer = restored_b)                                  
             self.weights.append(W) # add a copy of the output weights which also extends list of weights
             self.biases.append(b) # add a copy of the output biases which also extends list of biases
             
@@ -69,13 +84,6 @@ class Layerwise:
                 self.weights[l] = W # replace list entry for last hidden layer of weights; was previously equal to output weights
                 self.biases[l] = b  # replace list entry for last hidden layer of biases; was previously equal to output biases
         
-        # List of weights and biases to train: last hidden layer weights and output layer weights
-        self.trainable_parameters_list = []
-        self.trainable_parameters_list.append("NN_layerwise/W" + str(weight_list_counter+1) + ':0')
-        self.trainable_parameters_list.append("NN_layerwise/b" + str(weight_list_counter+1) + ':0')
-        self.trainable_parameters_list.append("NN_layerwise/W" + str(weight_list_counter+2) + ':0')
-        self.trainable_parameters_list.append("NN_layerwise/b" + str(weight_list_counter+2) + ':0')
-
         # Ensures train.Saver only saves the weights and biases                
         self.saver_NN_layerwise = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "NN_layerwise")      
         
