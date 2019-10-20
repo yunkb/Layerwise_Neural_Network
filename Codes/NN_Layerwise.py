@@ -57,7 +57,7 @@ class Layerwise:
 #                           Network Propagation                               #
 ###############################################################################                  
         self.prediction = self.forward_prop(self.data_tf, num_layers)                
-        self.classify = tf.argmax(self.prediction_test, 1)
+        self.classify = tf.argmax(self.prediction, 1)
         
 ###############################################################################
 #                                Methods                                      #

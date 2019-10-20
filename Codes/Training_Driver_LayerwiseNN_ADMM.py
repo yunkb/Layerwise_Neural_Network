@@ -40,7 +40,7 @@ class HyperParameters:
     regularization    = 1
     penalty           = 1
     batch_size        = 100
-    num_epochs        = 2000
+    num_epochs        = 2
     gpu               = '1'
     
 class RunOptions:
@@ -61,7 +61,7 @@ class RunOptions:
             penalty_string = str(hyper_p.penalty)
             penalty_string = 'pt' + penalty_string[2:]
 
-        self.filename = self.data_type + '_hl%d_hn%d_r%s_p%s_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.num_hidden_nodes, regularization_string, penalty_string, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = self.data_type + '_ADMM_hl%d_hn%d_r%s_p%s_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.num_hidden_nodes, regularization_string, penalty_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         # Saving neural network
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
@@ -167,7 +167,7 @@ def trainer(hyper_p, run_options):
                 data_train_batch, labels_train_batch = mnist.train.next_batch(hyper_p.batch_size)
                 #loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
                 #writer.add_summary(s, epoch)
-                loss_value, _ = sess.run([loss, optimizer_Adam_op], feed_dict = {NN.data_train_tf: data_train_batch, NN.labels_train_tf: labels_train_batch}) 
+                loss_value, _ = sess.run([loss, optimizer_Adam_op], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
                 update_z_and_lagrange_multiplier(sess, len(NN.weights))
                 
             elapsed = time.time() - start_time
@@ -201,7 +201,7 @@ def trainer(hyper_p, run_options):
         plt.imshow(pixels, cmap='gray')
         plt.show()
 
-        print(sess.run(NN.classify, feed_dict={NN.data_test_tf: mnist_digit.reshape(1,784)}))
+        print(sess.run(NN.classify, feed_dict={NN.data_tf: mnist_digit.reshape(1,784)}))
     
 ###############################################################################
 #                                 Driver                                      #
@@ -216,10 +216,9 @@ if __name__ == "__main__":
             hyper_p.num_hidden_nodes  = int(sys.argv[2])
             hyper_p.regularization    = float(sys.argv[3])
             hyper_p.penalty           = float(sys.argv[4])
-            hyper_p.num_training_data = int(sys.argv[5])
-            hyper_p.batch_size        = int(sys.argv[6])
-            hyper_p.num_epochs        = int(sys.argv[7])
-            hyper_p.gpu               = str(sys.argv[8])
+            hyper_p.batch_size        = int(sys.argv[5])
+            hyper_p.num_epochs        = int(sys.argv[6])
+            hyper_p.gpu               = str(sys.argv[7])
             
     # Set run options         
     run_options = RunOptions(hyper_p)
