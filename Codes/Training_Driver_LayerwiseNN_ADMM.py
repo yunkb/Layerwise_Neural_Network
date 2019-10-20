@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 
 from NN_Layerwise import Layerwise
-from ADMM_methods import construct_ADMM_objects, ADMM_penalty_term, update_z_and_lagrange_multiplier
+from ADMM_methods import construct_ADMM_objects, ADMM_penalty_term, update_z_and_lagrange_multiplier_tf_operations, update_z_and_lagrange_multiplier
 
 import time
 import shutil # for deleting directories
@@ -96,6 +96,7 @@ def trainer(hyper_p, run_options):
     z_weights, z_biases, lagrange_weights, lagrange_biases = construct_ADMM_objects(NN)
     alpha = tf.constant(hyper_p.regularization, dtype = tf.float32)
     pen = tf.constant(hyper_p.penalty, dtype = tf.float32)
+    update_z_and_lagrange_multiplier_tf_operations(NN, alpha, pen, z_weights, z_biases, lagrange_weights, lagrange_biases)
 
     # Loss functional
     with tf.variable_scope('loss') as scope:
@@ -158,8 +159,8 @@ def trainer(hyper_p, run_options):
         
         # Assign initial value of z to be equal to w
         for l in range(0, len(NN.weights)): 
-            sess.run(tf.assign(z_weights[l], NN.weights[l])) 
-            sess.run(tf.assign(z_biases[l], NN.biases[l]))  
+            sess.run("z_weights_initial_value" + str(l+1)) 
+            sess.run("z_biases_initial_value" + str(l+1))  
         
         # Train neural network
         print('Beginning Training\n')
@@ -180,8 +181,8 @@ def trainer(hyper_p, run_options):
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
                 print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
-                start_time = time.time()    
-                update_z_and_lagrange_multiplier(sess, NN, alpha, pen, z_weights, z_biases, lagrange_weights, lagrange_biases)
+                start_time = time.time()  
+                update_z_and_lagrange_multiplier(sess, len(NN.weights))
                 
             # save every 1000 epochs
             if epoch % 1000 == 0:

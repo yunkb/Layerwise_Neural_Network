@@ -50,12 +50,22 @@ def ADMM_penalty_term(NN, pen, z_weights, z_biases, lagrange_weights, lagrange_b
 ###############################################################################
 #                      Update z and Lagrange Multiplier                       #
 ###############################################################################
-def update_z_and_lagrange_multiplier(sess, NN, alpha, pen, z_weights, z_biases, lagrange_weights, lagrange_biases):   
+def update_z_and_lagrange_multiplier_tf_operations(NN, alpha, pen, z_weights, z_biases, lagrange_weights, lagrange_biases):   
     for l in range(0, len(NN.weights)):  
-        sess.run(tf.assign(z_weights[l], soft_threshold_weights(NN, l, lagrange_weights, lagrange_biases, alpha, pen)))
-        sess.run(tf.assign(z_biases[l], soft_threshold_biases(NN, l, lagrange_weights, lagrange_biases, alpha, pen)))
-        sess.run(tf.assign(lagrange_weights[l], pen*(NN.weights[l] - z_weights[l])))
-        sess.run(tf.assign(lagrange_biases[l], pen*(NN.biases[l] - z_biases[l])))
+        tf.assign(z_weights[l], NN.weights[l], name = "z_weights_initial_value" + str(l+1))
+        tf.assign(z_biases[l], NN.biases[l], name = "z_biases_initial_value" + str(l+1))
+        
+        tf.assign(z_weights[l], soft_threshold_weights(NN, l, lagrange_weights, lagrange_biases, alpha, pen), name = "z_weights_update" + str(l+1))
+        tf.assign(z_biases[l], soft_threshold_biases(NN, l, lagrange_weights, lagrange_biases, alpha, pen), name = "z_biases_update" + str(l+1))
+        tf.assign(lagrange_weights[l], pen*(NN.weights[l] - z_weights[l]), name = "lagrange_weights_update" + str(l+1))
+        tf.assign(lagrange_biases[l], pen*(NN.biases[l] - z_biases[l]), name = "lagrange_biases_update" + str(l+1))
+
+def update_z_and_lagrange_multiplier(sess, num_weight_layers):   
+    for l in range(0, num_weight_layers):  
+        sess.run("z_weights_update" + str(l+1))
+        sess.run("z_biases_update" + str(l+1))
+        sess.run("lagrange_weights_update" + str(l+1))
+        sess.run("lagrange_biases_update" + str(l+1))
       
 ###############################################################################
 #                       Soft Thresholding Operator                            #
