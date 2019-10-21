@@ -8,7 +8,7 @@ Created on Sat Oct 19 10:43:31 2019
 
 import tensorflow as tf # for some reason this must be first! Or else I get segmentation fault
 tf.reset_default_graph()
-tf.logging.set_verbosity(tf.logging.FATAL) # Suppresses all the messages when run begins
+tf.logging.set_verbosity(tf.logging.ERROR) # Suppresses all the messages when run begins
 from tensorflow.examples.tutorials.mnist import input_data
 import numpy as np
 from matplotlib import pyplot as plt
@@ -77,8 +77,7 @@ def trainer(hyper_p, run_options):
     loss_value = 1e5
     weight_list_counter = 0
     
-    while loss_value > hyper_p.error_TOL:
-    
+    while loss_value > hyper_p.error_TOL:    
         ###########################
         #   Training Properties   #
         ###########################   
@@ -123,8 +122,7 @@ def trainer(hyper_p, run_options):
                                     inter_op_parallelism_threads=2,
                                     gpu_options= gpu_options)
         
-        #=== Tensorboard and Saver ===#
-        # Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
+        #=== Tensorboard and Saver ===# Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
         summ = tf.summary.merge_all()
         if os.path.exists('../Tensorboard/' + run_options.filename): # Remove existing directory because Tensorboard graphs mess up of you write over it
             shutil.rmtree('../Tensorboard/' + run_options.filename)  
@@ -135,7 +133,7 @@ def trainer(hyper_p, run_options):
         ###########################          
         with tf.Session(config=gpu_config) as sess:
             sess.run(tf.initialize_all_variables()) 
-            writer.add_graph(sess.graph)
+            writer.add_graph(sess.graph)            
             
             #=== Train neural network ===#
             print('Beginning Training\n')
@@ -150,15 +148,15 @@ def trainer(hyper_p, run_options):
                 
                 #=== Display Iteration Information ===#
                 elapsed = time.time() - start_time
+                accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: testing_data, NN.labels_tf: testing_labels}) 
+                writer.add_summary(s, epoch)
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
                 print('Hidden Layers: %d, Epoch: %d, Loss: %.3e, Time: %.2f' %(weight_list_counter+1, epoch, loss_value, elapsed))
-                accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: testing_data, NN.labels_tf: testing_labels}) 
-                writer.add_summary(s, epoch)
                 #accuracy = sess.run(test_accuracy, feed_dict = {NN.data_tf: testing_data, NN.labels_tf: testing_labels}) 
                 print('Accuracy: %.2f\n' %(accuracy))
-                start_time = time.time()    
-                     
+                start_time = time.time()  
+                
             #=== Optimize with LBFGS ===#
     # =============================================================================
     #         print('Optimizing with LBFGS\n')   
@@ -170,7 +168,7 @@ def trainer(hyper_p, run_options):
     #         print('Loss: %.3e, Time: %.2f\n' %(loss_value, elapsed))
     # =============================================================================
             
-            # Save final model
+            #=== Save Final Model ===#
             save_weights_and_biases(sess, weight_list_counter, run_options.NN_savefile_name)
             print('Final Model Saved')  
             
@@ -185,7 +183,6 @@ def trainer(hyper_p, run_options):
             
             #=== Close Session and Reset Graph ===#
             sess.close() 
-            
         tf.reset_default_graph()
         weight_list_counter += 1
             

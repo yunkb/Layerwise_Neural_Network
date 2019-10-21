@@ -73,10 +73,12 @@ class Layerwise:
                 l = weight_list_counter + 1
                 df_trained_weights = pd.read_csv(savefilepath + "_Woutput" + '.csv')
                 df_trained_biases = pd.read_csv(savefilepath + "_boutput" + '.csv')
-                restored_W = df_trained_weights.at[0, "Woutput"]
-                restored_b = df_trained_biases.at[0, "boutput"]
+                restored_W = df_trained_weights.values.reshape([self.layers[l], self.layers[l + 1]])
+                restored_b = df_trained_biases.values.reshape([1, self.layers[l + 1]])
                 W = tf.get_variable("W" + str(l+1), dtype = tf.float32, shape = [self.layers[l], self.layers[l + 1]], initializer = tf.constant_initializer(restored_W))
                 b = tf.get_variable("b" + str(l+1), dtype = tf.float32, shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(restored_b))                                  
+                tf.summary.histogram("weights" + str(l+1), W)
+                tf.summary.histogram("biases" + str(l+1), b)
                 self.weights.append(W)
                 self.biases.append(b)
         

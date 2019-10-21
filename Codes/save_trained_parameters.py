@@ -28,7 +28,7 @@ def save_weights_and_biases(sess, weight_list_counter, savefilepath):
     df_trained_output_biases.to_csv(savefilepath + "_boutput" + '.csv', index=False)
     
 # =============================================================================
-#     # Testing restore
+#     #=== Testing restore ===#
 #     df_trained_weights = pd.read_csv(savefilepath + "_W" + str(l+1) + '.csv')
 #     df_trained_biases = pd.read_csv(savefilepath + "_b" + str(l+1) + '.csv')
 #     restored_W = df_trained_weights.values.reshape([layers[l], layers[l + 1]])
