@@ -54,8 +54,8 @@ class RunOptions:
         self.filename = self.data_type + '_L2_nTOL%s_eTOL%s_b%d_e%d' %(node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         #=== Saving neural network ===#
-        self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Saving trained weights
-        self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
+        self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
+        self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the saved parameters
 
         #=== Creating Directories ===#
         if not os.path.exists(self.NN_savefile_directory):

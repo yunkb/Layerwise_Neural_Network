@@ -34,7 +34,7 @@ class Layerwise:
         #   Initial Architecture   #
         ############################
         # If first iteration, initialize output layer
-        with tf.variable_scope("NN_layerwise") as scope: 
+        with tf.variable_scope("NN") as scope: 
             if weight_list_counter == 0: 
                 for l in range(0, 2):
                     W = tf.get_variable("W" + str(l+1), dtype = tf.float32, shape = [self.layers[l], self.layers[l + 1]], initializer = tf.random_normal_initializer())
@@ -48,7 +48,7 @@ class Layerwise:
         #   Extending Architecture   #
         ##############################   
         if weight_list_counter > 0: 
-            with tf.variable_scope("NN_layerwise") as scope: 
+            with tf.variable_scope("NN") as scope: 
                 # Load pre-trained weights and biases
                 for l in range(0, weight_list_counter):
                     df_trained_weights = pd.read_csv(savefilepath + "_W" + str(l+1) + '.csv')
