@@ -32,11 +32,11 @@ sys.path.insert(0, '../../Utilities/')
 np.random.seed(1234)
 
 ###############################################################################
-#                       Hyperparameters and RunOptions                        #
+#                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
     num_hidden_layers = 3
-    num_hidden_nodes  = 500
+    num_hidden_nodes  = 10
     node_TOL          = 1e-7
     error_TOL         = 1e-3
     batch_size        = 100
@@ -122,7 +122,7 @@ def trainer(hyper_p, run_options):
                                     inter_op_parallelism_threads=2,
                                     gpu_options= gpu_options)
         
-        #=== Tensorboard and Saver ===# Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
+        #=== Tensorboard ===# Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
         summ = tf.summary.merge_all()
         if os.path.exists('../Tensorboard/' + run_options.filename): # Remove existing directory because Tensorboard graphs mess up of you write over it
             shutil.rmtree('../Tensorboard/' + run_options.filename)  
@@ -148,11 +148,11 @@ def trainer(hyper_p, run_options):
                 
                 #=== Display Iteration Information ===#
                 elapsed = time.time() - start_time
-                accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: testing_data, NN.labels_tf: testing_labels}) 
-                writer.add_summary(s, epoch)
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
                 print('Hidden Layers: %d, Epoch: %d, Loss: %.3e, Time: %.2f' %(weight_list_counter+1, epoch, loss_value, elapsed))
+                accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: testing_data, NN.labels_tf: testing_labels}) 
+                writer.add_summary(s, epoch)
                 #accuracy = sess.run(test_accuracy, feed_dict = {NN.data_tf: testing_data, NN.labels_tf: testing_labels}) 
                 print('Accuracy: %.2f\n' %(accuracy))
                 start_time = time.time()  
@@ -169,8 +169,9 @@ def trainer(hyper_p, run_options):
     # =============================================================================
             
             #=== Save Final Model ===#
-            save_weights_and_biases(sess, weight_list_counter, run_options.NN_savefile_name)
+            save_weights_and_biases(sess, hyper_p, weight_list_counter, run_options.NN_savefile_name, 0)
             print('Final Model Saved')  
+            pdb.set_trace()
             
             #=== Network Predictions ===#
             index = 4389 # There are 10,000 training examples in MNIST
@@ -193,7 +194,7 @@ def trainer(hyper_p, run_options):
 ###############################################################################     
 if __name__ == "__main__":     
 
-    # Hyperparameters    
+    #=== Hyperparameters ===#    
     hyper_p = HyperParameters()
     
     if len(sys.argv) > 1:
@@ -203,10 +204,10 @@ if __name__ == "__main__":
             hyper_p.num_epochs        = int(sys.argv[4])
             hyper_p.gpu               = str(sys.argv[5])
             
-    # Set run options         
+    #=== Set run options ===#         
     run_options = RunOptions(hyper_p)
     
-    # Initiate training
+    #=== Initiate training ===#
     trainer(hyper_p, run_options) 
     
      

@@ -15,6 +15,7 @@ from matplotlib import pyplot as plt
 import pandas as pd
 
 from NN_Layerwise import Layerwise
+from save_trained_parameters import save_weights_and_biases
 from ADMM_methods import construct_ADMM_objects, ADMM_penalty_term, update_z_and_lagrange_multiplier_tf_operations, update_z_and_lagrange_multiplier
 
 import time
@@ -39,10 +40,10 @@ class HyperParameters:
     num_hidden_nodes  = 500
     regularization    = 1
     penalty           = 1
-    node_TOL          = 1e-7
+    node_TOL          = 1e-2
     error_TOL         = 1e-3
     batch_size        = 100
-    num_epochs        = 2
+    num_epochs        = 5
     gpu               = '1'
     
 class RunOptions:
@@ -93,14 +94,12 @@ def trainer(hyper_p, run_options):
     loss_value = 1e5
     weight_list_counter = 0
     
-    while loss_value > hyper_p.error_TOL:
-     
+    while loss_value > hyper_p.error_TOL:     
         ###########################
         #   Training Properties   #
         ###########################   
         #=== Neural network ===#
-        NN = Layerwise(hyper_p, run_options, 784, 10, weight_list_counter)
-        weight_list_counter += 1
+        NN = Layerwise(hyper_p, run_options, 784, 10, weight_list_counter, run_options.NN_savefile_name)
         
         #=== Initialize ADMM objects ===#
         z_weights, z_biases, lagrange_weights, lagrange_biases = construct_ADMM_objects(NN)
@@ -133,7 +132,7 @@ def trainer(hyper_p, run_options):
                                                                               'ftol':1.0 * np.finfo(float).eps})
             #=== Track gradients ===#
             l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
-            gradients_tf = optimizer_Adam.compute_gradients(loss = loss, var_list = NN.trainable_parameters_list)
+            gradients_tf = optimizer_Adam.compute_gradients(loss = loss)
             for gradient, variable in gradients_tf:
                 tf.summary.histogram("gradients_norm/" + variable.name, l2_norm(gradient))
             optimizer_Adam_op = optimizer_Adam.apply_gradients(gradients_tf)
@@ -148,15 +147,11 @@ def trainer(hyper_p, run_options):
                                     inter_op_parallelism_threads=2,
                                     gpu_options= gpu_options)
         
-        #=== Tensorboard and Saver ===#
-        # Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
+        #=== Tensorboard ===# # Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
         summ = tf.summary.merge_all()
         if os.path.exists('../Tensorboard/' + run_options.filename): # Remove existing directory because Tensorboard graphs mess up of you write over it
             shutil.rmtree('../Tensorboard/' + run_options.filename)  
         writer = tf.summary.FileWriter('../Tensorboard/' + run_options.filename)
-        
-        # Saver for saving trained neural network
-        saver = tf.train.Saver(NN.saver_NN_layerwise)
         
         ###########################
         #   Train Neural Network  #
@@ -164,9 +159,6 @@ def trainer(hyper_p, run_options):
         with tf.Session(config=gpu_config) as sess:
             sess.run(tf.initialize_all_variables()) 
             writer.add_graph(sess.graph)
-            
-            #=== Save neural network ===#
-            saver.save(sess, run_options.NN_savefile_name)
             
             #=== Assign initial value of z to be equal to w ===#
             for l in range(0, len(NN.weights)): 
@@ -189,9 +181,11 @@ def trainer(hyper_p, run_options):
                 elapsed = time.time() - start_time
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
-                print('Epoch: %d, Loss: %.3e, Time: %.2f' %(epoch, loss_value, elapsed))
-                print('Accuracy: %.2f\n' %(test_accuracy.eval(feed_dict = {NN.data_tf: testing_data, NN.labels_tf: testing_labels})))
-                saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)
+                print('Hidden Layers: %d, Epoch: %d, Loss: %.3e, Time: %.2f' %(weight_list_counter+1, epoch, loss_value, elapsed))
+                accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: testing_data, NN.labels_tf: testing_labels}) 
+                writer.add_summary(s, epoch)
+                #accuracy = sess.run(test_accuracy, feed_dict = {NN.data_tf: testing_data, NN.labels_tf: testing_labels}) 
+                print('Accuracy: %.2f\n' %(accuracy))
                 start_time = time.time()   
                    
             #=== Optimize with LBFGS ===#
@@ -206,7 +200,7 @@ def trainer(hyper_p, run_options):
     # =============================================================================
             
             #=== Save final model ===#
-            saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)   
+            save_weights_and_biases(sess, hyper_p, weight_list_counter, run_options.NN_savefile_name, 1)
             print('Final Model Saved')  
             
             #=== Network Predictions ===#
@@ -219,8 +213,9 @@ def trainer(hyper_p, run_options):
             print(sess.run(NN.classify, feed_dict={NN.data_tf: mnist_digit.reshape(1,784)}))
             
             #=== Reset Graph and Close Session ===#
-            tf.reset_default_graph()
             sess.close()
+        tf.reset_default_graph()
+        weight_list_counter += 1
     
 ###############################################################################
 #                                 Driver                                      #
