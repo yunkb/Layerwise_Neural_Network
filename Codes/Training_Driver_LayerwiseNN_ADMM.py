@@ -37,11 +37,11 @@ tf.set_random_seed(1234)
 #                       Hyperparameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    regularization    = 1
+    regularization    = 0.01
     penalty           = 1
-    node_TOL          = 1e-2
+    node_TOL          = 1e-3
     error_TOL         = 1e-3
-    batch_size        = 100
+    batch_size        = 1000
     num_epochs        = 5
     gpu               = '1'
     
@@ -178,8 +178,8 @@ def trainer(hyper_p, run_options):
                     #loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
                     #writer.add_summary(s, epoch)
                     loss_value, _ = sess.run([loss, optimizer_Adam_op], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
-                    update_z_and_lagrange_multiplier(sess, len(NN.weights))
-                
+                update_z_and_lagrange_multiplier(sess, len(NN.weights))
+                                
                 #=== Display Iteration Information ===#
                 elapsed = time.time() - start_time
                 print(run_options.filename)
@@ -207,7 +207,7 @@ def trainer(hyper_p, run_options):
             print('Final Model Saved')  
             
             #=== Network Predictions ===#
-            index = 4389 # There are 10,000 training examples in MNIST
+            index = 4389 # There are 55,000 training examples in MNIST
             mnist_digit = mnist.test.images[index]
             digit = np.array(mnist_digit, dtype='float')
             pixels = digit.reshape((28, 28))

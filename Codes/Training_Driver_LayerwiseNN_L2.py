@@ -74,7 +74,7 @@ def trainer(hyper_p, run_options):
     label_dimensions = mnist_label.shape[0]
     num_training_data = mnist.train.num_examples
     testing_data = mnist.test.images
-    testing_labels = mnist.test.labelss
+    testing_labels = mnist.test.labels
      
     loss_value = 1e5
     weight_list_counter = 0
@@ -173,7 +173,6 @@ def trainer(hyper_p, run_options):
             #=== Save Final Model ===#
             save_weights_and_biases(sess, hyper_p, weight_list_counter, run_options.NN_savefile_name, 0)
             print('Final Model Saved')  
-            pdb.set_trace()
             
             #=== Network Predictions ===#
             index = 4389 # There are 10,000 training examples in MNIST
