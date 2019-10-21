@@ -97,10 +97,7 @@ class Layerwise:
                 current_input = X
                 W = self.weights[l]
                 b = self.biases[l]
-                if l == 0: 
-                    X = tf.nn.relu(tf.add(tf.matmul(X, W), b))
-                else:
-                    X = current_input + tf.nn.relu(tf.add(tf.matmul(X, W), b))
+                X = current_input + tf.nn.relu(tf.add(tf.matmul(X, W), b))
                 #tf.summary.histogram("activation" + str(l+1), X)
             W = self.weights[-1]
             b = self.biases[-1]
