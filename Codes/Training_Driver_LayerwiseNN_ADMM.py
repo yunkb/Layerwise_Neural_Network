@@ -37,7 +37,6 @@ tf.set_random_seed(1234)
 #                       Hyperparameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    num_hidden_nodes  = 500
     regularization    = 1
     penalty           = 1
     node_TOL          = 1e-2
@@ -70,7 +69,7 @@ class RunOptions:
         error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
         error_TOL_string = error_TOL_string[-1]
         
-        self.filename = self.data_type + '_ADMM_hn%d_r%s_p%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.num_hidden_nodes, regularization_string, penalty_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = self.data_type + '_ADMM_r%s_p%s_nTOL%s_eTOL%s_b%d_e%d' %(regularization_string, penalty_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
@@ -87,6 +86,10 @@ def trainer(hyper_p, run_options):
             
     #=== Load Train and Test Data ===#
     mnist = input_data.read_data_sets("/tmp/data/", one_hot = True)
+    mnist_digit = mnist.test.images[0]
+    mnist_label = mnist.test.labels[0]
+    data_dimensions = mnist_digit.shape[0]
+    label_dimensions = mnist_label.shape[0]
     num_training_data = mnist.train.num_examples
     testing_data = mnist.test.images
     testing_labels = mnist.test.labels
@@ -99,7 +102,7 @@ def trainer(hyper_p, run_options):
         #   Training Properties   #
         ###########################   
         #=== Neural network ===#
-        NN = Layerwise(hyper_p, run_options, 784, 10, weight_list_counter, run_options.NN_savefile_name)
+        NN = Layerwise(hyper_p, data_dimensions, label_dimensions, weight_list_counter, run_options.NN_savefile_name)
         
         #=== Initialize ADMM objects ===#
         z_weights, z_biases, lagrange_weights, lagrange_biases = construct_ADMM_objects(NN)
@@ -226,14 +229,13 @@ if __name__ == "__main__":
     hyper_p = HyperParameters()
     
     if len(sys.argv) > 1:
-            hyper_p.num_hidden_nodes  = int(sys.argv[1])
-            hyper_p.regularization    = float(sys.argv[2])
-            hyper_p.penalty           = float(sys.argv[3])
-            hyper_p.node_TOL          = float(sys.argv[4])
-            hyper_p.error_TOL         = float(sys.argv[5])
-            hyper_p.batch_size        = int(sys.argv[6])
-            hyper_p.num_epochs        = int(sys.argv[7])
-            hyper_p.gpu               = str(sys.argv[8])
+            hyper_p.regularization    = float(sys.argv[1])
+            hyper_p.penalty           = float(sys.argv[2])
+            hyper_p.node_TOL          = float(sys.argv[3])
+            hyper_p.error_TOL         = float(sys.argv[4])
+            hyper_p.batch_size        = int(sys.argv[5])
+            hyper_p.num_epochs        = int(sys.argv[6])
+            hyper_p.gpu               = str(sys.argv[7])
             
     #=== Set run options ===#         
     run_options = RunOptions(hyper_p)

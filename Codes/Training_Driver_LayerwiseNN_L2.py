@@ -35,8 +35,6 @@ np.random.seed(1234)
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    num_hidden_layers = 3
-    num_hidden_nodes  = 10
     node_TOL          = 1e-7
     error_TOL         = 1e-3
     batch_size        = 100
@@ -53,7 +51,7 @@ class RunOptions:
         error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
         error_TOL_string = error_TOL_string[-1]
         
-        self.filename = self.data_type + '_L2_hn%d_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.num_hidden_nodes, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = self.data_type + '_L2_nTOL%s_eTOL%s_b%d_e%d' %(node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Saving trained weights
@@ -70,9 +68,13 @@ def trainer(hyper_p, run_options):
     
     #=== Load Train and Test Data ===# 
     mnist = input_data.read_data_sets("/tmp/data/", one_hot = True)
-    hyper_p.num_training_data = mnist.train.num_examples
+    mnist_digit = mnist.test.images[0]
+    mnist_label = mnist.test.labels[0]
+    data_dimensions = mnist_digit.shape[0]
+    label_dimensions = mnist_label.shape[0]
+    num_training_data = mnist.train.num_examples
     testing_data = mnist.test.images
-    testing_labels = mnist.test.labels
+    testing_labels = mnist.test.labelss
      
     loss_value = 1e5
     weight_list_counter = 0
@@ -82,7 +84,7 @@ def trainer(hyper_p, run_options):
         #   Training Properties   #
         ###########################   
         #=== Neural network ===#
-        NN = Layerwise(hyper_p, run_options, 784, 10, weight_list_counter, run_options.NN_savefile_name)
+        NN = Layerwise(hyper_p, data_dimensions, label_dimensions, weight_list_counter, run_options.NN_savefile_name)
         
         #=== Loss functional ===#
         with tf.variable_scope('loss') as scope:
@@ -138,7 +140,7 @@ def trainer(hyper_p, run_options):
             #=== Train neural network ===#
             print('Beginning Training\n')
             start_time = time.time()
-            num_batches = int(hyper_p.num_training_data/hyper_p.batch_size)
+            num_batches = int(num_training_data/hyper_p.batch_size)
             for epoch in range(hyper_p.num_epochs):
                 for batch_num in range(num_batches):
                     data_train_batch, labels_train_batch = mnist.train.next_batch(hyper_p.batch_size)
@@ -198,8 +200,8 @@ if __name__ == "__main__":
     hyper_p = HyperParameters()
     
     if len(sys.argv) > 1:
-            hyper_p.num_hidden_layers = int(sys.argv[1])
-            hyper_p.num_hidden_nodes  = int(sys.argv[2])
+            hyper_p.node_TOL          = float(sys.argv[1])
+            hyper_p.error_TOL         = float(sys.argv[2])
             hyper_p.batch_size        = int(sys.argv[3])
             hyper_p.num_epochs        = int(sys.argv[4])
             hyper_p.gpu               = str(sys.argv[5])

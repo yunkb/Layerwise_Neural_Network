@@ -14,7 +14,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 tf.set_random_seed(1234)
 
 class Layerwise:
-    def __init__(self, hyper_p, run_options, data_dimension, labels_dimension, weight_list_counter, savefilepath):
+    def __init__(self, hyper_p, data_dimension, labels_dimension, weight_list_counter, savefilepath):
         
 ###############################################################################
 #                    Constuct Neural Network Architecture                     #
@@ -24,7 +24,7 @@ class Layerwise:
         self.labels_tf = tf.placeholder(tf.float32, shape=[None, labels_dimension], name = "labels_tf") # This is needed for batching during training, else can just use state_data
                            
         # Initialize weights and biases storage
-        self.layers = [data_dimension] + [hyper_p.num_hidden_nodes]*(weight_list_counter+1) + [labels_dimension]
+        self.layers = [data_dimension] + [data_dimension]*(weight_list_counter+1) + [labels_dimension]
         print(self.layers)
         self.weights = [] # This will be a list of tensorflow variables
         self.biases = [] # This will be a list of tensorflow variables
