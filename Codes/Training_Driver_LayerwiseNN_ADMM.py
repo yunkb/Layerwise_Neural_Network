@@ -13,7 +13,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 import pandas as pd
 
-from NN_Layerwise import Layerwise
+from NN_FC_Layerwise import Layerwise
 from save_trained_parameters import save_weights_and_biases
 from get_MNIST_data import load_MNIST_data, get_MNIST_batch
 from get_CIFAR10_data import load_CIFAR10_data, get_CIFAR10_batch
@@ -181,7 +181,7 @@ def trainer(hyper_p, run_options):
                     if run_options.data_MNIST == 1:
                         data_train_batch, labels_train_batch = get_MNIST_batch(mnist, hyper_p.batch_size)
                     if run_options.data_CIFAR10 == 1: 
-                        data_train_batch, labels_train_batch = get_CIFAR10_batch(data_train, labels_train, hyper_p.batch_size)
+                        data_train_batch, labels_train_batch = get_CIFAR10_batch(data_train, labels_train, hyper_p.batch_size, 1)
                     #loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
                     #writer.add_summary(s, epoch)
                     loss_value, _ = sess.run([loss, optimizer_Adam_op], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
