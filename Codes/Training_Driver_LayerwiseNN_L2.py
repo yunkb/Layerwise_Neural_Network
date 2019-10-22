@@ -38,7 +38,7 @@ np.random.seed(1234)
 ###############################################################################
 class HyperParameters:
     max_hidden_layers = 4
-    error_TOL         = 1e-3
+    error_TOL         = 1e-2
     batch_size        = 1000
     num_epochs        = 10
     gpu               = '0'
