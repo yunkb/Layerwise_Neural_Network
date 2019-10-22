@@ -76,7 +76,7 @@ class RunOptions:
         error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
         error_TOL_string = error_TOL_string[-1]
         
-        self.filename = data_type + '_ADMM_r%s_p%s_nTOL%s_eTOL%s_b%d_e%d' %(regularization_string, penalty_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = data_type + '_ADMM_ml%d_r%s_p%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_layers, regularization_string, penalty_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
