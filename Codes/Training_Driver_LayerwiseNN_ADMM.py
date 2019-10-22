@@ -9,13 +9,14 @@ Created on Sat Oct 19 10:43:31 2019
 import tensorflow as tf # for some reason this must be first! Or else I get segmentation fault
 tf.reset_default_graph()
 tf.logging.set_verbosity(tf.logging.FATAL) # Suppresses all the messages when run begins
-from tensorflow.examples.tutorials.mnist import input_data
 import numpy as np
 from matplotlib import pyplot as plt
 import pandas as pd
 
 from NN_Layerwise import Layerwise
 from save_trained_parameters import save_weights_and_biases
+from load_MNIST_data import load_MNIST_data
+from load_CIFAR10_data import load_CIFAR10_data
 from ADMM_methods import construct_ADMM_objects, ADMM_penalty_term, update_z_and_lagrange_multiplier_tf_operations, update_z_and_lagrange_multiplier
 
 import time
@@ -46,8 +47,13 @@ class HyperParameters:
     gpu               = '1'
     
 class RunOptions:
-    def __init__(self, hyper_p):     
-        self.data_type = 'MNIST'
+    def __init__(self, hyper_p): 
+        self.data_MNIST = 0
+        self.data_CIFAR10 = 1    
+        if self.data_MNIST == 1:
+            data_type = 'MNIST'
+        if self.data_CIFAR10 == 1:
+            data_type = 'CIFAR10'
         
         #=== File name ===#
         if hyper_p.regularization >= 1:
@@ -69,7 +75,7 @@ class RunOptions:
         error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
         error_TOL_string = error_TOL_string[-1]
         
-        self.filename = self.data_type + '_ADMM_r%s_p%s_nTOL%s_eTOL%s_b%d_e%d' %(regularization_string, penalty_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = data_type + '_ADMM_r%s_p%s_nTOL%s_eTOL%s_b%d_e%d' %(regularization_string, penalty_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
@@ -85,15 +91,12 @@ class RunOptions:
 def trainer(hyper_p, run_options):
             
     #=== Load Train and Test Data ===#
-    mnist = input_data.read_data_sets("/tmp/data/", one_hot = True)
-    mnist_digit = mnist.test.images[0]
-    mnist_label = mnist.test.labels[0]
-    data_dimensions = mnist_digit.shape[0]
-    label_dimensions = mnist_label.shape[0]
-    num_training_data = mnist.train.num_examples
-    testing_data = mnist.test.images
-    testing_labels = mnist.test.labels
-    
+    if run_options.data_MNIST == 1:
+        mnist, data_dimensions, label_dimensions, num_training_data, testing_data, testing_labels = load_MNIST_data()
+    if run_options.data_CIFAR10 == 1:    
+        load_CIFAR10_data()
+        
+    #=== Iteration Objects ===#
     loss_value = 1e5
     weight_list_counter = 0
     
@@ -175,9 +178,10 @@ def trainer(hyper_p, run_options):
             for epoch in range(hyper_p.num_epochs):
                 for batch_num in range(num_batches):
                     data_train_batch, labels_train_batch = mnist.train.next_batch(hyper_p.batch_size)
-                    #loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
+                    tf_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}
+                    #loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict) 
                     #writer.add_summary(s, epoch)
-                    loss_value, _ = sess.run([loss, optimizer_Adam_op], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
+                    loss_value, _ = sess.run([loss, optimizer_Adam_op], tf_dict) 
                 update_z_and_lagrange_multiplier(sess, len(NN.weights))
                                 
                 #=== Display Iteration Information ===#
