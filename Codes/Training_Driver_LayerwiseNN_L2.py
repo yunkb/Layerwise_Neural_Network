@@ -15,8 +15,8 @@ from matplotlib import pyplot as plt
 import pandas as pd
 
 from NN_Layerwise import Layerwise
-from load_MNIST_data import load_MNIST_data
-from load_CIFAR10_data import load_CIFAR10_data
+from get_MNIST_data import load_MNIST_data, get_MNIST_batch
+from get_CIFAR10_data import load_CIFAR10_data, get_CIFAR10_batch
 from save_trained_parameters import save_weights_and_biases
 
 import time
@@ -77,8 +77,9 @@ def trainer(hyper_p, run_options):
     if run_options.data_MNIST == 1:
         mnist, num_training_data, num_testing_data, data_dimensions, label_dimensions, data_test, labels_test = load_MNIST_data()
     if run_options.data_CIFAR10 == 1:    
-        num_training_data, num_testing_data, data_dimensions, label_dimensions, class_names, data_test, labels_test = load_CIFAR10_data()
-     
+        num_training_data, num_testing_data, img_size, num_channels, label_dimensions, class_names, data_train, labels_train, data_test, labels_test = load_CIFAR10_data()
+        data_dimensions = img_size*img_size*num_channels
+        
     loss_value = 1e5
     weight_list_counter = 0
     
@@ -146,7 +147,10 @@ def trainer(hyper_p, run_options):
             num_batches = int(num_training_data/hyper_p.batch_size)
             for epoch in range(hyper_p.num_epochs):
                 for batch_num in range(num_batches):
-                    data_train_batch, labels_train_batch = mnist.train.next_batch(hyper_p.batch_size)
+                    if run_options.data_MNIST == 1:
+                        data_train_batch, labels_train_batch = get_MNIST_batch(mnist, hyper_p.batch_size)
+                    if run_options.data_CIFAR10 == 1: 
+                        data_train_batch, labels_train_batch = get_CIFAR10_batch(data_train, labels_train, hyper_p.batch_size)
                     #loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
                     #writer.add_summary(s, epoch)
                     loss_value, _ = sess.run([loss, optimizer_Adam_op], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 

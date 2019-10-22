@@ -20,3 +20,7 @@ def load_MNIST_data():
    
     return mnist, num_training_data, num_testing_data, data_dimensions, label_dimensions, data_test, labels_test
 
+def get_MNIST_batch(mnist, batch_size):
+    data_train_batch, labels_train_batch = mnist.train.next_batch(batch_size)
+    
+    return data_train_batch, labels_train_batch
