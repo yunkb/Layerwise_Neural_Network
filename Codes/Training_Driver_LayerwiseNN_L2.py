@@ -82,7 +82,7 @@ def trainer(hyper_p, run_options):
     loss_value = 1e5
     weight_list_counter = 0
     
-    while loss_value > hyper_p.error_TOL and weight_list_counter < hyper_p.max_layers:    
+    while loss_value > hyper_p.error_TOL and weight_list_counter < hyper_p.max_hidden_layers:    
         ###########################
         #   Training Properties   #
         ###########################   
