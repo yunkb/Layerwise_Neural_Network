@@ -37,6 +37,7 @@ np.random.seed(1234)
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
+    max_layers        = 2
     node_TOL          = 1e-7
     error_TOL         = 1e-3
     batch_size        = 100
@@ -84,7 +85,7 @@ def trainer(hyper_p, run_options):
     loss_value = 1e5
     weight_list_counter = 0
     
-    while loss_value > hyper_p.error_TOL:    
+    while loss_value > hyper_p.error_TOL and weight_list_counter < hyper_p.max_layers:    
         ###########################
         #   Training Properties   #
         ###########################   
@@ -198,11 +199,12 @@ if __name__ == "__main__":
     hyper_p = HyperParameters()
     
     if len(sys.argv) > 1:
-            hyper_p.node_TOL          = float(sys.argv[1])
-            hyper_p.error_TOL         = float(sys.argv[2])
-            hyper_p.batch_size        = int(sys.argv[3])
-            hyper_p.num_epochs        = int(sys.argv[4])
-            hyper_p.gpu               = str(sys.argv[5])
+            hyper_p.max_layers        = int(sys.argv[1])
+            hyper_p.node_TOL          = float(sys.argv[2])
+            hyper_p.error_TOL         = float(sys.argv[3])
+            hyper_p.batch_size        = int(sys.argv[4])
+            hyper_p.num_epochs        = int(sys.argv[5])
+            hyper_p.gpu               = str(sys.argv[6])
             
     #=== Set run options ===#         
     run_options = RunOptions(hyper_p)

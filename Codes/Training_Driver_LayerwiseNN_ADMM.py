@@ -38,6 +38,7 @@ tf.set_random_seed(1234)
 #                       Hyperparameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
+    max_layers        = 6
     regularization    = 0.01
     penalty           = 1
     node_TOL          = 1e-3
@@ -103,7 +104,7 @@ def trainer(hyper_p, run_options):
     loss_value = 1e5
     weight_list_counter = 0
     
-    while loss_value > hyper_p.error_TOL:     
+    while loss_value > hyper_p.error_TOL and weight_list_counter < hyper_p.max_layers:       
         ###########################
         #   Training Properties   #
         ###########################   
@@ -229,13 +230,14 @@ if __name__ == "__main__":
     hyper_p = HyperParameters()
     
     if len(sys.argv) > 1:
-            hyper_p.regularization    = float(sys.argv[1])
-            hyper_p.penalty           = float(sys.argv[2])
-            hyper_p.node_TOL          = float(sys.argv[3])
-            hyper_p.error_TOL         = float(sys.argv[4])
-            hyper_p.batch_size        = int(sys.argv[5])
-            hyper_p.num_epochs        = int(sys.argv[6])
-            hyper_p.gpu               = str(sys.argv[7])
+            hyper_p.max_layers        = int(sys.argv[1])
+            hyper_p.regularization    = float(sys.argv[2])
+            hyper_p.penalty           = float(sys.argv[3])
+            hyper_p.node_TOL          = float(sys.argv[4])
+            hyper_p.error_TOL         = float(sys.argv[5])
+            hyper_p.batch_size        = int(sys.argv[6])
+            hyper_p.num_epochs        = int(sys.argv[7])
+            hyper_p.gpu               = str(sys.argv[8])
             
     #=== Set run options ===#         
     run_options = RunOptions(hyper_p)
