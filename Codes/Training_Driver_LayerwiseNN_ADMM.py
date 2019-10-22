@@ -94,7 +94,7 @@ def trainer(hyper_p, run_options):
     if run_options.data_MNIST == 1:
         mnist, num_training_data, num_testing_data, data_dimensions, label_dimensions, data_test, labels_test = load_MNIST_data()
     if run_options.data_CIFAR10 == 1:    
-        num_training_data, num_testing_data, img_size, num_channels, label_dimensions, class_names, data_train, labels_train, data_test, labels_test = load_CIFAR10_data()
+        num_training_data, num_testing_data, img_size, num_channels, label_dimensions, class_names, data_train, labels_train, data_test, labels_test = load_CIFAR10_data(flatten_data_flag = 1)
         data_dimensions = img_size*img_size*num_channels
         
     #=== Iteration Objects ===#
@@ -181,7 +181,7 @@ def trainer(hyper_p, run_options):
                     if run_options.data_MNIST == 1:
                         data_train_batch, labels_train_batch = get_MNIST_batch(mnist, hyper_p.batch_size)
                     if run_options.data_CIFAR10 == 1: 
-                        data_train_batch, labels_train_batch = get_CIFAR10_batch(data_train, labels_train, hyper_p.batch_size, 1)
+                        data_train_batch, labels_train_batch = get_CIFAR10_batch(data_train, labels_train, hyper_p.batch_size)
                     #loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
                     #writer.add_summary(s, epoch)
                     loss_value, _ = sess.run([loss, optimizer_Adam_op], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
