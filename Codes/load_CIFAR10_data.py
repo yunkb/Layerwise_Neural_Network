@@ -25,6 +25,4 @@ def load_CIFAR10_data():
     print(data_dimensions)
     print(label_dimensions)
     
-    pdb.set_trace()
-    
     return num_training_data, num_testing_data, data_dimensions, label_dimensions, class_names, data_test, labels_test

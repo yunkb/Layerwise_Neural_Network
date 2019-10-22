@@ -15,6 +15,8 @@ from matplotlib import pyplot as plt
 import pandas as pd
 
 from NN_Layerwise import Layerwise
+from load_MNIST_data import load_MNIST_data
+from load_CIFAR10_data import load_CIFAR10_data
 from save_trained_parameters import save_weights_and_biases
 
 import time
@@ -43,7 +45,12 @@ class HyperParameters:
     
 class RunOptions:
     def __init__(self, hyper_p):     
-        self.data_type = 'MNIST'
+        self.data_MNIST = 0
+        self.data_CIFAR10 = 1    
+        if self.data_MNIST == 1:
+            data_type = 'MNIST'
+        if self.data_CIFAR10 == 1:
+            data_type = 'CIFAR10'
         
         #=== Filename ===#
         node_TOL_string = str('%.2e' %Decimal(hyper_p.node_TOL))
@@ -51,7 +58,7 @@ class RunOptions:
         error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
         error_TOL_string = error_TOL_string[-1]
         
-        self.filename = self.data_type + '_L2_nTOL%s_eTOL%s_b%d_e%d' %(node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = data_type + '_L2_nTOL%s_eTOL%s_b%d_e%d' %(node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
@@ -67,14 +74,10 @@ class RunOptions:
 def trainer(hyper_p, run_options):
     
     #=== Load Train and Test Data ===# 
-    mnist = input_data.read_data_sets("/tmp/data/", one_hot = True)
-    mnist_digit = mnist.test.images[0]
-    mnist_label = mnist.test.labels[0]
-    data_dimensions = mnist_digit.shape[0]
-    label_dimensions = mnist_label.shape[0]
-    num_training_data = mnist.train.num_examples
-    testing_data = mnist.test.images
-    testing_labels = mnist.test.labels
+    if run_options.data_MNIST == 1:
+        mnist, num_training_data, num_testing_data, data_dimensions, label_dimensions, data_test, labels_test = load_MNIST_data()
+    if run_options.data_CIFAR10 == 1:    
+        num_training_data, num_testing_data, data_dimensions, label_dimensions, class_names, data_test, labels_test = load_CIFAR10_data()
      
     loss_value = 1e5
     weight_list_counter = 0
@@ -153,9 +156,9 @@ def trainer(hyper_p, run_options):
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
                 print('Hidden Layers: %d, Epoch: %d, Loss: %.3e, Time: %.2f' %(weight_list_counter+1, epoch, loss_value, elapsed))
-                accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: testing_data, NN.labels_tf: testing_labels}) 
+                accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
                 writer.add_summary(s, epoch)
-                #accuracy = sess.run(test_accuracy, feed_dict = {NN.data_tf: testing_data, NN.labels_tf: testing_labels}) 
+                #accuracy = sess.run(test_accuracy, feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
                 print('Accuracy: %.2f\n' %(accuracy))
                 start_time = time.time()  
                 
