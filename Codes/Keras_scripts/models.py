@@ -4,15 +4,15 @@ import pandas as pd
 from tensorflow.python.ops import nn
 import numpy as np
 class MyDenseLayer(tf.keras.layers.Layer):
-  def __init__(self, num_outputs, shape = None, layer_name = None , kernel_regularizer = None, bias_regularizer = None):
+  def __init__(self, num_outputs, shape = None, layer_name = None , kernel_regularizer = None, bias_regularizer = None, initializer = 'zeros'):
     super(MyDenseLayer, self).__init__(name = layer_name)
     self.num_outputs = num_outputs
     self.layer_name = layer_name
     self.kernel_regularizer = regularizers.get(kernel_regularizer)
     self.bias_regularizer = regularizers.get(bias_regularizer)
     self.shape = shape
-    self.kernel_initializer = initializers.get('zeros')
-    self.bias_initializer = initializers.get('zeros')
+    self.kernel_initializer = initializers.get(initializer)
+    self.bias_initializer = initializers.get(initializer)
   def build(self,input_shape):
     self.kernel = self.add_weight("kernel_{}".format(self.layer_name),
                                     shape=[int(self.shape[-1]),
@@ -23,8 +23,8 @@ class MyDenseLayer(tf.keras.layers.Layer):
                                     shape=[self.num_outputs],
                                  regularizer=self.bias_regularizer,
                                 initializer = self.bias_initializer)
-  def call(self, input):
-    return nn.bias_add(tf.matmul(input, self.kernel),self.bias)
+  def call(self, input, activation_function = tf.nn.relu):
+    return activation_function(tf.add(tf.matmul(input, self.kernel), self.bias))
 
 def cal_acc(y_pred,y_true):
     correct = tf.math.in_top_k(tf.cast(y_true,tf.int64),tf.cast(y_pred, tf.float32),  1)
@@ -40,41 +40,29 @@ class MyModel(tf.keras.Model):
     self.num_layers = 1
     self.input_layer = MyDenseLayer(n_hiddens,shape = (None,self.n_inputs),
                                     layer_name ='input',
-                                    kernel_regularizer = regularizers.l1(0.01),
-                                    bias_regularizer = regularizers.l1(0.01),
+                                    initializer = "TruncatedNormal"
                                     )
     self.list_dense = [self.input_layer]
-    self.output_layer = MyDenseLayer(n_outputs,shape = (None,self.n_hiddens),layer_name = 'output')
+    self.output_layer = MyDenseLayer(n_outputs,shape = (None,self.n_hiddens),layer_name = 'output',initializer = "TruncatedNormal")
   def call(self, inputs):
-    if self.num_layers>=2:
-      for index,layer in enumerate(self.list_dense):
-        if index == 0:
-          out = layer(inputs)
-          out = tf.nn.relu(out)
-        elif index != self.num_layers-1:
-          out = layer(prev_out + out)
-          out = tf.nn.relu(out)
-        else:
-          out = layer(prev_out+out)
-          out = tf.nn.relu(out)
+    for index,layer in enumerate(self.list_dense):
+      if index == 0:
+        out = layer(inputs)
+      elif 1<=index <= self.num_layers-1:
         prev_out = out
-    else:
-      out = self.list_dense[0](inputs)
-      out = tf.nn.relu(out)
-    out = self.output_layer(out)
-    out_sm = tf.nn.softmax(out)
-    return out_sm
+        out = prev_out + layer(out)
+    out = self.output_layer(out,activation_function = tf.nn.softmax)
+    return out
   def add_layer(self):
     self.num_layers += 1
     new_dense = MyDenseLayer(self.n_hiddens,
                              shape = (None,self.n_hiddens),
-                             layer_name =str(self.num_layers),
-                             kernel_regularizer = regularizers.l1(0.01),
-                             bias_regularizer = regularizers.l1(0.01))
+                             layer_name =str(self.num_layers)
+                             )
     self.list_dense.append(new_dense)
     for index in range(len(self.layers)-2):
       self.layers[index].trainable = False
-  def sparsify_weights(self, threshold = 1e-4):
+  def sparsify_weights(self, threshold = 1e-6):
     weights = self.layers[-2].get_weights()
     sparsified_weights = []
     for w in weights:
