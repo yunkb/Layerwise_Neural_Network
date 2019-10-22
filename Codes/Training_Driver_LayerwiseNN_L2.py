@@ -151,8 +151,6 @@ def trainer(hyper_p, run_options):
                         data_train_batch, labels_train_batch = get_MNIST_batch(mnist, hyper_p.batch_size)
                     if run_options.data_CIFAR10 == 1: 
                         data_train_batch, labels_train_batch = get_CIFAR10_batch(data_train, labels_train, hyper_p.batch_size, 1)                                                   
-                        data_train_batch.shape                        
-                        pdb.set_trace()
                     #loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
                     #writer.add_summary(s, epoch)
                     loss_value, _ = sess.run([loss, optimizer_Adam_op], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
