@@ -182,15 +182,6 @@ def trainer(hyper_p, run_options):
             save_weights_and_biases(sess, hyper_p, weight_list_counter, run_options.NN_savefile_name, 0)
             print('Final Model Saved')  
             
-            #=== Network Predictions ===#
-            index = 4389 # There are 10,000 training examples in MNIST
-            mnist_digit = mnist.test.images[index]
-            digit = np.array(mnist_digit, dtype='float')
-            pixels = digit.reshape((28, 28))
-            plt.imshow(pixels, cmap='gray')
-            plt.show()    
-            print(sess.run(NN.classify, feed_dict={NN.data_tf: mnist_digit.reshape(1,784)}))
-            
             #=== Close Session and Reset Graph ===#
             sess.close() 
         tf.reset_default_graph()
