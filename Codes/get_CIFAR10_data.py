@@ -22,7 +22,7 @@ def load_CIFAR10_data(flatten_data_flag):
     
     if flatten_data_flag == 1:
         data_train = data_train.reshape((num_training_data, img_size*img_size*num_channels))
-        data_test = data_train.reshape((num_testing_data, img_size*img_size*num_channels))
+        data_test = data_test.reshape((num_testing_data, img_size*img_size*num_channels))
     
     return num_training_data, num_testing_data, img_size, num_channels, label_dimensions, class_names, data_train, labels_train, data_test, labels_test
 
