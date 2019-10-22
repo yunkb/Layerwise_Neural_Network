@@ -92,9 +92,9 @@ def trainer(hyper_p, run_options):
             
     #=== Load Train and Test Data ===#
     if run_options.data_MNIST == 1:
-        mnist, data_dimensions, label_dimensions, num_training_data, testing_data, testing_labels = load_MNIST_data()
+        mnist, num_training_data, num_testing_data, data_dimensions, label_dimensions, data_test, labels_test = load_MNIST_data()
     if run_options.data_CIFAR10 == 1:    
-        load_CIFAR10_data()
+        num_training_data, num_testing_data, data_dimensions, label_dimensions, class_names, data_test, labels_test = load_CIFAR10_data()
         
     #=== Iteration Objects ===#
     loss_value = 1e5
@@ -189,9 +189,9 @@ def trainer(hyper_p, run_options):
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
                 print('Hidden Layers: %d, Epoch: %d, Loss: %.3e, Time: %.2f' %(weight_list_counter+1, epoch, loss_value, elapsed))
-                accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: testing_data, NN.labels_tf: testing_labels}) 
+                accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
                 writer.add_summary(s, epoch)
-                #accuracy = sess.run(test_accuracy, feed_dict = {NN.data_tf: testing_data, NN.labels_tf: testing_labels}) 
+                #accuracy = sess.run(test_accuracy, feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
                 print('Accuracy: %.2f\n' %(accuracy))
                 start_time = time.time()   
                    
