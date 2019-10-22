@@ -38,13 +38,13 @@ tf.set_random_seed(1234)
 #                       Hyperparameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    max_layers        = 6
+    max_hidden_layers = 4
     regularization    = 0.01
     penalty           = 1
     node_TOL          = 1e-3
     error_TOL         = 1e-3
-    batch_size        = 100
-    num_epochs        = 5
+    batch_size        = 1000
+    num_epochs        = 10
     gpu               = '1'
     
 class RunOptions:
@@ -76,7 +76,7 @@ class RunOptions:
         error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
         error_TOL_string = error_TOL_string[-1]
         
-        self.filename = data_type + '_ADMM_ml%d_r%s_p%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_layers, regularization_string, penalty_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = data_type + '_ADMM_mhl%d_r%s_p%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_layers, regularization_string, penalty_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
@@ -188,6 +188,8 @@ def trainer(hyper_p, run_options):
                     #loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
                     #writer.add_summary(s, epoch)
                     loss_value, _ = sess.run([loss, optimizer_Adam_op], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
+                
+                #=== Update z and Lagrange Multiplier ===#
                 update_z_and_lagrange_multiplier(sess, len(NN.weights))
                                 
                 #=== Display Iteration Information ===#
@@ -195,22 +197,21 @@ def trainer(hyper_p, run_options):
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
                 print('Hidden Layers: %d, Epoch: %d, Loss: %.3e, Time: %.2f' %(weight_list_counter+1, epoch, loss_value, elapsed))
-                accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
-                writer.add_summary(s, epoch)
-                #accuracy = sess.run(test_accuracy, feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
+                #accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
+                #writer.add_summary(s, epoch)
+                accuracy = sess.run(test_accuracy, feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
                 print('Accuracy: %.2f\n' %(accuracy))
                 start_time = time.time()   
-                   
+            
             #=== Optimize with LBFGS ===#
-    # =============================================================================
-    #         print('Optimizing with LBFGS\n')   
-    #         optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
-    #         [loss_value, s] = sess.run([loss,summ], tf_dict)
-    #         writer.add_summary(s,hyper_p.num_epochs)
-    #         print('LBFGS Optimization Complete\n') 
-    #         elapsed = time.time() - start_time
-    #         print('Loss: %.3e, Time: %.2f\n' %(loss_value, elapsed))
-    # =============================================================================
+            print('Optimizing with LBFGS\n')   
+            optimizer_LBFGS.minimize(sess, feed_dict={NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch})
+            loss_value = sess.run(loss, {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch})
+            print('LBFGS Optimization Complete\n') 
+            elapsed = time.time() - start_time
+            print('Loss: %.3e, Time: %.2f\n' %(loss_value, elapsed))
+            accuracy = sess.run(test_accuracy, feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
+            print('Accuracy: %.2f\n' %(accuracy))
             
             #=== Save final model ===#
             save_weights_and_biases(sess, hyper_p, weight_list_counter, run_options.NN_savefile_name, 1)
@@ -230,7 +231,7 @@ if __name__ == "__main__":
     hyper_p = HyperParameters()
     
     if len(sys.argv) > 1:
-            hyper_p.max_layers        = int(sys.argv[1])
+            hyper_p.max_hidden_layers = int(sys.argv[1])
             hyper_p.regularization    = float(sys.argv[2])
             hyper_p.penalty           = float(sys.argv[3])
             hyper_p.node_TOL          = float(sys.argv[4])
