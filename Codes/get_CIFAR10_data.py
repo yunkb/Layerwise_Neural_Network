@@ -39,5 +39,7 @@ def get_CIFAR10_batch(data_train, labels_train, batch_size, flatten_data_flag):
         data_train_batch = data_train_batch.reshape((batch_size, img_size*img_size*num_channels))
         
     data_train_batch.shape
+    
+    pdb.set_trace()
 
     return data_train_batch, labels_train_batch
