@@ -49,8 +49,8 @@ class HyperParameters:
     
 class RunOptions:
     def __init__(self, hyper_p): 
-        self.data_MNIST = 0
-        self.data_CIFAR10 = 1    
+        self.data_MNIST = 1
+        self.data_CIFAR10 = 0    
         if self.data_MNIST == 1:
             data_type = 'MNIST'
         if self.data_CIFAR10 == 1:
@@ -102,14 +102,14 @@ def trainer(hyper_p, run_options):
         
     #=== Iteration Objects ===#
     loss_value = 1e5
-    weight_list_counter = 0
+    hidden_layer_counter = 1
     
-    while loss_value > hyper_p.error_TOL and weight_list_counter < hyper_p.max_hidden_layers:       
+    while loss_value > hyper_p.error_TOL and hidden_layer_counter < hyper_p.max_hidden_layers:       
         ###########################
         #   Training Properties   #
         ###########################   
         #=== Neural network ===#
-        NN = Layerwise(hyper_p, data_dimensions, label_dimensions, weight_list_counter, run_options.NN_savefile_name)
+        NN = Layerwise(hyper_p, data_dimensions, label_dimensions, hidden_layer_counter, run_options.NN_savefile_name)
         
         #=== Initialize ADMM objects ===#
         z_weights, z_biases, lagrange_weights, lagrange_biases = construct_ADMM_objects(NN)
@@ -196,7 +196,7 @@ def trainer(hyper_p, run_options):
                 elapsed = time.time() - start_time
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
-                print('Hidden Layers: %d, Epoch: %d, Loss: %.3e, Time: %.2f' %(weight_list_counter+1, epoch, loss_value, elapsed))
+                print('Hidden Layers: %d, Epoch: %d, Loss: %.3e, Time: %.2f' %(hidden_layer_counter, epoch, loss_value, elapsed))
                 #accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
                 #writer.add_summary(s, epoch)
                 accuracy = sess.run(test_accuracy, feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
@@ -214,13 +214,13 @@ def trainer(hyper_p, run_options):
             print('Accuracy: %.2f\n' %(accuracy))
             
             #=== Save final model ===#
-            save_weights_and_biases(sess, hyper_p, weight_list_counter, run_options.NN_savefile_name, 1)
+            save_weights_and_biases(sess, hyper_p, hidden_layer_counter, run_options.NN_savefile_name, 1)
             print('Final Model Saved')  
             
             #=== Reset Graph and Close Session ===#
             sess.close()
         tf.reset_default_graph()
-        weight_list_counter += 1
+        hidden_layer_counter += 1
     
 ###############################################################################
 #                                 Driver                                      #
