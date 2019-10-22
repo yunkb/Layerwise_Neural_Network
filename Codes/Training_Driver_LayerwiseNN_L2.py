@@ -167,7 +167,7 @@ def trainer(hyper_p, run_options):
                 
             #=== Optimize with LBFGS ===#
             print('Optimizing with LBFGS\n')   
-            #optimizer_LBFGS.minimize(sess, feed_dict={NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch})
+            optimizer_LBFGS.minimize(sess, feed_dict={NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch})
             loss_value = sess.run(loss, {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch})
             print('LBFGS Optimization Complete\n') 
             elapsed = time.time() - start_time

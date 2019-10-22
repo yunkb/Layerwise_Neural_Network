@@ -21,14 +21,14 @@ def construct_ADMM_objects(NN):
 
     biases_init_value = 0  
         
-    for l in range(0, len(NN.layers)-1): 
-        z_W = tf.get_variable("z_W" + str(l+1), dtype = tf.float32, shape = [NN.layers[l], NN.layers[l + 1]], initializer = tf.random_normal_initializer(), trainable=False)
-        z_b = tf.get_variable("z_b" + str(l+1), dtype = tf.float32, shape = [1, NN.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value), trainable=False)                                  
+    for l in range(1, len(NN.layers)): 
+        z_W = tf.get_variable("z_W" + str(l), dtype = tf.float32, shape = [NN.layers[l-1], NN.layers[l]], initializer = tf.random_normal_initializer(), trainable=False)
+        z_b = tf.get_variable("z_b" + str(l), dtype = tf.float32, shape = [1, NN.layers[l]], initializer = tf.constant_initializer(biases_init_value), trainable=False)                                  
         z_weights.append(z_W)
         z_biases.append(z_b)
         
-        lagrange_W = tf.get_variable("lagrange_W" + str(l+1), dtype = tf.float32, shape = [NN.layers[l], NN.layers[l + 1]], initializer = tf.random_normal_initializer(), trainable=False)
-        lagrange_b = tf.get_variable("lagrange_b" + str(l+1), dtype = tf.float32, shape = [1, NN.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value), trainable=False)                                  
+        lagrange_W = tf.get_variable("lagrange_W" + str(l), dtype = tf.float32, shape = [NN.layers[l-1], NN.layers[l]], initializer = tf.random_normal_initializer(), trainable=False)
+        lagrange_b = tf.get_variable("lagrange_b" + str(l), dtype = tf.float32, shape = [1, NN.layers[l]], initializer = tf.constant_initializer(biases_init_value), trainable=False)                                  
         lagrange_weights.append(lagrange_W)
         lagrange_biases.append(lagrange_b)
         
