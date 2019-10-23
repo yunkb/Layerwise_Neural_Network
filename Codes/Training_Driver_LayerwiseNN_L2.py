@@ -44,7 +44,15 @@ class HyperParameters:
     gpu               = '0'
     
 class RunOptions:
-    def __init__(self, hyper_p):     
+    def __init__(self, hyper_p):   
+        #=== Use LBFGS Optimizer ===#
+        self.use_LBFGS = 1
+        
+        #=== Choose Data Set ===#
+        self.data_MNIST = 1
+        self.data_CIFAR10 = 0    
+        
+        #=== Setting Filename ===#
         self.data_MNIST = 1
         self.data_CIFAR10 = 0    
         if self.data_MNIST == 1:
@@ -150,30 +158,30 @@ def trainer(hyper_p, run_options):
                         data_train_batch, labels_train_batch = get_MNIST_batch(mnist, hyper_p.batch_size)
                     if run_options.data_CIFAR10 == 1: 
                         data_train_batch, labels_train_batch = get_CIFAR10_batch(data_train, labels_train, hyper_p.batch_size, 1)                                                   
-                    #loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
-                    #writer.add_summary(s, epoch)
-                    loss_value, _ = sess.run([loss, optimizer_Adam_op], feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
+                    sess.run(optimizer_Adam_op, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
                 
                 #=== Display Iteration Information ===#
                 elapsed = time.time() - start_time
+                loss_value = sess.run(loss, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
+                accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
+                writer.add_summary(s, epoch)
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
                 print('Hidden Layers: %d, Epoch: %d, Loss: %.3e, Time: %.2f' %(hidden_layer_counter, epoch, loss_value, elapsed))
-                #accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
-                #writer.add_summary(s, epoch)
-                accuracy = sess.run(test_accuracy, feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
                 print('Accuracy: %.2f\n' %(accuracy))
                 start_time = time.time()  
                 
             #=== Optimize with LBFGS ===#
-            print('Optimizing with LBFGS\n')   
-            optimizer_LBFGS.minimize(sess, feed_dict={NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch})
-            loss_value = sess.run(loss, {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch})
-            print('LBFGS Optimization Complete\n') 
-            elapsed = time.time() - start_time
-            print('Loss: %.3e, Time: %.2f\n' %(loss_value, elapsed))
-            accuracy = sess.run(test_accuracy, feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
-            print('Accuracy: %.2f\n' %(accuracy))
+            if run_options.use_LBFGS == 1:
+                print('Optimizing with LBFGS')   
+                optimizer_LBFGS.minimize(sess, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch})
+                elapsed = time.time() - start_time 
+                loss_value = sess.run(loss, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch})
+                accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
+                writer.add_summary(s, epoch)
+                print('LBFGS Optimization Complete')
+                print('Loss: %.3e, Time: %.2f' %(loss_value, elapsed))
+                print('Accuracy: %.2f\n' %(accuracy))
            
             #=== Save Final Model ===#
             save_weights_and_biases(sess, hyper_p, hidden_layer_counter, run_options.NN_savefile_name, 0)
