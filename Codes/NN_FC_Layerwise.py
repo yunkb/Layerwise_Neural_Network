@@ -34,8 +34,8 @@ class Layerwise:
         #   Initial Architecture   #
         ############################
         # If first iteration, initialize output layer
-        with tf.variable_scope("NN") as scope: 
-            if hidden_layer_counter == 1: 
+        if hidden_layer_counter == 1: 
+            with tf.variable_scope("NN") as scope: 
                 for l in range(1, 3):
                     W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l-1], self.layers[l]], initializer = tf.random_normal_initializer())
                     b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [1, self.layers[l]], initializer = tf.constant_initializer(0))                                  
