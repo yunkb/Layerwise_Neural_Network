@@ -69,7 +69,7 @@ class Layerwise:
                 self.weights.append(W)
                 self.biases.append(b)
                     
-                # Load pre-trained output layer weights and biases. Note these can be trained again
+                # Load pre-trained output layer weights and biases. Note these wlll be trained again
                 l = hidden_layer_counter + 1
                 df_trained_weights = pd.read_csv(savefilepath + "_Woutput" + '.csv')
                 df_trained_biases = pd.read_csv(savefilepath + "_boutput" + '.csv')
