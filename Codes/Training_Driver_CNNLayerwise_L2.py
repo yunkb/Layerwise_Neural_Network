@@ -43,11 +43,11 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p):   
         #=== Use LBFGS Optimizer ===#
-        self.use_LBFGS = 0
+        self.use_LBFGS = 1
         
         #=== Choose Data Set ===#
-        self.data_MNIST = 1
-        self.data_CIFAR10 = 0    
+        self.data_MNIST = 0
+        self.data_CIFAR10 = 1    
         
         #=== Setting Filename ===#   
         self.NN_type = 'CNN'
