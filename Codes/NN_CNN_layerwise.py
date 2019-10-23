@@ -109,6 +109,7 @@ class ConvolutionalLayerwise:
     def forward_convolutional_prop(self, X, num_layers): 
         # Convolutional Hidden Layers 
         for l in range(0, num_layers-2):
+            current_input = X
             # Create the TensorFlow operation for convolution.
             # Note the strides are set to 1 in all dimensions.
             # The first and last stride must always be 1,
@@ -122,7 +123,7 @@ class ConvolutionalLayerwise:
                              filter  = self.weights[l],
                              strides = [1, 1, 1, 1],
                              padding = 'SAME')
-            X = tf.nn.relu(X + self.biases[l])    
+            X = current_input + tf.nn.relu(X + self.biases[l])    
         # Fully Connected Output Layer 
         X_flat, num_features = self.flatten_layer(X)
 

@@ -17,6 +17,8 @@ import time
 from get_batch import get_batch
 from save_trained_parameters_layerwise import save_weights_and_biases
 
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+
 def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_training_data, pen, z_weights, z_biases, lagrange_weights, lagrange_biases, data_train, labels_train, data_test, labels_test):
 ###############################################################################
 #                             Training Properties                             #
@@ -79,6 +81,10 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
         sess.run(tf.initialize_all_variables()) 
         writer.add_graph(sess.graph)
                 
+        accuracy= sess.run(test_accuracy, feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
+        print('Accuracy: %.3f\n' %(accuracy))
+        pdb.set_trace()
+        
         #=== Assign initial value of z to be equal to w ===#
         for l in range(0, len(NN.weights)): 
             sess.run("z_weights_initial_value" + str(l+1)) 
@@ -101,7 +107,7 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
             print(run_options.filename)
             print('GPU: ' + hyper_p.gpu)
             print('Hidden Layers: %d, Epoch: %d, Loss: %.3e, Time: %.2f' %(hidden_layer_counter, epoch, loss_value, elapsed))
-            print('Accuracy: %.2f\n' %(accuracy))
+            print('Accuracy: %.3f\n' %(accuracy))
             start_time = time.time() 
             
             #=== Optimize with LBFGS ===#
@@ -114,7 +120,7 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
                 writer.add_summary(s, epoch)
                 print('LBFGS Optimization Complete')
                 print('Loss: %.3e, Time: %.2f' %(loss_value, elapsed))
-                print('Accuracy: %.2f\n' %(accuracy))
+                print('Accuracy: %.3f\n' %(accuracy))
             
             #=== Update z and Lagrange Multiplier ===# 
             for l in range(0, len(NN.weights)):  
@@ -124,8 +130,9 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
                 sess.run("lagrange_biases_update" + str(l+1))
         
         #=== Save Final Model ===#
-        save_weights_and_biases(sess, hyper_p, hidden_layer_counter, run_options.NN_savefile_name, thresholding_flag = 0)
+        save_weights_and_biases(sess, hyper_p, hidden_layer_counter, run_options.NN_savefile_name, thresholding_flag = 1)
         print('Final Model Saved')  
         
+        pdb.set_trace()
         #=== Close Session ===#
         sess.close() 
