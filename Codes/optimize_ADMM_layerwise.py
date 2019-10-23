@@ -128,7 +128,6 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
         #=== Save Final Model ===#
         save_weights_and_biases(sess, hyper_p, hidden_layer_counter, run_options.NN_savefile_name, thresholding_flag = 1)
         print('Final Model Saved')  
-        
-        pdb.set_trace()
+
         #=== Close Session ===#
         sess.close() 
