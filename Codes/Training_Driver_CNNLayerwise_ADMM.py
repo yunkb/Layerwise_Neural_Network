@@ -33,7 +33,7 @@ np.random.seed(1234)
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    max_hidden_layers = 4
+    max_hidden_layers = 8
     filter_size       = 3
     num_filters       = 3
     regularization    = 0.01
@@ -41,7 +41,7 @@ class HyperParameters:
     node_TOL          = 1e-3
     error_TOL         = 1e-2
     batch_size        = 100
-    num_epochs        = 10
+    num_epochs        = 100
     gpu               = '0'
     
 class RunOptions:
