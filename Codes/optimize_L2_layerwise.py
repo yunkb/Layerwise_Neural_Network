@@ -13,7 +13,7 @@ import shutil # for deleting directories
 import os
 import time
 
-from get_batch import get_batch
+from random_mini_batches import random_mini_batches
 from save_trained_parameters_layerwise import save_weights_and_biases
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -78,9 +78,11 @@ def optimize_L2_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_tr
         start_time = time.time()
         num_batches = int(num_training_data/hyper_p.batch_size)
         for epoch in range(hyper_p.num_epochs):
+            minibatches = random_mini_batches(data_train.T, labels_train.T, hyper_p.batch_size, 1234)
             for batch_num in range(num_batches):
-                data_train_batch, labels_train_batch = get_batch(data_train, labels_train, hyper_p.batch_size)                                                 
-                sess.run(optimizer_Adam_op, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
+                data_train_batch = minibatches[batch_num][0].T
+                labels_train_batch = minibatches[batch_num][1].T
+                sess.run(optimizer_Adam_op, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch})
             
             #=== Display Iteration Information ===#
             elapsed = time.time() - start_time
