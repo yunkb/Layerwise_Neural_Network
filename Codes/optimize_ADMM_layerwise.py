@@ -80,10 +80,6 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
     with tf.Session(config=gpu_config) as sess:
         sess.run(tf.initialize_all_variables()) 
         writer.add_graph(sess.graph)
-                
-        accuracy= sess.run(test_accuracy, feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
-        print('Accuracy: %.3f\n' %(accuracy))
-        pdb.set_trace()
         
         #=== Assign initial value of z to be equal to w ===#
         for l in range(0, len(NN.weights)): 
