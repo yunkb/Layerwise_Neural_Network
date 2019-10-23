@@ -56,9 +56,7 @@ class RunOptions:
         self.data_MNIST = 1
         self.data_CIFAR10 = 0    
         
-        #=== Setting Filename ===#
-        self.data_MNIST = 1
-        self.data_CIFAR10 = 0    
+        #=== Setting Filename ===# 
         if self.data_MNIST == 1:
             data_type = 'MNIST'
         if self.data_CIFAR10 == 1:
@@ -101,12 +99,9 @@ def trainer(hyper_p, run_options):
             
     #=== Load Train and Test Data ===#
     if run_options.data_MNIST == 1:
-        mnist, num_training_data, num_testing_data, data_dimensions, label_dimensions, data_test, labels_test = load_MNIST_data()
+        mnist, num_training_data, num_testing_data, img_size, num_channels, data_dimensions, label_dimensions, data_test, labels_test = load_MNIST_data()
     if run_options.data_CIFAR10 == 1:    
-        num_training_data, num_testing_data, img_size, num_channels, label_dimensions, class_names, data_train, labels_train, data_test, labels_test = load_CIFAR10_data()
-        data_dimensions = img_size*img_size*num_channels
-        data_dimensions = img_size*img_size*num_channels
-        data_test = data_test.reshape((num_testing_data, img_size*img_size*num_channels))      
+        num_training_data, num_testing_data, img_size, num_channels, data_dimensions, label_dimensions, class_names, data_train, labels_train, data_test, labels_test = load_CIFAR10_data()     
         
     #=== Iteration Objects ===#
     loss_value = 1e5
@@ -192,7 +187,7 @@ def trainer(hyper_p, run_options):
                     if run_options.data_MNIST == 1:
                         data_train_batch, labels_train_batch = get_MNIST_batch(mnist, hyper_p.batch_size)
                     if run_options.data_CIFAR10 == 1: 
-                        data_train_batch, labels_train_batch = get_CIFAR10_batch(data_train, labels_train, hyper_p.batch_size, 1)
+                        data_train_batch, labels_train_batch = get_CIFAR10_batch(data_train, labels_train, hyper_p.batch_size)
                     sess.run(optimizer_Adam_op, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
                 
                 #=== Display Iteration Information ===#
