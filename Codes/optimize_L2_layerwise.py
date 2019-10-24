@@ -14,7 +14,7 @@ import os
 import time
 
 from random_mini_batches import random_mini_batches
-from save_trained_parameters_layerwise import save_weights_and_biases
+from save_trained_parameters_layerwise import save_weights_and_biases_FC, save_weights_and_biases_CNN
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -108,7 +108,10 @@ def optimize_L2_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_tr
             print('Accuracy: %.3f\n' %(accuracy))
             
         #=== Save final model ===#
-        save_weights_and_biases(sess, hyper_p, hidden_layer_counter, run_options.NN_savefile_name, thresholding_flag = 0)
+        if run_options.NN_type == 'FC':
+            save_weights_and_biases_FC(sess, hyper_p, hidden_layer_counter, run_options.NN_savefile_name, thresholding_flag = 0)
+        if run_options.NN_type == 'CNN':
+            save_weights_and_biases_CNN(sess, hyper_p, hidden_layer_counter, run_options.NN_savefile_name, thresholding_flag = 0)
         print('Final Model Saved') 
         
         #=== Close Session ===#

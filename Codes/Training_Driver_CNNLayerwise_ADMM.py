@@ -35,13 +35,13 @@ np.random.seed(1234)
 class HyperParameters:
     max_hidden_layers = 8
     filter_size       = 3
-    num_filters       = 3
-    regularization    = 0.01
+    num_filters       = 64
+    regularization    = 1
     penalty           = 1
     node_TOL          = 1e-3
     error_TOL         = 1e-2
     batch_size        = 100
-    num_epochs        = 100
+    num_epochs        = 10
     gpu               = '0'
     
 class RunOptions:

@@ -15,7 +15,7 @@ import os
 import time
 
 from random_mini_batches import random_mini_batches
-from save_trained_parameters_layerwise import save_weights_and_biases
+from save_trained_parameters_layerwise import save_weights_and_biases_FC, save_weights_and_biases_CNN
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -128,7 +128,10 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
                 sess.run("lagrange_biases_update" + str(l+1))
         
         #=== Save Final Model ===#
-        save_weights_and_biases(sess, hyper_p, hidden_layer_counter, run_options.NN_savefile_name, thresholding_flag = 1)
+        if run_options.NN_type == 'FC':
+            save_weights_and_biases_FC(sess, hyper_p, hidden_layer_counter, run_options.NN_savefile_name, thresholding_flag = 1)
+        if run_options.NN_type == 'CNN':
+            save_weights_and_biases_CNN(sess, hyper_p, hidden_layer_counter, run_options.NN_savefile_name, thresholding_flag = 1)
         print('Final Model Saved')  
 
         #=== Close Session ===#

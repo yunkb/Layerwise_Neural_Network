@@ -34,10 +34,10 @@ np.random.seed(1234)
 class HyperParameters:
     max_hidden_layers = 8
     filter_size       = 3
-    num_filters       = 3
+    num_filters       = 64
     error_TOL         = 1e-2
     batch_size        = 100
-    num_epochs        = 100
+    num_epochs        = 10
     gpu               = '0'
     
 class RunOptions:
@@ -82,7 +82,7 @@ def trainer(hyper_p, run_options):
         num_training_data, num_testing_data, img_size, num_channels, data_dimensions, label_dimensions, class_names, data_train, labels_train, data_test, labels_test = load_CIFAR10_data()
         
     loss_value = 1e5
-    hidden_layer_counter = 1
+    hidden_layer_counter = 2
     
     while loss_value > hyper_p.error_TOL and hidden_layer_counter < hyper_p.max_hidden_layers:     
         #=== Neural network ===#

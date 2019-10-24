@@ -40,20 +40,20 @@ class ConvolutionalLayerwise:
         #   Initial Architecture   #
         ############################        
         # If first iteration, initialize output layer
-        if hidden_layer_counter == 1: 
-            with tf.variable_scope("NN") as scope:                
-                # Convolutional Layers, shape = [filter_size, filter_size, num_input_channels, num_filters]. This format is determined by the TensorFlow API.
-                l = 1
-                W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l][0], self.layers[l][0], self.layers[l-1][1], self.layers[l][1]], initializer = tf.random_normal_initializer())
-                b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [self.layers[l][1]], initializer = tf.constant_initializer(0))                                  
-                tf.summary.histogram("weights" + str(l), W)
-                tf.summary.histogram("biases" + str(l), b)
-                self.weights.append(W)
-                self.biases.append(b)
+        if hidden_layer_counter == 2: 
+            with tf.variable_scope("NN") as scope:   
+                # Convolutional mapping to feature space and first convolutional layer, shape = [filter_size, filter_size, num_input_channels, num_filters]. This format is determined by the TensorFlow API.
+                for l in range(1, 3): 
+                    W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l][0], self.layers[l][0], self.layers[l-1][1], self.layers[l][1]], initializer = tf.random_normal_initializer())
+                    b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [self.layers[l][1]], initializer = tf.constant_initializer(0))                                  
+                    tf.summary.histogram("weights" + str(l), W)
+                    tf.summary.histogram("biases" + str(l), b)
+                    self.weights.append(W)
+                    self.biases.append(b)
                 
                 # Fully Connected Output Layer  
                 self.X_flat, self.num_features = self.forward_convolutional_prop(self.data_image_tf, num_layers)  
-                l = 2
+                l = 3
                 W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.num_features, self.layers[l]], initializer = tf.random_normal_initializer())
                 b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [1, self.layers[l]], initializer = tf.constant_initializer(0))                                  
                 tf.summary.histogram("weights" + str(l), W)
@@ -64,10 +64,21 @@ class ConvolutionalLayerwise:
         ##############################
         #   Extending Architecture   #
         ############################## 
-        if hidden_layer_counter > 1: 
+        if hidden_layer_counter > 2: 
             with tf.variable_scope("NN") as scope: 
-                # Load pre-trained weights and biases
-                for l in range(1, hidden_layer_counter):
+                # Load convolutional mapping to feature space. Note that these will be trained again
+                l = 1
+                df_trained_weights = pd.read_csv(savefilepath + "_Winput" + '.csv')
+                df_trained_biases = pd.read_csv(savefilepath + "_binput" + '.csv')
+                restored_W = df_trained_weights.values.reshape([self.layers[l][0], self.layers[l][0], self.layers[l-1][1], self.layers[l][1]])
+                restored_b = df_trained_biases.values.reshape([self.layers[l][1]])
+                W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l][0], self.layers[l][0], self.layers[l-1][1], self.layers[l][1]], initializer = tf.constant_initializer(restored_W), trainable = True)
+                b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [self.layers[l][1]], initializer = tf.constant_initializer(restored_b), trainable = True)                                  
+                self.weights.append(W)
+                self.biases.append(b)
+                
+                # Load pre-trained hidden layer weights and biases
+                for l in range(2, hidden_layer_counter):
                     df_trained_weights = pd.read_csv(savefilepath + "_W" + str(l) + '.csv')
                     df_trained_biases = pd.read_csv(savefilepath + "_b" + str(l) + '.csv')
                     restored_W = df_trained_weights.values.reshape([self.layers[l][0], self.layers[l][0], self.layers[l-1][1], self.layers[l][1]])
@@ -77,7 +88,7 @@ class ConvolutionalLayerwise:
                     self.weights.append(W)
                     self.biases.append(b)
                     
-                # Initialize new hidden layer weights and biases as 0  
+                # Construct new hidden layer and set initial weights and biases as 0  
                 l = hidden_layer_counter
                 W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l][0], self.layers[l][0], self.layers[l-1][1], self.layers[l][1]], initializer = tf.constant_initializer(0))
                 b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [self.layers[l][1]], initializer = tf.constant_initializer(0))                                  
@@ -86,7 +97,7 @@ class ConvolutionalLayerwise:
                 self.weights.append(W)
                 self.biases.append(b)
                 
-                # Load pre-trained output layer weights and biases. Note these wlll be trained again
+                # Load pre-trained output layer weights and biases. Note that these will be trained again
                 self.X_flat, self.num_features = self.forward_convolutional_prop(self.data_image_tf, num_layers)  
                 l = hidden_layer_counter + 1
                 df_trained_weights = pd.read_csv(savefilepath + "_Woutput" + '.csv')
@@ -123,7 +134,10 @@ class ConvolutionalLayerwise:
                              filter  = self.weights[l],
                              strides = [1, 1, 1, 1],
                              padding = 'SAME')
-            X = current_input + tf.nn.relu(X + self.biases[l])    
+            if l == 0: # Linear mapping to feature space
+                X = X + self.biases[l]
+            else:
+                X = current_input + tf.nn.relu(X + self.biases[l])    
         # Fully Connected Output Layer 
         X_flat, num_features = self.flatten_layer(X)
 
