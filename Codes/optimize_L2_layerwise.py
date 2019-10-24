@@ -73,6 +73,10 @@ def optimize_L2_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_tr
         sess.run(tf.initialize_all_variables()) 
         writer.add_graph(sess.graph)
         
+        accuracy= sess.run(test_accuracy, feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
+        print('Accuracy: %.3f\n' %(accuracy))
+        pdb.set_trace()
+        
         #=== Train neural network ===#
         print('Beginning Training\n')
         start_time = time.time()
@@ -106,6 +110,7 @@ def optimize_L2_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_tr
             print('LBFGS Optimization Complete')
             print('Loss: %.3e, Time: %.2f' %(loss_value, elapsed))
             print('Accuracy: %.3f\n' %(accuracy))
+            pdb.set_trace()
             
         #=== Save final model ===#
         if run_options.NN_type == 'FC':

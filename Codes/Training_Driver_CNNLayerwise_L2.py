@@ -37,7 +37,7 @@ class HyperParameters:
     num_filters       = 20
     error_TOL         = 1e-2
     batch_size        = 100
-    num_epochs        = 10
+    num_epochs        = 5
     gpu               = '0'
     
 class RunOptions:
