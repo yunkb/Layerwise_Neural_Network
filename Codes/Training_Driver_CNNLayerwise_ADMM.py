@@ -98,7 +98,7 @@ def trainer(hyper_p, run_options):
         num_training_data, num_testing_data, img_size, num_channels, data_dimensions, label_dimensions, class_names, data_train, labels_train, data_test, labels_test = load_CIFAR10_data()
         
     loss_value = 1e5
-    hidden_layer_counter = 1
+    hidden_layer_counter = 2
     
     while loss_value > hyper_p.error_TOL and hidden_layer_counter < hyper_p.max_hidden_layers:     
         #=== Neural network ===#
