@@ -34,7 +34,7 @@ np.random.seed(1234)
 class HyperParameters:
     max_hidden_layers = 8
     filter_size       = 3
-    num_filters       = 64
+    num_filters       = 20
     error_TOL         = 1e-2
     batch_size        = 100
     num_epochs        = 10
@@ -43,7 +43,7 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p):   
         #=== Use LBFGS Optimizer ===#
-        self.use_LBFGS = 1
+        self.use_LBFGS = 0
         
         #=== Choose Data Set ===#
         self.data_MNIST = 1
