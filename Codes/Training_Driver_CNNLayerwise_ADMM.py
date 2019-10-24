@@ -47,7 +47,7 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p):   
         #=== Use LBFGS Optimizer ===#
-        self.use_LBFGS = 1
+        self.use_LBFGS = 0
         
         #=== Choose Data Set ===#
         self.data_MNIST = 1
@@ -98,7 +98,7 @@ def trainer(hyper_p, run_options):
         num_training_data, num_testing_data, img_size, num_channels, data_dimensions, label_dimensions, class_names, data_train, labels_train, data_test, labels_test = load_CIFAR10_data()
         
     loss_value = 1e5
-    hidden_layer_counter = 2
+    hidden_layer_counter = 2 # For CNNs, we use a linear mapping to the feature space as the first layer. This gets retrained upon each architecture update
     
     while loss_value > hyper_p.error_TOL and hidden_layer_counter < hyper_p.max_hidden_layers:     
         #=== Neural network ===#
