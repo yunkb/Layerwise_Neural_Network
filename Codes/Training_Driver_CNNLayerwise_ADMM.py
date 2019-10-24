@@ -35,7 +35,7 @@ np.random.seed(1234)
 class HyperParameters:
     max_hidden_layers = 8
     filter_size       = 3
-    num_filters       = 64
+    num_filters       = 30
     regularization    = 1
     penalty           = 1
     node_TOL          = 1e-3
