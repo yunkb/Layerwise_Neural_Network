@@ -25,7 +25,7 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
 ###############################################################################    
     #=== Loss functional ===#
     with tf.variable_scope('loss') as scope:
-        data_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits = NN.prediction, labels = NN.labels_tf))    
+        data_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits = NN.logits, labels = NN.labels_tf))    
         ADMM_penalty = 0.0
         for l in range(0, len(NN.weights)):  
             weights_norm = pen/2 * tf.pow(tf.norm(NN.weights[l] - z_weights[l] + lagrange_weights[l]/pen, 2), 2)
@@ -36,7 +36,7 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
         
     #=== Accuracy ===#
     with tf.variable_scope('test_accuracy') as scope:
-        num_correct_tests = tf.equal(tf.argmax(NN.prediction, 1), tf.argmax(NN.labels_tf, 1))
+        num_correct_tests = tf.equal(tf.argmax(NN.logits, 1), tf.argmax(NN.labels_tf, 1))
         test_accuracy = tf.reduce_mean(tf.cast(num_correct_tests, 'float'))
         tf.summary.scalar("test_accuracy", test_accuracy)
                 
@@ -88,38 +88,51 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
         
         #=== Train neural network ===#
         print('Beginning Training\n')
-        start_time = time.time()
         num_batches = int(num_training_data/hyper_p.batch_size)
         for epoch in range(hyper_p.num_epochs):
+            print('================================')
+            print('            Epoch %d            ' %(epoch))
+            print('================================')
+            print(run_options.filename)
+            print('Number of Hidden Layers: %d' %hidden_layer_counter)
+            print('GPU: ' + hyper_p.gpu + '\n')
+            print('Optimizing %d batches of size %d:' %(num_batches, hyper_p.batch_size))
+            start_time_epoch = time.time()
             minibatches = random_mini_batches(data_train.T, labels_train.T, hyper_p.batch_size, 1234)
             for batch_num in range(num_batches):
                 data_train_batch = minibatches[batch_num][0].T
                 labels_train_batch = minibatches[batch_num][1].T
+                start_time_batch = time.time()
                 sess.run(optimizer_Adam_op, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch})
+                elapsed_time_batch = time.time() - start_time_batch
+                if batch_num  == 0:
+                    print('Time per Batch: %.2f' %(elapsed_time_batch))
             
-            #=== Display Iteration Information ===#    
-            elapsed = time.time() - start_time
+            #=== Display Iteration Information ===#
+            elapsed_time_epoch = time.time() - start_time_epoch
             loss_value = sess.run(loss, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch}) 
             accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
+            #accuracy = compute_test_accuracy(sess, NN, test_accuracy, num_testing_data, hyper_p.batch_size, data_test, labels_test)
+            #s = sess.run(summ, feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
             writer.add_summary(s, epoch)
             print(run_options.filename)
-            print('GPU: ' + hyper_p.gpu)
-            print('Hidden Layers: %d, Epoch: %d, Loss: %.3e, Time: %.2f' %(hidden_layer_counter, epoch, loss_value, elapsed))
-            print('Accuracy: %.3f\n' %(accuracy))
-            start_time = time.time() 
-            
+            print('Time per Epoch: %.2f' %(elapsed_time_epoch))
+            print('Loss: %.3e, Accuracy: %.2f\n' %(loss_value, accuracy))
+            start_time_epoch = time.time()    
+                 
             #=== Optimize with LBFGS ===#
             if run_options.use_LBFGS == 1:
-                print('Optimizing with LBFGS')   
+                print('Optimizing with LBFGS:')   
+                start_time_LBFGS = time.time()
                 optimizer_LBFGS.minimize(sess, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch})
-                elapsed = time.time() - start_time 
+                time_elapsed_LBFGS = time.time() - start_time_LBFGS 
                 loss_value = sess.run(loss, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch})
                 accuracy, s = sess.run([test_accuracy, summ], feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
                 writer.add_summary(s, epoch)
                 print('LBFGS Optimization Complete')
-                print('Loss: %.3e, Time: %.2f' %(loss_value, elapsed))
-                print('Accuracy: %.3f\n' %(accuracy))
-            
+                print('Time for LBFGS: %.2f' %(time_elapsed_LBFGS))
+                print('Loss: %.3e, Accuracy: %.2f\n' %(loss_value, accuracy))   
+                
             #=== Update z and Lagrange Multiplier ===# 
             for l in range(0, len(NN.weights)):  
                 sess.run("z_weights_update" + str(l+1))

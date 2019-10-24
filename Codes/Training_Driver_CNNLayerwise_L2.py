@@ -32,7 +32,7 @@ np.random.seed(1234)
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    max_hidden_layers = 8
+    max_hidden_layers = 3
     filter_size       = 3
     num_filters       = 30
     error_TOL         = 1e-2
@@ -43,11 +43,11 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p):   
         #=== Use LBFGS Optimizer ===#
-        self.use_LBFGS = 1
+        self.use_LBFGS = 0
         
         #=== Choose Data Set ===#
-        self.data_MNIST = 0
-        self.data_CIFAR10 = 1   
+        self.data_MNIST = 1
+        self.data_CIFAR10 = 0   
         
         #=== Setting Filename ===#   
         self.NN_type = 'CNN'

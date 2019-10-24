@@ -112,7 +112,7 @@ class ConvolutionalLayerwise:
 ###############################################################################
 #                           Network Propagation                               #
 ###############################################################################                  
-        self.prediction = self.fully_connected_classifier(self.X_flat)     
+        self.logits = self.fully_connected_classifier(self.X_flat)     
 
 ###############################################################################
 #                                Methods                                      #

@@ -85,8 +85,7 @@ class FullyConnectedLayerwise:
 ###############################################################################
 #                           Network Propagation                               #
 ###############################################################################                  
-        self.prediction = self.forward_prop(self.data_tf, num_layers)                
-        self.classify = tf.argmax(self.prediction, 1)
+        self.logits = self.forward_prop(self.data_tf, num_layers)                
         
 ###############################################################################
 #                                Methods                                      #
