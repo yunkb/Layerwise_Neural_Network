@@ -129,9 +129,9 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
         
         #=== Save Final Model ===#
         if run_options.NN_type == 'FC':
-            save_weights_and_biases_FC(sess, hyper_p, hidden_layer_counter, run_options.NN_savefile_name, thresholding_flag = 0)
+            save_weights_and_biases_FC(sess, hyper_p, hidden_layer_counter, run_options.NN_savefile_name, thresholding_flag = 1)
         if run_options.NN_type == 'CNN':
-            save_weights_and_biases_CNN(sess, hyper_p, hidden_layer_counter, run_options.NN_savefile_name, thresholding_flag = 0)
+            save_weights_and_biases_CNN(sess, hyper_p, hidden_layer_counter, run_options.NN_savefile_name, thresholding_flag = 1)
         print('Final Model Saved')  
 
         #=== Close Session ===#
