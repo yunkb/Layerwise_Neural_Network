@@ -81,11 +81,6 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
         sess.run(tf.initialize_all_variables()) 
         writer.add_graph(sess.graph)
         
-                
-        accuracy= sess.run(test_accuracy, feed_dict = {NN.data_tf: data_test, NN.labels_tf: labels_test}) 
-        print('Accuracy: %.3f\n' %(accuracy))
-        pdb.set_trace()
-        
         #=== Assign initial value of z to be equal to w ===#
         for l in range(0, len(NN.weights)): 
             sess.run("z_weights_initial_value" + str(l+1)) 
@@ -132,7 +127,6 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
                 sess.run("lagrange_weights_update" + str(l+1))
                 sess.run("lagrange_biases_update" + str(l+1))
         
-        pdb.set_trace()
         #=== Save Final Model ===#
         if run_options.NN_type == 'FC':
             save_weights_and_biases_FC(sess, hyper_p, hidden_layer_counter, run_options.NN_savefile_name, thresholding_flag = 0)
