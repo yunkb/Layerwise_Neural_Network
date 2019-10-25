@@ -25,9 +25,9 @@ def optimize_L2_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_tr
 ###############################################################################
     #=== Loss functional ===#
     with tf.variable_scope('loss') as scope:
-        loss_functional = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits = NN.logits, labels = NN.labels_tf))   
         loss_softmax_xent = tf.nn.softmax_cross_entropy_with_logits(logits = NN.logits, labels = NN.labels_tf) 
         sum_loss_softmax_xent = tf.reduce_sum(loss_softmax_xent)
+        loss_functional = tf.reduce_mean(loss_softmax_xent)
         train_loss_tf = tf.placeholder(tf.float32, shape=())
         tf.summary.scalar("loss", train_loss_tf)
         
