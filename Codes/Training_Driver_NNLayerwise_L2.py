@@ -90,7 +90,7 @@ def trainer(hyper_p, run_options):
         NN = FullyConnectedLayerwise(hyper_p, hidden_layer_counter, data_dimensions, label_dimensions, run_options.NN_savefile_name)
         
         #=== Train ===#
-        optimize_L2_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_training_data, data_train, labels_train, data_test, labels_test)   
+        optimize_L2_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_training_data, num_testing_data, data_train, labels_train, data_test, labels_test)   
         
         #=== Prepare for Next Layer ===#
         tf.reset_default_graph()
