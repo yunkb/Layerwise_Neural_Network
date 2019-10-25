@@ -118,7 +118,7 @@ def optimize_L2_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_tr
                 optimizer_LBFGS.minimize(sess, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch})
                 time_elapsed_LBFGS = time.time() - start_time_LBFGS 
                 current_loss = compute_batch_metric(sess, NN, sum_loss_softmax_xent, num_training_data, train_minibatches)
-                current_accuracy = compute_batch_metric(sess, NN, num_testing_data, num_correct_tests, test_minibatches)
+                current_accuracy = compute_batch_metric(sess, NN, num_correct_tests, num_testing_data, test_minibatches)
                 s = sess.run(summ, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch, train_loss_tf: current_loss, test_accuracy_tf: current_accuracy}) 
                 writer.add_summary(s, epoch)
                 print('LBFGS Optimization Complete')
