@@ -33,7 +33,7 @@ np.random.seed(1234)
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    max_hidden_layers = 3
+    max_hidden_layers = 5
     filter_size       = 3
     num_filters       = 30
     regularization    = 1
@@ -41,13 +41,13 @@ class HyperParameters:
     node_TOL          = 1e-3
     error_TOL         = 1e-2
     batch_size        = 100
-    num_epochs        = 100
+    num_epochs        = 2
     gpu               = '1'
     
 class RunOptions:
     def __init__(self, hyper_p):   
         #=== Use LBFGS Optimizer ===#
-        self.use_LBFGS = 1
+        self.use_LBFGS = 0
         
         #=== Choose Data Set ===#
         self.data_MNIST = 1
@@ -111,7 +111,7 @@ def trainer(hyper_p, run_options):
         update_z_and_lagrange_multiplier_tf_operations(NN, alpha, pen, z_weights, z_biases, lagrange_weights, lagrange_biases)
 
         #=== Train ===#
-        optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_training_data, pen, z_weights, z_biases, lagrange_weights, lagrange_biases, data_train, labels_train, data_test, labels_test)  
+        optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_training_data, num_testing_data, pen, z_weights, z_biases, lagrange_weights, lagrange_biases, data_train, labels_train, data_test, labels_test)  
         
         #=== Prepare for Next Layer ===#
         tf.reset_default_graph()
