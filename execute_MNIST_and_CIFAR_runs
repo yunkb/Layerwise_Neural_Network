@@ -1,6 +1,9 @@
 #!/bin/bash
 
-screen -S test -d -m 
-screen -S test -X exec touch HELLO
-screen -S test -X chdir Codes
-screen -S test -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_NNLayerwise_L2.py
+screen -S test1 -d -m 
+screen -S test1 -X chdir Codes
+screen -S test1 -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_NNLayerwise_L2.py
+
+screen -S test2 -d -m
+screen -S test2 -X chdir Codes
+screen -S test2 -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_CNNLayerwise_L2.py

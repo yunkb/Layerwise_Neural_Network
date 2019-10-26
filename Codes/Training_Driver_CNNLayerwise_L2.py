@@ -38,7 +38,7 @@ class HyperParameters:
     num_filters       = 64
     error_TOL         = 1e-2
     batch_size        = 1000
-    num_epochs        = 60
+    num_epochs        = 2
     gpu               = '2'
     
 class RunOptions:
@@ -47,8 +47,8 @@ class RunOptions:
         self.use_LBFGS = 0
         
         #=== Choose Data Set ===#
-        self.data_MNIST = 0
-        self.data_CIFAR10 = 1   
+        self.data_MNIST = 1
+        self.data_CIFAR10 = 0   
         
         #=== Setting Filename ===#   
         self.NN_type = 'CNN'
