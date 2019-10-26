@@ -1,5 +1,5 @@
 #!/bin/bash
 
 screen -S test -d -m 
-screen -S test -X touch HELLO
-screen -S test -X touch WORLD
+screen -S test -X exec touch HELLO
+screen -S test -X exec touch WORLD
