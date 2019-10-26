@@ -127,7 +127,7 @@ def optimize_ADMM_layerwise(hyper_p, run_options, trainable_hidden_layer_index, 
             s = sess.run(summ, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch, loss_train_accum_batch_tf: current_loss, accuracy_test_accum_batch_tf: current_accuracy}) 
             writer.add_summary(s, epoch)
             print('Time per Epoch: %.2f' %(elapsed_time_epoch))
-            print('Loss: %.3e, Accuracy: %.2f\n' %(current_loss, current_accuracy))
+            print('Loss: %.3e, Accuracy: %.3f\n' %(current_loss, current_accuracy))
             start_time_epoch = time.time()   
                  
             #=== Optimize with LBFGS ===#
@@ -144,7 +144,7 @@ def optimize_ADMM_layerwise(hyper_p, run_options, trainable_hidden_layer_index, 
                 writer.add_summary(s, epoch)
                 print('LBFGS Optimization Complete')
                 print('Time for LBFGS: %.2f' %(time_elapsed_LBFGS))
-                print('Loss: %.3e, Accuracy: %.2f\n' %(current_loss, current_accuracy)) 
+                print('Loss: %.3e, Accuracy: %.3f\n' %(current_loss, current_accuracy)) 
                 
             #=== Update z and Lagrange Multiplier ===# 
             for l in range(0, len(NN.weights)):  

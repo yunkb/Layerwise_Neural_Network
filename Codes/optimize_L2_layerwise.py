@@ -86,6 +86,11 @@ def optimize_L2_layerwise(hyper_p, run_options, trainable_hidden_layer_index, NN
         print('Beginning Training\n')
         num_batches = int(num_training_data/hyper_p.batch_size)
         for epoch in range(hyper_p.num_epochs):
+            
+            current_accuracy = compute_batch_metric(sess, NN, accuracy_test_sum_correct_tests, num_testing_data, minibatches_test)
+            print(current_accuracy)
+            pdb.set_trace()
+            
             print('================================')
             print('            Epoch %d            ' %(epoch))
             print('================================')
@@ -113,7 +118,7 @@ def optimize_L2_layerwise(hyper_p, run_options, trainable_hidden_layer_index, NN
             s = sess.run(summ, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch, loss_train_accum_batch_tf: current_loss, accuracy_test_accum_batch_tf: current_accuracy}) 
             writer.add_summary(s, epoch)
             print('Time per Epoch: %.2f' %(elapsed_time_epoch))
-            print('Loss: %.3e, Accuracy: %.2f\n' %(current_loss, current_accuracy))
+            print('Loss: %.3e, Accuracy: %.3f\n' %(current_loss, current_accuracy))
             start_time_epoch = time.time()      
                  
             #=== Optimize with LBFGS ===#
@@ -130,7 +135,7 @@ def optimize_L2_layerwise(hyper_p, run_options, trainable_hidden_layer_index, NN
                 writer.add_summary(s, epoch)
                 print('LBFGS Optimization Complete')
                 print('Time for LBFGS: %.2f' %(time_elapsed_LBFGS))
-                print('Loss: %.3e, Accuracy: %.2f\n' %(current_loss, current_accuracy))
+                print('Loss: %.3e, Accuracy: %.3f\n' %(current_loss, current_accuracy))
             
         #=== Save final model ===#
         if run_options.NN_type == 'FC':
@@ -138,6 +143,8 @@ def optimize_L2_layerwise(hyper_p, run_options, trainable_hidden_layer_index, NN
         if run_options.NN_type == 'CNN':
             save_weights_and_biases_CNN(sess, hyper_p, trainable_hidden_layer_index, run_options.NN_savefile_name, thresholding_flag = 0)
         print('Final Model Saved') 
+        
+        pdb.set_trace()
         
         #=== Close Session ===#
         sess.close() 
