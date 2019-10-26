@@ -1,5 +1,5 @@
 #!/bin/bash
 
 screen -S test -d -m
-screen -S test -X conda init bash & source /opt/anaconda/etc/profile.d/conda.sh & conda activate tf_gpu
+screen -S test -X source /workspace/hwan/anaconda/etc/profile.d/conda.sh & conda activate tf_gpu
 
