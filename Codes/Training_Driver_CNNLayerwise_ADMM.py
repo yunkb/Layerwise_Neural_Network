@@ -34,7 +34,7 @@ np.random.seed(1234)
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    max_hidden_layers = 5
+    max_hidden_layers = 8 # For this architecture, need at least 3. One for the mapping to the feature space, one as a trainable hidden layer and one as a mapping back to the data space
     filter_size       = 3
     num_filters       = 3
     regularization    = 1
@@ -99,11 +99,11 @@ def trainer(hyper_p, run_options):
         num_training_data, num_testing_data, img_size, num_channels, data_dimensions, label_dimensions, class_names, data_train, labels_train, data_test, labels_test = load_CIFAR10_data()
         
     loss_value = 1e5
-    hidden_layer_counter = 2 # For CNNs, we use a linear mapping to the feature space as the first layer. This gets retrained upon each architecture update
+    trainable_hidden_layer_index = 2 # For CNNs, we use a linear mapping to the feature space as the first layer. Therefore, the first hidden-layer of interest is the second hidden layer
     
-    while loss_value > hyper_p.error_TOL and hidden_layer_counter < hyper_p.max_hidden_layers:     
+    while loss_value > hyper_p.error_TOL and trainable_hidden_layer_index < hyper_p.max_hidden_layers:     
         #=== Neural network ===#
-        NN = ConvolutionalLayerwise(hyper_p, run_options, hidden_layer_counter, data_dimensions, label_dimensions, img_size, num_channels, run_options.NN_savefile_name)
+        NN = ConvolutionalLayerwise(hyper_p, run_options, trainable_hidden_layer_index, data_dimensions, label_dimensions, img_size, num_channels, run_options.NN_savefile_name)
         
         #=== Initialize ADMM objects ===#
         z_weights, z_biases, lagrange_weights, lagrange_biases = construct_ADMM_objects(NN)
@@ -112,18 +112,18 @@ def trainer(hyper_p, run_options):
         update_z_and_lagrange_multiplier_tf_operations(NN, alpha, pen, z_weights, z_biases, lagrange_weights, lagrange_biases)
 
         #=== Train ===#
-        storage_loss_array, storage_accuracy_array = optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_training_data, num_testing_data, pen, z_weights, z_biases, lagrange_weights, lagrange_biases, data_train, labels_train, data_test, labels_test)  
+        storage_loss_array, storage_accuracy_array = optimize_ADMM_layerwise(hyper_p, run_options, trainable_hidden_layer_index, NN, num_training_data, num_testing_data, pen, z_weights, z_biases, lagrange_weights, lagrange_biases, data_train, labels_train, data_test, labels_test)  
         
         #=== Saving Metrics ===#
         metrics_dict = {}
         metrics_dict['loss'] = storage_loss_array
         metrics_dict['accuracy'] = storage_accuracy_array
         df_metrics = pd.DataFrame(metrics_dict)
-        df_metrics.to_csv(run_options.NN_savefile_name + "_metrics_hl" + str(hidden_layer_counter) + '.csv', index=False)
+        df_metrics.to_csv(run_options.NN_savefile_name + "_metrics_hl" + str(trainable_hidden_layer_index) + '.csv', index=False)
 
         #=== Prepare for Next Layer ===#
         tf.reset_default_graph()
-        hidden_layer_counter += 1
+        trainable_hidden_layer_index += 1
                
 ###############################################################################
 #                                 Driver                                      #

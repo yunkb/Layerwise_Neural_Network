@@ -35,7 +35,7 @@ tf.set_random_seed(1234)
 #                       Hyperparameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    max_hidden_layers = 4
+    max_hidden_layers = 4 
     regularization    = 0.01
     penalty           = 1
     node_TOL          = 1e-3
@@ -99,14 +99,14 @@ def trainer(hyper_p, run_options):
         
     #=== Iteration Objects ===#
     loss_value = 1e5
-    hidden_layer_counter = 1
+    trainable_hidden_layer_index = 1
     
-    while loss_value > hyper_p.error_TOL and hidden_layer_counter < hyper_p.max_hidden_layers:       
+    while loss_value > hyper_p.error_TOL and trainable_hidden_layer_index < hyper_p.max_hidden_layers:       
         ###########################
         #   Training Properties   #
         ###########################   
         #=== Neural network ===#
-        NN = FullyConnectedLayerwise(hyper_p, hidden_layer_counter, data_dimensions, label_dimensions, run_options.NN_savefile_name)
+        NN = FullyConnectedLayerwise(hyper_p, trainable_hidden_layer_index, data_dimensions, label_dimensions, run_options.NN_savefile_name)
         
         #=== Initialize ADMM objects ===#
         z_weights, z_biases, lagrange_weights, lagrange_biases = construct_ADMM_objects(NN)
@@ -115,18 +115,18 @@ def trainer(hyper_p, run_options):
         update_z_and_lagrange_multiplier_tf_operations(NN, alpha, pen, z_weights, z_biases, lagrange_weights, lagrange_biases)
         
         #=== Train ===#
-        storage_loss_array, storage_accuracy_array = optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_training_data, num_testing_data, pen, z_weights, z_biases, lagrange_weights, lagrange_biases, data_train, labels_train, data_test, labels_test)
+        storage_loss_array, storage_accuracy_array = optimize_ADMM_layerwise(hyper_p, run_options, trainable_hidden_layer_index, NN, num_training_data, num_testing_data, pen, z_weights, z_biases, lagrange_weights, lagrange_biases, data_train, labels_train, data_test, labels_test)
         
         #=== Saving Metrics ===#
         metrics_dict = {}
         metrics_dict['loss'] = storage_loss_array
         metrics_dict['accuracy'] = storage_accuracy_array
         df_metrics = pd.DataFrame(metrics_dict)
-        df_metrics.to_csv(run_options.NN_savefile_name + "_metrics_hl" + str(hidden_layer_counter) + '.csv', index=False)
+        df_metrics.to_csv(run_options.NN_savefile_name + "_metrics_hl" + str(trainable_hidden_layer_index) + '.csv', index=False)
         
         #=== Prepare for Next Layer ===#
         tf.reset_default_graph()
-        hidden_layer_counter += 1
+        trainable_hidden_layer_index += 1
     
 ###############################################################################
 #                                 Driver                                      #

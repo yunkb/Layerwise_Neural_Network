@@ -14,7 +14,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 tf.set_random_seed(1234)
 
 class FullyConnectedLayerwise:
-    def __init__(self, hyper_p, hidden_layer_counter, data_dimension, labels_dimension, savefilepath):
+    def __init__(self, hyper_p, trainable_hidden_layer_index, data_dimension, labels_dimension, savefilepath):
         
 ###############################################################################
 #                    Constuct Neural Network Architecture                     #
@@ -24,7 +24,7 @@ class FullyConnectedLayerwise:
         self.labels_tf = tf.placeholder(tf.float32, shape=[None, labels_dimension], name = "labels_tf") # This is needed for batching during training, else can just use state_data
                            
         #=== Define Architecture and Create Parameter Storage ===#
-        self.layers = [data_dimension] + [data_dimension]*(hidden_layer_counter) + [labels_dimension]
+        self.layers = [data_dimension] + [data_dimension]*(trainable_hidden_layer_index) + [labels_dimension]
         print(self.layers)
         self.weights = [] # This will be a list of tensorflow variables
         self.biases = [] # This will be a list of tensorflow variables
@@ -34,7 +34,7 @@ class FullyConnectedLayerwise:
         #   Initial Architecture   #
         ############################
         # If first iteration, initialize output layer
-        if hidden_layer_counter == 1: 
+        if trainable_hidden_layer_index == 1: 
             with tf.variable_scope("NN") as scope: 
                 for l in range(1, 3):
                     W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l-1], self.layers[l]], initializer = tf.random_normal_initializer())
@@ -47,10 +47,10 @@ class FullyConnectedLayerwise:
         ##############################
         #   Extending Architecture   #
         ##############################   
-        if hidden_layer_counter > 1: 
+        if trainable_hidden_layer_index > 1: 
             with tf.variable_scope("NN") as scope: 
                 # Load pre-trained weights and biases
-                for l in range(1, hidden_layer_counter):
+                for l in range(1, trainable_hidden_layer_index):
                     df_trained_weights = pd.read_csv(savefilepath + "_W" + str(l) + '.csv')
                     df_trained_biases = pd.read_csv(savefilepath + "_b" + str(l) + '.csv')
                     restored_W = df_trained_weights.values.reshape([self.layers[l-1], self.layers[l]])
@@ -61,7 +61,7 @@ class FullyConnectedLayerwise:
                     self.biases.append(b)
                 
                 # Initialize new hidden layer weights and biases as 0           
-                l = hidden_layer_counter
+                l = trainable_hidden_layer_index
                 W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l-1], self.layers[l]], initializer = tf.constant_initializer(0))
                 b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [1, self.layers[l]], initializer = tf.constant_initializer(0))                                  
                 tf.summary.histogram("weights" + str(l), W)
@@ -70,7 +70,7 @@ class FullyConnectedLayerwise:
                 self.biases.append(b)
                     
                 # Load pre-trained output layer weights and biases. Note these wlll be trained again
-                l = hidden_layer_counter + 1
+                l = trainable_hidden_layer_index + 1
                 df_trained_weights = pd.read_csv(savefilepath + "_Woutput" + '.csv')
                 df_trained_biases = pd.read_csv(savefilepath + "_boutput" + '.csv')
                 restored_W = df_trained_weights.values.reshape([self.layers[l-1], self.layers[l]])
