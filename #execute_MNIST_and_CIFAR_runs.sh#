@@ -1,6 +1,0 @@
-#!/bin/bash
-
-screen -S test -d -m
-screen -S test . /
-screen -S test -X chdir Codes
-screen -S test -X exec ./Training_Driver_NNLayerwise_L2.py
