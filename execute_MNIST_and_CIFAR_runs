@@ -1,5 +1,6 @@
 #!/bin/bash
 
 cd Codes &
-screen -S "Test"
+screen -S "Test" &
+conda activate tf_gpu
 exec bash
