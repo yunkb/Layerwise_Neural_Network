@@ -1,5 +1,5 @@
 #!/bin/bash
 
 screen -S test -d -m
-screen -S test chdir Codes
+screen -S test -X chdir Codes
 screen -S test -X exec source activate tf_gpu & ./Training_Driver_NNLayerwise_L2.py
