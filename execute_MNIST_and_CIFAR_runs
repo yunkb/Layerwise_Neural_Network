@@ -1,5 +1,5 @@
 #!/bin/bash
 
 screen -S test -d -m
-screen -S test -X source /workspace/hwan/anaconda3/etc/profile.d/conda.sh & conda activate tf_gpu
+screen -S test -X source activate tf_gpu
 
