@@ -27,14 +27,14 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
     #=== Loss functional ===#
     with tf.variable_scope('loss') as scope:
         data_loss_softmax_xent = tf.nn.softmax_cross_entropy_with_logits(logits = NN.logits, labels = NN.labels_tf)
-        data_loss_sum_softmax_xent = tf.reduce_sum(data_loss_softmax_xent)
-        data_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits = NN.logits, labels = NN.labels_tf))    
+        data_loss = tf.reduce_mean(data_loss_softmax_xent)    
         ADMM_penalty = 0.0
         for l in range(0, len(NN.weights)):  
             weights_norm = pen/2 * tf.pow(tf.norm(NN.weights[l] - z_weights[l] + lagrange_weights[l]/pen, 2), 2)
             biases_norm = pen/2 * tf.pow(tf.norm(NN.biases[l] - z_biases[l] + lagrange_biases[l]/pen, 2), 2)
             ADMM_penalty += weights_norm + biases_norm
         loss_functional = data_loss + ADMM_penalty
+        data_loss_sum_softmax_xent = tf.reduce_sum(data_loss_softmax_xent)
         data_loss_train_accum_batch_tf = tf.placeholder(tf.float32, shape=())
         loss_train_accum_batch_tf = data_loss_train_accum_batch_tf + ADMM_penalty
         tf.summary.scalar("loss", loss_train_accum_batch_tf)
@@ -83,7 +83,10 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
     
 ###############################################################################
 #                          Train Neural Network                               #
-###############################################################################             
+###############################################################################
+    storage_loss_array = np.array([])
+    storage_accuracy_array = np.array([])
+             
     with tf.Session(config=gpu_config) as sess:
         sess.run(tf.initialize_all_variables()) 
         writer.add_graph(sess.graph)
@@ -119,6 +122,8 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
             elapsed_time_epoch = time.time() - start_time_epoch
             current_loss = compute_batch_metric(sess, NN, data_loss_sum_softmax_xent, num_training_data, minibatches_train)
             current_accuracy = compute_batch_metric(sess, NN, accuracy_test_sum_correct_tests, num_testing_data, minibatches_test)
+            storage_loss_array = np.append(storage_loss_array, current_loss)
+            storage_accuracy_array = np.append(storage_accuracy_array, current_accuracy)
             s = sess.run(summ, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch, loss_train_accum_batch_tf: current_loss, accuracy_test_accum_batch_tf: current_accuracy}) 
             writer.add_summary(s, epoch)
             print('Time per Epoch: %.2f' %(elapsed_time_epoch))
@@ -133,6 +138,8 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
                 time_elapsed_LBFGS = time.time() - start_time_LBFGS 
                 current_loss = compute_batch_metric(sess, NN, data_loss_sum_softmax_xent, num_training_data, minibatches_train)
                 current_accuracy = compute_batch_metric(sess, NN, accuracy_test_sum_correct_tests, num_testing_data, minibatches_test)
+                storage_loss_array = np.append(storage_loss_array, current_loss)
+                storage_accuracy_array = np.append(storage_accuracy_array, current_accuracy)
                 s = sess.run(summ, feed_dict = {NN.data_tf: data_train_batch, NN.labels_tf: labels_train_batch, loss_train_accum_batch_tf: current_loss, accuracy_test_accum_batch_tf: current_accuracy}) 
                 writer.add_summary(s, epoch)
                 print('LBFGS Optimization Complete')
@@ -155,3 +162,5 @@ def optimize_ADMM_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_
 
         #=== Close Session ===#
         sess.close() 
+        
+        return storage_loss_array, storage_accuracy_array

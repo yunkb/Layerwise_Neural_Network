@@ -10,6 +10,7 @@ import tensorflow as tf # for some reason this must be first! Or else I get segm
 tf.reset_default_graph()
 tf.logging.set_verbosity(tf.logging.ERROR) # Suppresses all the messages when run begins
 import numpy as np
+import pandas as pd
 
 from NN_CNN_layerwise import ConvolutionalLayerwise
 from get_MNIST_data import load_MNIST_data
@@ -37,7 +38,7 @@ class HyperParameters:
     num_filters       = 3
     error_TOL         = 1e-2
     batch_size        = 100
-    num_epochs        = 100
+    num_epochs        = 2
     gpu               = '0'
     
 class RunOptions:
@@ -89,7 +90,14 @@ def trainer(hyper_p, run_options):
         NN = ConvolutionalLayerwise(hyper_p, run_options, hidden_layer_counter, data_dimensions, label_dimensions, img_size, num_channels, run_options.NN_savefile_name)
         
         #=== Train ===#
-        optimize_L2_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_training_data, num_testing_data, data_train, labels_train, data_test, labels_test)   
+        storage_loss_array, storage_accuracy_array = optimize_L2_layerwise(hyper_p, run_options, hidden_layer_counter, NN, num_training_data, num_testing_data, data_train, labels_train, data_test, labels_test)   
+        
+        #=== Saving Metrics ===#
+        metrics_dict = {}
+        metrics_dict['loss'] = storage_loss_array
+        metrics_dict['accuracy'] = storage_accuracy_array
+        df_metrics = pd.DataFrame(metrics_dict)
+        df_metrics.to_csv(run_options.NN_savefile_name + "_metrics_hl" + str(hidden_layer_counter) + '.csv', index=False)
         
         #=== Prepare for Next Layer ===#
         tf.reset_default_graph()
