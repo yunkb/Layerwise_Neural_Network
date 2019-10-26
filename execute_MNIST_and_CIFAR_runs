@@ -1,5 +1,3 @@
 #!/bin/bash
 
-cd Codes &
-screen -S "Test"
-exec bash
+screen -d -m -S Test bash -c 'cd Codes && conda activate tf_gpu'
