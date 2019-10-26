@@ -1,4 +1,5 @@
 #!/bin/bash
 
 screen -S test -d -m
-screen -S test -t 'conda activate tf_gpu'
+screen -S test -X chdir Codes
+screen -S test -X exec 'conda activate tf_gpu'
