@@ -99,7 +99,7 @@ def optimize_ADMM_layerwise(hyper_p, run_options, trainable_hidden_layer_index, 
         #=== Train neural network ===#
         print('Beginning Training\n')
         num_batches = int(num_training_data/hyper_p.batch_size)
-        for epoch in range(hyper_p.num_epochs):
+        for epoch in range(hyper_p.num_epochs):           
             print('================================')
             print('            Epoch %d            ' %(epoch))
             print('================================')
@@ -155,12 +155,12 @@ def optimize_ADMM_layerwise(hyper_p, run_options, trainable_hidden_layer_index, 
         
         #=== Save Final Model ===#
         if run_options.NN_type == 'FC':
-            save_weights_and_biases_FC(sess, hyper_p, trainable_hidden_layer_index, run_options.NN_savefile_name, thresholding_flag = 1)
+            relative_number_zeros = save_weights_and_biases_FC(sess, hyper_p, trainable_hidden_layer_index, run_options.NN_savefile_name, thresholding_flag = 1)
         if run_options.NN_type == 'CNN':
-            save_weights_and_biases_CNN(sess, hyper_p, trainable_hidden_layer_index, run_options.NN_savefile_name, thresholding_flag = 1)
+            relative_number_zeros = save_weights_and_biases_CNN(sess, hyper_p, trainable_hidden_layer_index, run_options.NN_savefile_name, thresholding_flag = 1)
         print('Final Model Saved')  
-
+        
         #=== Close Session ===#
         sess.close() 
         
-        return storage_loss_array, storage_accuracy_array
+        return storage_loss_array, storage_accuracy_array, relative_number_zeros

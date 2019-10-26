@@ -7,6 +7,7 @@ Created on Sun Oct 20 14:53:47 2019
 """
 
 import pandas as pd
+import numpy as np
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
@@ -26,20 +27,21 @@ def save_weights_and_biases_FC(sess, hyper_p, trainable_hidden_layer_index, save
     df_trained_biases = pd.DataFrame(trained_biases_dict)
     df_trained_weights.to_csv(savefilepath + "_W" + str(l) + '.csv', index=False)
     df_trained_biases.to_csv(savefilepath + "_b" + str(l) + '.csv', index=False)
+    num_zeros = np.count_nonzero(trained_weights==0)
+    relative_number_zeros = num_zeros/trained_weights.flatten().shape[0]
     
     #=== Save Output Weights and Biases ===# Note that these get replaced everytime
     l += 1
     trained_output_weights = sess.run("NN/W" + str(l) + ':0')
     trained_output_biases = sess.run("NN/b" + str(l) + ':0')
-    if thresholding_flag == 1:
-        trained_output_weights[abs(trained_output_weights)<hyper_p.node_TOL] = 0
-        trained_output_biases[abs(trained_output_biases)<hyper_p.node_TOL] = 0
     trained_output_weights_dict = {"Woutput": trained_output_weights.flatten()}
     trained_output_biases_dict = {"boutput": trained_output_biases.flatten()}
     df_trained_output_weights = pd.DataFrame(trained_output_weights_dict)
     df_trained_output_biases = pd.DataFrame(trained_output_biases_dict)
     df_trained_output_weights.to_csv(savefilepath + "_Woutput" + '.csv', index=False)
     df_trained_output_biases.to_csv(savefilepath + "_boutput" + '.csv', index=False)
+    
+    return relative_number_zeros
     
 ###############################################################################
 #                               Convolutional                                 #
@@ -69,6 +71,8 @@ def save_weights_and_biases_CNN(sess, hyper_p, trainable_hidden_layer_index, sav
     df_trained_biases = pd.DataFrame(trained_biases_dict)
     df_trained_weights.to_csv(savefilepath + "_W" + str(l) + '.csv', index=False)
     df_trained_biases.to_csv(savefilepath + "_b" + str(l) + '.csv', index=False)
+    num_zeros = np.count_nonzero(trained_weights==0)
+    relative_number_zeros = num_zeros/trained_weights.flatten().shape[0]
     
     #=== Save Downsampling Weights and Biases ===# Note that these get replaced everytime
     l = trainable_hidden_layer_index + 1
@@ -91,3 +95,5 @@ def save_weights_and_biases_CNN(sess, hyper_p, trainable_hidden_layer_index, sav
     df_trained_output_biases = pd.DataFrame(trained_output_biases_dict)
     df_trained_output_weights.to_csv(savefilepath + "_Woutput" + '.csv', index=False)
     df_trained_output_biases.to_csv(savefilepath + "_boutput" + '.csv', index=False)
+    
+    return relative_number_zeros

@@ -85,12 +85,7 @@ def optimize_L2_layerwise(hyper_p, run_options, trainable_hidden_layer_index, NN
         #=== Train neural network ===#
         print('Beginning Training\n')
         num_batches = int(num_training_data/hyper_p.batch_size)
-        for epoch in range(hyper_p.num_epochs):
-            
-            current_accuracy = compute_batch_metric(sess, NN, accuracy_test_sum_correct_tests, num_testing_data, minibatches_test)
-            print(current_accuracy)
-            pdb.set_trace()
-            
+        for epoch in range(hyper_p.num_epochs):            
             print('================================')
             print('            Epoch %d            ' %(epoch))
             print('================================')
@@ -143,8 +138,6 @@ def optimize_L2_layerwise(hyper_p, run_options, trainable_hidden_layer_index, NN
         if run_options.NN_type == 'CNN':
             save_weights_and_biases_CNN(sess, hyper_p, trainable_hidden_layer_index, run_options.NN_savefile_name, thresholding_flag = 0)
         print('Final Model Saved') 
-        
-        pdb.set_trace()
         
         #=== Close Session ===#
         sess.close() 

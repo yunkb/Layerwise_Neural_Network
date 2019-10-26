@@ -35,13 +35,13 @@ tf.set_random_seed(1234)
 #                       Hyperparameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    max_hidden_layers = 4 
-    regularization    = 0.01
+    max_hidden_layers = 8 
+    regularization    = 1
     penalty           = 1
     node_TOL          = 1e-3
-    error_TOL         = 1e-3
-    batch_size        = 100
-    num_epochs        = 2
+    error_TOL         = 1e-2
+    batch_size        = 1000
+    num_epochs        = 100
     gpu               = '1'
     
 class RunOptions:
@@ -100,6 +100,7 @@ def trainer(hyper_p, run_options):
     #=== Iteration Objects ===#
     loss_value = 1e5
     trainable_hidden_layer_index = 1
+    storage_relative_number_zeros_array = np.array([])
     
     while loss_value > hyper_p.error_TOL and trainable_hidden_layer_index < hyper_p.max_hidden_layers:       
         ###########################
@@ -115,7 +116,7 @@ def trainer(hyper_p, run_options):
         update_z_and_lagrange_multiplier_tf_operations(NN, alpha, pen, z_weights, z_biases, lagrange_weights, lagrange_biases)
         
         #=== Train ===#
-        storage_loss_array, storage_accuracy_array = optimize_ADMM_layerwise(hyper_p, run_options, trainable_hidden_layer_index, NN, num_training_data, num_testing_data, pen, z_weights, z_biases, lagrange_weights, lagrange_biases, data_train, labels_train, data_test, labels_test)
+        storage_loss_array, storage_accuracy_array, relative_number_zeros = optimize_ADMM_layerwise(hyper_p, run_options, trainable_hidden_layer_index, NN, num_training_data, num_testing_data, pen, z_weights, z_biases, lagrange_weights, lagrange_biases, data_train, labels_train, data_test, labels_test)
         
         #=== Saving Metrics ===#
         metrics_dict = {}
@@ -127,6 +128,12 @@ def trainer(hyper_p, run_options):
         #=== Prepare for Next Layer ===#
         tf.reset_default_graph()
         trainable_hidden_layer_index += 1
+    
+    #=== Saving Relative Number of Zero Elements ===#
+    relative_number_zeros_dict = {}
+    relative_number_zeros_dict['rel_zeros'] = storage_relative_number_zeros_array
+    df_relative_number_zeros = pd.DataFrame(relative_number_zeros_dict)
+    df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)
     
 ###############################################################################
 #                                 Driver                                      #

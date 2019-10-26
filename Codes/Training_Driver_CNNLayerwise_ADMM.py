@@ -36,14 +36,14 @@ np.random.seed(1234)
 class HyperParameters:
     max_hidden_layers = 8 # For this architecture, need at least 3. One for the mapping to the feature space, one as a trainable hidden layer and one as a mapping back to the data space
     filter_size       = 3
-    num_filters       = 3
+    num_filters       = 64
     regularization    = 1
     penalty           = 1
     node_TOL          = 1e-3
     error_TOL         = 1e-2
-    batch_size        = 100
-    num_epochs        = 2
-    gpu               = '1'
+    batch_size        = 1000
+    num_epochs        = 100
+    gpu               = '3'
     
 class RunOptions:
     def __init__(self, hyper_p):   
@@ -100,6 +100,7 @@ def trainer(hyper_p, run_options):
         
     loss_value = 1e5
     trainable_hidden_layer_index = 2 # For CNNs, we use a linear mapping to the feature space as the first layer. Therefore, the first hidden-layer of interest is the second hidden layer
+    storage_relative_number_zeros_array = np.array([])
     
     while loss_value > hyper_p.error_TOL and trainable_hidden_layer_index < hyper_p.max_hidden_layers:     
         #=== Neural network ===#
@@ -112,7 +113,7 @@ def trainer(hyper_p, run_options):
         update_z_and_lagrange_multiplier_tf_operations(NN, alpha, pen, z_weights, z_biases, lagrange_weights, lagrange_biases)
 
         #=== Train ===#
-        storage_loss_array, storage_accuracy_array = optimize_ADMM_layerwise(hyper_p, run_options, trainable_hidden_layer_index, NN, num_training_data, num_testing_data, pen, z_weights, z_biases, lagrange_weights, lagrange_biases, data_train, labels_train, data_test, labels_test)  
+        storage_loss_array, storage_accuracy_array, relative_number_zeros = optimize_ADMM_layerwise(hyper_p, run_options, trainable_hidden_layer_index, NN, num_training_data, num_testing_data, pen, z_weights, z_biases, lagrange_weights, lagrange_biases, data_train, labels_train, data_test, labels_test)  
         
         #=== Saving Metrics ===#
         metrics_dict = {}
@@ -122,9 +123,16 @@ def trainer(hyper_p, run_options):
         df_metrics.to_csv(run_options.NN_savefile_name + "_metrics_hl" + str(trainable_hidden_layer_index) + '.csv', index=False)
 
         #=== Prepare for Next Layer ===#
+        storage_relative_number_zeros_array = np.append(storage_relative_number_zeros_array, relative_number_zeros)
         tf.reset_default_graph()
         trainable_hidden_layer_index += 1
-               
+    
+    #=== Saving Relative Number of Zero Elements ===#
+    relative_number_zeros_dict = {}
+    relative_number_zeros_dict['rel_zeros'] = storage_relative_number_zeros_array
+    df_relative_number_zeros = pd.DataFrame(relative_number_zeros_dict)
+    df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)
+  
 ###############################################################################
 #                                 Driver                                      #
 ###############################################################################     

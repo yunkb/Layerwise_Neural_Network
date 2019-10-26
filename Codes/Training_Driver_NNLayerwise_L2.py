@@ -33,16 +33,16 @@ np.random.seed(1234)
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    max_hidden_layers = 4
+    max_hidden_layers = 8
     error_TOL         = 1e-2
-    batch_size        = 100
-    num_epochs        = 2
+    batch_size        = 1000
+    num_epochs        = 100
     gpu               = '0'
     
 class RunOptions:
     def __init__(self, hyper_p):   
         #=== Use LBFGS Optimizer ===#
-        self.use_LBFGS = 1
+        self.use_LBFGS = 0
         
         #=== Choose Data Set ===#
         self.data_MNIST = 1
