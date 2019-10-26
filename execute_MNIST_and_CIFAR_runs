@@ -1,5 +1,5 @@
 #!/bin/bash
 
 screen -S test -d -m
-screen -S test -X conda init bash
+screen -S test -X conda init bash & conda activate tf_gpu
 
