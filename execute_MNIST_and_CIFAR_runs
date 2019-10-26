@@ -1,5 +1,3 @@
 #!/bin/bash
 
-screen -S test -d -m;
-screen -S test -X chdir Codes;
-screen -S test -X /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_NNLayerwise_L2.py
+screen -S test -t "cd Codes"
