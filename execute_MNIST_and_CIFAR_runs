@@ -1,3 +1,5 @@
 #!/bin/bash
 
-cd Codes
+cd Codes &
+screen -S "Test"
+exec bash
