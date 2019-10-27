@@ -18,6 +18,9 @@ def plot_and_save_figures(hyper_p, run_options):
     if run_options.NN_type == 'CNN':
         first_trainable_hidden_layer_index = 2    
     
+    print('================================')
+    print('            Plotting            ')
+    print('================================')
     #=== Plotting ===#    
     for l in range(first_trainable_hidden_layer_index, hyper_p.max_hidden_layers):
         #=== Load Metrics ===#
