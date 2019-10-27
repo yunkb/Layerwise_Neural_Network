@@ -20,7 +20,7 @@ class HyperParameters:
     max_hidden_layers = 8
     error_TOL         = 1e-2
     batch_size        = 1000
-    num_epochs        = 60
+    num_epochs        = 15
     gpu               = '0'
     
 class RunOptions:
