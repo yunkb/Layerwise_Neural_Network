@@ -12,11 +12,11 @@ tf.logging.set_verbosity(tf.logging.FATAL) # Suppresses all the messages when ru
 import numpy as np
 import pandas as pd
 
-from NN_FC_layerwise import FullyConnectedLayerwise
-from get_MNIST_data import load_MNIST_data
-from get_CIFAR10_data import load_CIFAR10_data
-from ADMM_methods_FC import construct_ADMM_objects, update_z_and_lagrange_multiplier_tf_operations
-from optimize_ADMM_layerwise import optimize_ADMM_layerwise
+from Utilities.NN_FC_layerwise import FullyConnectedLayerwise
+from Utilities.get_MNIST_data import load_MNIST_data
+from Utilities.get_CIFAR10_data import load_CIFAR10_data
+from Utilities.ADMM_methods_FC import construct_ADMM_objects, update_z_and_lagrange_multiplier_tf_operations
+from Utilities.optimize_ADMM_layerwise import optimize_ADMM_layerwise
 
 from decimal import Decimal # for filenames
 
@@ -41,7 +41,7 @@ class HyperParameters:
     node_TOL          = 1e-3
     error_TOL         = 1e-2
     batch_size        = 1000
-    num_epochs        = 15
+    num_epochs        = 2
     gpu               = '1'
     
 class RunOptions:
@@ -50,8 +50,8 @@ class RunOptions:
         self.use_LBFGS = 0
         
         #=== Choose Data Set ===#
-        self.data_MNIST = 0
-        self.data_CIFAR10 = 1    
+        self.data_MNIST = 1
+        self.data_CIFAR10 = 0    
         
         #=== Setting Filename ===# 
         self.NN_type = 'FC'

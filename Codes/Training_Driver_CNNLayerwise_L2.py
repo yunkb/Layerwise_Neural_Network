@@ -12,10 +12,10 @@ tf.logging.set_verbosity(tf.logging.ERROR) # Suppresses all the messages when ru
 import numpy as np
 import pandas as pd
 
-from NN_CNN_layerwise import ConvolutionalLayerwise
-from get_MNIST_data import load_MNIST_data
-from get_CIFAR10_data import load_CIFAR10_data
-from optimize_L2_layerwise import optimize_L2_layerwise
+from Utilities.NN_CNN_layerwise import ConvolutionalLayerwise
+from Utilities.get_MNIST_data import load_MNIST_data
+from Utilities.get_CIFAR10_data import load_CIFAR10_data
+from Utilities.optimize_L2_layerwise import optimize_L2_layerwise
 
 from decimal import Decimal # for filenames
 
@@ -38,7 +38,7 @@ class HyperParameters:
     num_filters       = 64
     error_TOL         = 1e-2
     batch_size        = 1000
-    num_epochs        = 15
+    num_epochs        = 2
     gpu               = '2'
     
 class RunOptions:
@@ -47,8 +47,8 @@ class RunOptions:
         self.use_LBFGS = 0
         
         #=== Choose Data Set ===#
-        self.data_MNIST = 0
-        self.data_CIFAR10 = 1   
+        self.data_MNIST = 1
+        self.data_CIFAR10 = 0   
         
         #=== Setting Filename ===#   
         self.NN_type = 'CNN'

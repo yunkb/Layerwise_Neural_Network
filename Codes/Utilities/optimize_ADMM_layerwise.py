@@ -14,9 +14,9 @@ import shutil # for deleting directories
 import os
 import time
 
-from random_mini_batches import random_mini_batches
-from compute_batch_metric import compute_batch_metric
-from save_trained_parameters_layerwise import save_weights_and_biases_FC, save_weights_and_biases_CNN
+from Utilities.random_mini_batches import random_mini_batches
+from Utilities.compute_batch_metric import compute_batch_metric
+from Utilities.save_trained_parameters_layerwise import save_weights_and_biases_FC, save_weights_and_biases_CNN
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
