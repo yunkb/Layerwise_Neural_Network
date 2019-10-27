@@ -17,10 +17,9 @@ from get_MNIST_data import load_MNIST_data
 from get_CIFAR10_data import load_CIFAR10_data
 from optimize_L2_layerwise import optimize_L2_layerwise
 
-from decimal import Decimal # for filenames
-
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
+from decimal import Decimal # for filenames
 import os
 import sys
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'

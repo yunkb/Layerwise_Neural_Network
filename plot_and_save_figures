@@ -1,0 +1,13 @@
+#!/bin/bash
+
+cd Codes
+./plotting_results_FC_L2.py MNIST
+./plotting_results_FC_L2.py CIFAR10
+./plotting_results_CNN_L2.py MNIST
+./plotting_results_CNN_L2.py CIFAR10
+
+./plotting_results_FC_ADMM.py MNIST
+./plotting_results_FC_ADMM.py CIFAR10
+./plotting_results_CNN_ADMM.py MNIST
+./plotting_results_CNN_ADMM.py CIFAR10
+
