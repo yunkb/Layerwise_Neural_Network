@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 plt.ioff() # Turn interactive plotting off
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 def plot_and_save_figures(hyper_p, run_options):
     
@@ -28,7 +29,7 @@ def plot_and_save_figures(hyper_p, run_options):
         
         #=== Plot and Save Losses===#
         fig_loss = plt.figure()
-        x_axis = np.linspace(0,1,hyper_p.num_epochs)
+        x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
         plt.plot(x_axis, storage_loss_array, label = 'hl' + str(l))
         plt.title('Loss for: ' + run_options.filename)
         plt.xlabel('Epochs')
@@ -40,7 +41,7 @@ def plot_and_save_figures(hyper_p, run_options):
         
         #=== Plot and Save Accuracies===#
         fig_accuracy = plt.figure()
-        x_axis = np.linspace(0,1,hyper_p.num_epochs)
+        x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
         plt.plot(x_axis, storage_accuracy_array, label = 'hl' + str(l))
         plt.title('Accuracy for: ' + run_options.filename)
         plt.xlabel('Epochs')

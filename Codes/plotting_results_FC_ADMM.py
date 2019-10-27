@@ -76,6 +76,8 @@ if __name__ == "__main__":
     #=== Set run options ===#     
     if len(sys.argv) > 1:
             data_type = str(sys.argv[1])   
+    else:
+        data_type = 'MNIST'
             
     run_options = RunOptions(hyper_p, data_type)
     
