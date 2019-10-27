@@ -1,0 +1,8 @@
+#!/bin/bash
+
+ssh PhoTai -t "cd /workspace/hwan/Layerwise_Neural_Network;
+screen -S test1 -d -m;
+screen -S test1 -X chdir Codes;
+screen -S test1 -X conda activate tf_gpu
+screen -S test1 -X Training_Driver_NNLayerwise_L2.py"
+
