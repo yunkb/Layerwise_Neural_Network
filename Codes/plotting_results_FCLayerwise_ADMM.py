@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sat Oct 26 21:23:46 2019
+Created on Sat Oct 26 21:35:37 2019
 
 @author: hwan
 """
 
-from plot_and_save_figures import plot_and_save_figures
+from plot_and_save_figures_layerwise import plot_and_save_figures
 from decimal import Decimal # for filenames
 import os
 import sys
@@ -14,30 +14,43 @@ import sys
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
-#                       HyperParameters and RunOptions                        #
+#                       Hyperparameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
-    filter_size       = 3
-    num_filters       = 64
+    max_hidden_layers = 8 
+    regularization    = 1
+    penalty           = 1
+    node_TOL          = 1e-3
     error_TOL         = 1e-2
     batch_size        = 1000
     num_epochs        = 15
-    gpu               = '2'
+    gpu               = '1'
     
 class RunOptions:
-    def __init__(self, hyper_p, data_type):   
+    def __init__(self, hyper_p, data_type): 
         #=== Use LBFGS Optimizer ===#
         self.use_LBFGS = 0
         
-        #=== Setting Filename ===#   
-        self.NN_type = 'CNN'
-        
-        #=== Filename ===#
+        #=== Setting Filename ===# 
+        self.NN_type = 'FC'
+        if hyper_p.regularization >= 1:
+            hyper_p.regularization = int(hyper_p.regularization)
+            regularization_string = str(hyper_p.regularization)
+        else:
+            regularization_string = str(hyper_p.regularization)
+            regularization_string = 'pt' + regularization_string[2:]            
+        if hyper_p.penalty >= 1:
+            hyper_p.penalty = int(hyper_p.penalty)
+            penalty_string = str(hyper_p.penalty)
+        else:
+            penalty_string = str(hyper_p.penalty)
+            penalty_string = 'pt' + penalty_string[2:]            
+        node_TOL_string = str('%.2e' %Decimal(hyper_p.node_TOL))
+        node_TOL_string = node_TOL_string[-1]
         error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
         error_TOL_string = error_TOL_string[-1]
         
-        self.filename = data_type + '_' + self.NN_type + '_L2_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = data_type + '_' + self.NN_type + '_ADMM_mhl%d_r%s_p%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, regularization_string, penalty_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
@@ -45,13 +58,13 @@ class RunOptions:
 
         #=== Saving Figures ===#
         self.figures_savefile_directory = '../Figures/' + self.filename
-
+        
         #=== Creating Directories ===#
         if not os.path.exists(self.NN_savefile_directory):
-            os.makedirs(self.NN_savefile_directory)
+            os.makedirs(self.NN_savefile_directory)    
         if not os.path.exists(self.figures_savefile_directory):
             os.makedirs(self.figures_savefile_directory)
-            
+
 ###############################################################################
 #                                  Driver                                     #
 ###############################################################################
