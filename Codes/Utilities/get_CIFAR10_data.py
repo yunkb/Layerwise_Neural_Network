@@ -22,4 +22,8 @@ def load_CIFAR10_data():
     data_dimensions = img_size*img_size*num_channels
     data_train = data_train.reshape((num_training_data, data_dimensions))     
     data_test = data_test.reshape((num_testing_data, data_dimensions))      
+    
+    data_train = data_train/255.0
+    data_test = data_test/255.0
+    
     return num_training_data, num_testing_data, img_size, num_channels, data_dimensions, label_dimensions, class_names, data_train, labels_train, data_test, labels_test

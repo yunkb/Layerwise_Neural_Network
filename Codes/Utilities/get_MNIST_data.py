@@ -21,5 +21,8 @@ def load_MNIST_data():
     num_testing_data = mnist.test.num_examples
     img_size = 28
     num_channels = 1
+    
+    data_train = data_train/255.0
+    data_test = data_test/255.0
 
     return num_training_data, num_testing_data, img_size, num_channels, data_dimensions, label_dimensions, data_train, labels_train, data_test, labels_test
