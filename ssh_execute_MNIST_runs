@@ -1,17 +1,17 @@
 #!/bin/bash
 
-screen -S LW_MNIST_NN -d -m 
-screen -S LW_MNIST_NN -X chdir Codes
-screen -S LW_MNIST_NN -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_FCLayerwise.py
+screen -S LW_MNIST_NN_e15 -d -m 
+screen -S LW_MNIST_NN_e15 -X chdir Codes
+screen -S LW_MNIST_NN_e15 -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_FCLayerwise.py
 
-screen -S LW_MNIST_NN_ADMM -d -m 
-screen -S LW_MNIST_NN_ADMM -X chdir Codes
-screen -S LW_MNIST_NN_ADMM -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_FCLayerwise_ADMM.py
+screen -S LW_MNIST_NN_ADMM_e15 -d -m 
+screen -S LW_MNIST_NN_ADMM_e15 -X chdir Codes
+screen -S LW_MNIST_NN_ADMM_e15 -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_FCLayerwise_ADMM.py
 
-screen -S LW_MNIST_CNN -d -m 
-screen -S LW_MNIST_CNN -X chdir Codes
-screen -S LW_MNIST_CNN -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_CNNLayerwise.py
+screen -S LW_MNIST_CNN_e15 -d -m 
+screen -S LW_MNIST_CNN_e15 -X chdir Codes
+screen -S LW_MNIST_CNN_e15 -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_CNNLayerwise.py
 
-screen -S LW_MNIST_CNN_ADMM -d -m 
-screen -S LW_MNIST_CNN_ADMM -X chdir Codes
-screen -S LW_MNIST_CNN_ADMM -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_CNNLayerwise_ADMM.py
+screen -S LW_MNIST_CNN_ADMM_e15 -d -m 
+screen -S LW_MNIST_CNN_ADMM_e15 -X chdir Codes
+screen -S LW_MNIST_CNN_ADMM_e15 -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_CNNLayerwise_ADMM.py
