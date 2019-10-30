@@ -1,16 +1,16 @@
 #!/bin/bash
 
-screen -S LW_CIFAR10_NN_L2 -d -m 
-screen -S LW_CIFAR10_NN_L2 -X chdir Codes
-screen -S LW_CIFAR10_NN_L2 -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_FCLayerwise.py
+screen -S LW_CIFAR10_NN -d -m 
+screen -S LW_CIFAR10_NN -X chdir Codes
+screen -S LW_CIFAR10_NN -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_FCLayerwise.py
 
 screen -S LW_CIFAR10_NN_ADMM -d -m 
 screen -S LW_CIFAR10_NN_ADMM -X chdir Codes
 screen -S LW_CIFAR10_NN_ADMM -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_FCLayerwise_ADMM.py
 
-screen -S LW_CIFAR10_CNN_L2 -d -m 
-screen -S LW_CIFAR10_CNN_L2 -X chdir Codes
-screen -S LW_CIFAR10_CNN_L2 -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_CNNLayerwise.py
+screen -S LW_CIFAR10_CNN -d -m 
+screen -S LW_CIFAR10_CNN -X chdir Codes
+screen -S LW_CIFAR10_CNN -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_CNNLayerwise.py
 
 screen -S LW_CIFAR10_CNN_ADMM -d -m 
 screen -S LW_CIFAR10_CNN_ADMM -X chdir Codes
