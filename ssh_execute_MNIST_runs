@@ -2,7 +2,7 @@
 
 screen -S LW_MNIST_NN_L2 -d -m 
 screen -S LW_MNIST_NN_L2 -X chdir Codes
-screen -S LW_MNIST_NN_L2 -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_FCLayerwise_L2.py
+screen -S LW_MNIST_NN_L2 -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_FCLayerwise.py
 
 screen -S LW_MNIST_NN_ADMM -d -m 
 screen -S LW_MNIST_NN_ADMM -X chdir Codes
@@ -10,7 +10,7 @@ screen -S LW_MNIST_NN_ADMM -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/pyt
 
 screen -S LW_MNIST_CNN_L2 -d -m 
 screen -S LW_MNIST_CNN_L2 -X chdir Codes
-screen -S LW_MNIST_CNN_L2 -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_CNNLayerwise_L2.py
+screen -S LW_MNIST_CNN_L2 -X exec /workspace/hwan/anaconda3/envs/tf_gpu/bin/python3 Training_Driver_CNNLayerwise.py
 
 screen -S LW_MNIST_CNN_ADMM -d -m 
 screen -S LW_MNIST_CNN_ADMM -X chdir Codes
