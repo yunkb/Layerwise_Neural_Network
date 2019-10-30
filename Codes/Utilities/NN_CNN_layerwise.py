@@ -12,8 +12,6 @@ import numpy as np
 import pandas as pd
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-tf.set_random_seed(1234)
-
 class ConvolutionalLayerwise:
     def __init__(self, hyper_p, run_options, trainable_hidden_layer_index, data_dimension, label_dimensions, img_size, num_channels, savefilepath):
         
@@ -46,7 +44,7 @@ class ConvolutionalLayerwise:
             with tf.variable_scope("NN") as scope:   
                 # Convolutional mapping to feature space, first convolutional layer and convolutional mapping back to data space, shape = [filter_size, filter_size, num_input_channels, num_filters]. This format is determined by the TensorFlow API.
                 for l in range(1, 4): 
-                    W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l][0], self.layers[l][0], self.layers[l-1][1], self.layers[l][1]], initializer = tf.random_normal_initializer())
+                    W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l][0], self.layers[l][0], self.layers[l-1][1], self.layers[l][1]], initializer = tf.random_normal_initializer(stddev=0.05))
                     b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [self.layers[l][1]], initializer = tf.constant_initializer(0))                                  
                     tf.summary.histogram("weights" + str(l), W)
                     tf.summary.histogram("biases" + str(l), b)
@@ -56,7 +54,7 @@ class ConvolutionalLayerwise:
                 # Fully Connected Output Layer  
                 self.X_flat, self.num_features = self.forward_convolutional_prop(self.data_image_tf, num_layers)  
                 l = 4
-                W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.num_features, self.layers[l]], initializer = tf.random_normal_initializer())
+                W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.num_features, self.layers[l]], initializer = tf.random_normal_initializer(stddev=0.05))
                 b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [1, self.layers[l]], initializer = tf.constant_initializer(0))                                  
                 tf.summary.histogram("weights" + str(l), W)
                 tf.summary.histogram("biases" + str(l), b)

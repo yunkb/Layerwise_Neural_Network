@@ -28,8 +28,6 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 os.environ['OMP_NUM_THREADS'] = '6'
 sys.path.insert(0, '../../Utilities/')
 
-np.random.seed(1234)
-
 ###############################################################################
 #                       HyperParameters and RunOptions                        #
 ###############################################################################

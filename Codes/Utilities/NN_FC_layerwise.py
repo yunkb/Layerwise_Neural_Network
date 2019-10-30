@@ -11,8 +11,6 @@ import numpy as np
 import pandas as pd
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-tf.set_random_seed(1234)
-
 class FullyConnectedLayerwise:
     def __init__(self, hyper_p, trainable_hidden_layer_index, data_dimension, labels_dimension, savefilepath):
         
@@ -37,7 +35,7 @@ class FullyConnectedLayerwise:
         if trainable_hidden_layer_index == 1: 
             with tf.variable_scope("NN") as scope: 
                 for l in range(1, 3):
-                    W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l-1], self.layers[l]], initializer = tf.random_normal_initializer())
+                    W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l-1], self.layers[l]], initializer = tf.random_normal_initializer(stddev=0.05))
                     b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [1, self.layers[l]], initializer = tf.constant_initializer(0))                                  
                     tf.summary.histogram("weights" + str(l), W)
                     tf.summary.histogram("biases" + str(l), b)

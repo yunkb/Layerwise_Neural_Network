@@ -35,7 +35,7 @@ class RunOptions:
         error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
         error_TOL_string = error_TOL_string[-1]
         
-        self.filename = data_type + '_' + self.NN_type + '_L2_mhl%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = data_type + '_' + self.NN_type + '_mhl%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         #=== Saving Neural Network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
