@@ -6,7 +6,7 @@ Created on Sat Oct 26 20:03:31 2019
 @author: hwan
 """
 
-from plot_and_save_figures_layerwise import plot_and_save_figures
+from Utilities.plot_and_save_figures_layerwise import plot_and_save_figures
 from decimal import Decimal # for filenames
 import os
 import sys
