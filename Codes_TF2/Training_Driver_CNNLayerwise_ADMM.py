@@ -18,6 +18,9 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 import os
 import sys
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['OMP_NUM_THREADS'] = '6'
+sys.path.insert(0, '../../Utilities/')
 
 ###############################################################################
 #                       HyperParameters and RunOptions                        #
