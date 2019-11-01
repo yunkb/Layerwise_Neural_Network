@@ -66,6 +66,7 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             print('            Epoch %d            ' %(epoch))
             print('================================')
             print(run_options.filename)
+            print('Trainable Hidden Layer Index: %d' %(trainable_hidden_layer_index))
             print('GPU: ' + hyper_p.gpu + '\n')
             print('Optimizing %d batches of size %d:' %(num_batches_train, hyper_p.batch_size))
             start_time_epoch = time.time()
@@ -115,7 +116,10 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
         
         ########################################################
         #   Updating Architecture and Saving Current Metrics   #
-        ########################################################            
+        ########################################################  
+        print('================================')
+        print('     Extending Architecture     ')
+        print('================================')          
         #=== Saving Metrics ===#
         metrics_dict = {}
         metrics_dict['loss'] = storage_loss_array
