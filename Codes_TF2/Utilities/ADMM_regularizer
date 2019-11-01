@@ -1,0 +1,19 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Nov  1 10:47:00 2019
+
+@author: hwan
+"""
+
+class RegularizerADMMPenalty(Regularizer):
+    def __init__(self, penalty, z_l, lagrange_l):
+        self.penalty = K.cast_to_floatx(penalty)
+        self.z_l = z_l
+        self.lagrange_l = lagrange_l
+        
+    def __call__(self, x):
+        regularization = 0.
+        if self.pen:            
+            regularization += self.penalty/2 * math_ops.reduce_sum(math_ops.square(x - self.z_l + self.lagrange_l/self.penalty))
+        return regularization
