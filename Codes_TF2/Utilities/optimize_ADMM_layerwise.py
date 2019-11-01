@@ -88,12 +88,12 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
             loss_val_batch_average(loss_val_batch)
             accuracy_val_batch_average(accuracy(output_val, labels_val))
             
-        #=== Display Batch Iteration Information ===#
-            elapsed_time_epoch = time.time() - start_time_epoch
-            print('Time per Epoch: %.2f\n' %(elapsed_time_epoch))
-            print('Training Set: Loss: %.3e, Accuracy: %.3f' %(loss_train_batch_average.result(), accuracy_train_batch_average.result()))
-            print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
-            start_time_epoch = time.time()  
+        #=== Display Epoch Iteration Information ===#
+        elapsed_time_epoch = time.time() - start_time_epoch
+        print('Time per Epoch: %.2f\n' %(elapsed_time_epoch))
+        print('Training Set: Loss: %.3e, Accuracy: %.3f' %(loss_train_batch_average.result(), accuracy_train_batch_average.result()))
+        print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
+        start_time_epoch = time.time()  
         
         #=== Track Training Metrics, Weights and Gradients ===#
         with summary_writer.as_default():

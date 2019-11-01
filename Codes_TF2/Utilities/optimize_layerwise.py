@@ -46,10 +46,6 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
         shutil.rmtree('../Tensorboard/' + run_options.filename)  
     summary_writer = tf.summary.create_file_writer('../Tensorboard/' + run_options.filename)
 
-    #=== Set GPU configuration options ===#
-    os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-    os.environ["CUDA_VISIBLE_DEVICES"]=hyper_p.gpu 
-
 
 ###############################################################################
 #                          Train Neural Network                               #
@@ -100,12 +96,12 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             for gradient, variable in zip(gradients, NN.trainable_variables):
                 tf.summary.histogram("gradients_norm/" + variable.name, l2_norm(gradient), step = epoch)
             
-        #=== Display Batch Iteration Information ===#
-            elapsed_time_epoch = time.time() - start_time_epoch
-            print('Time per Epoch: %.2f\n' %(elapsed_time_epoch))
-            print('Training Set: Loss: %.3e, Accuracy: %.3f' %(loss_train_batch_average.result(), accuracy_train_batch_average.result()))
-            print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
-            start_time_epoch = time.time()   
+        #=== Display Epoch Iteration Information ===#
+        elapsed_time_epoch = time.time() - start_time_epoch
+        print('Time per Epoch: %.2f\n' %(elapsed_time_epoch))
+        print('Training Set: Loss: %.3e, Accuracy: %.3f' %(loss_train_batch_average.result(), accuracy_train_batch_average.result()))
+        print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
+        start_time_epoch = time.time()   
             
     #=== Save final model ===#
     NN.save_weights(run_options.NN_savefile_name)
