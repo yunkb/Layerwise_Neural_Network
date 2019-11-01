@@ -5,6 +5,7 @@ Created on Mon Oct 28 14:13:20 2019
 
 @author: hwan
 """
+import tensorflow as tf
 import numpy as np
 import pandas as pd
 
@@ -26,13 +27,18 @@ class HyperParameters:
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     filter_size       = 3
     num_filters       = 5
+    regularization    = 1
+    node_TOL          = 1e-3
     error_TOL         = 1e-2
     batch_size        = 100
     num_epochs        = 2
     gpu               = '2'
     
 class RunOptions:
-    def __init__(self, hyper_p):        
+    def __init__(self, hyper_p):    
+        #=== Use L_1 Regularization ===#
+        self.use_L1 = 1
+        
         #=== Choose Data Set ===#
         data_MNIST = 1
         data_CIFAR10 = 0  
@@ -52,10 +58,22 @@ class RunOptions:
             self.dataset = 'CIFAR10'
         if data_CIFAR100 == 1:
             self.dataset = 'CIFAR100'
+        if hyper_p.regularization >= 1:
+            hyper_p.regularization = int(hyper_p.regularization)
+            regularization_string = str(hyper_p.regularization)
+        else:
+            regularization_string = str(hyper_p.regularization)
+            regularization_string = 'pt' + regularization_string[2:]                        
+        node_TOL_string = str('%.2e' %Decimal(hyper_p.node_TOL))
+        node_TOL_string = node_TOL_string[-1]
         error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
         error_TOL_string = error_TOL_string[-1]
         
-        self.filename = self.dataset + '_' + self.NN_type + '_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+        if self.use_L1 == 0:
+            self.filename = self.dataset + '_' + self.NN_type + '_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+        else:
+            self.filename = self.dataset + '_' + self.NN_type + '_L1_mhl%d_fs%d_nf%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
@@ -73,8 +91,14 @@ def trainer(hyper_p, run_options):
     data_and_labels_train, data_and_labels_test, data_and_labels_val, data_input_shape, num_channels, label_dimensions, num_batches_train, num_batches_val = load_data(run_options.dataset, hyper_p.batch_size, run_options.random_seed)  
     
     #=== Neural network ===#
+    if run_options.use_L1 == 0:
+        kernel_regularizer = None
+        bias_regularizer = None  
+    else:
+        kernel_regularizer = tf.keras.regularizers.l1(hyper_p.regularization)
+        bias_regularizer = tf.keras.regularizers.l1(hyper_p.regularization)
     NN = CNNLayerwise(hyper_p, run_options, data_input_shape, label_dimensions, num_channels,
-                      None, None,
+                      kernel_regularizer, bias_regularizer,
                       run_options.NN_savefile_directory, construct_flag = 1)    
     
     #=== Training ===#
@@ -92,10 +116,12 @@ if __name__ == "__main__":
         hyper_p.max_hidden_layers = int(sys.argv[1])
         hyper_p.filter_size       = int(sys.argv[2])
         hyper_p.num_filters       = int(sys.argv[3])
-        hyper_p.error_TOL         = float(sys.argv[4])
-        hyper_p.batch_size        = int(sys.argv[5])
-        hyper_p.num_epochs        = int(sys.argv[6])
-        hyper_p.gpu               = str(sys.argv[7])
+        hyper_p.regularization    = float(sys.argv[4])
+        hyper_p.node_TOL          = float(sys.argv[5])
+        hyper_p.error_TOL         = float(sys.argv[6])
+        hyper_p.batch_size        = int(sys.argv[7])
+        hyper_p.num_epochs        = int(sys.argv[8])
+        hyper_p.gpu               = str(sys.argv[9])
             
     #=== Set run options ===#         
     run_options = RunOptions(hyper_p)

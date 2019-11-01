@@ -56,6 +56,7 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
     trainable_hidden_layer_index = 2
     storage_loss_array = []
     storage_accuracy_array = []
+    storage_relative_number_zeros_array = []
     
     #####################################
     #   Training Current Architecture   #
@@ -139,15 +140,24 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
         storage_loss_array = []
         storage_accuracy_array = []
         
-        #=== Add Layer ===#
-        NN.sparsify_weights(hyper_p.node_TOL)
+        #=== Sparsify Trained Layer and Add Layer ===#
+        relative_number_zeros = NN.sparsify_weights(hyper_p.node_TOL)
+        storage_relative_number_zeros_array = np.append(storage_relative_number_zeros_array, relative_number_zeros)
         NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
     
     ########################
     #   Save Final Model   #
-    ########################            
+    ########################  
+    #=== Saving Trained Model ===#          
     NN.save_weights(run_options.NN_savefile_name)
     print('Final Model Saved') 
+    
+    #=== Saving Relative Number of Zero Elements ===#
+    relative_number_zeros_dict = {}
+    relative_number_zeros_dict['rel_zeros'] = storage_relative_number_zeros_array
+    df_relative_number_zeros = pd.DataFrame(relative_number_zeros_dict)
+    df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)
+  
         
 
     

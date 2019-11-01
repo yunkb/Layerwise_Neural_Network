@@ -120,12 +120,17 @@ class CNNLayerwise(tf.keras.Model):
 #                              Sparsify Weights                               #
 ###############################################################################            
     def sparsify_weights(self, threshold = 1e-6):
-        weights = self.hidden_layers_list[-1].get_weights()
+        trained_weights = self.hidden_layers_list[-1].get_weights()
         sparsified_weights = []
-        for w in weights:
+        for w in trained_weights:
             bool_mask = (w > threshold).astype(int)
             sparsified_weights.append(w*bool_mask)
         self.hidden_layers_list[-1].set_weights(sparsified_weights)
+        
+        num_zeros = np.count_nonzero(trained_weights==0)
+        relative_number_zeros = num_zeros/trained_weights.flatten().shape[0]
+        
+        return relative_number_zeros
     
     
     
