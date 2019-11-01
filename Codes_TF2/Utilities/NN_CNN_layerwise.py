@@ -117,7 +117,7 @@ class CNNLayerwise(tf.keras.Model):
               self.hidden_layers_list[index].trainable = True
               
 ###############################################################################
-#                                 Add Layer                                   #
+#                              Sparsify Weights                               #
 ###############################################################################            
     def sparsify_weights(self, threshold = 1e-6):
         weights = self.hidden_layers_list[-1].get_weights()

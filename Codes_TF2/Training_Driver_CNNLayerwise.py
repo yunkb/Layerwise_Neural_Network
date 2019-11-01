@@ -12,15 +12,12 @@ from Utilities.get_data import load_data
 from Utilities.NN_CNN_layerwise import CNNLayerwise
 from Utilities.optimize_layerwise import optimize
 
+from decimal import Decimal # for filenames
+
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 import os
 import sys
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-os.environ['OMP_NUM_THREADS'] = '6'
-sys.path.insert(0, '../../Utilities/')
-
-np.random.seed(1234)
 
 ###############################################################################
 #                       HyperParameters and RunOptions                        #
@@ -55,8 +52,10 @@ class RunOptions:
             self.dataset = 'CIFAR10'
         if data_CIFAR100 == 1:
             self.dataset = 'CIFAR100'
+        error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
+        error_TOL_string = error_TOL_string[-1]
         
-        self.filename = self.dataset + '_' + self.NN_type + '_hl%d_fs%d_nf%d_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = self.dataset + '_' + self.NN_type + '_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
@@ -75,8 +74,8 @@ def trainer(hyper_p, run_options):
     
     #=== Neural network ===#
     NN = CNNLayerwise(hyper_p, run_options, data_input_shape, label_dimensions, num_channels,
-             None, None,
-             run_options.NN_savefile_directory, construct_flag = 1)    
+                      None, None,
+                      run_options.NN_savefile_directory, construct_flag = 1)    
     
     #=== Training ===#
     optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)

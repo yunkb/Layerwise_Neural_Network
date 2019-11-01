@@ -140,16 +140,16 @@ if __name__ == "__main__":
     hyper_p = HyperParameters()
     
     if len(sys.argv) > 1:
-            hyper_p.max_hidden_layers = int(sys.argv[1])
-            hyper_p.filter_size       = int(sys.argv[2])
-            hyper_p.num_filters       = int(sys.argv[3])
-            hyper_p.regularization    = float(sys.argv[4])
-            hyper_p.penalty           = float(sys.argv[5])
-            hyper_p.node_TOL          = float(sys.argv[6])
-            hyper_p.error_TOL         = float(sys.argv[7])
-            hyper_p.batch_size        = int(sys.argv[8])
-            hyper_p.num_epochs        = int(sys.argv[9])
-            hyper_p.gpu               = str(sys.argv[10])
+        hyper_p.max_hidden_layers = int(sys.argv[1])
+        hyper_p.filter_size       = int(sys.argv[2])
+        hyper_p.num_filters       = int(sys.argv[3])
+        hyper_p.regularization    = float(sys.argv[4])
+        hyper_p.penalty           = float(sys.argv[5])
+        hyper_p.node_TOL          = float(sys.argv[6])
+        hyper_p.error_TOL         = float(sys.argv[7])
+        hyper_p.batch_size        = int(sys.argv[8])
+        hyper_p.num_epochs        = int(sys.argv[9])
+        hyper_p.gpu               = str(sys.argv[10])
             
     #=== Set run options ===#         
     run_options = RunOptions(hyper_p)
