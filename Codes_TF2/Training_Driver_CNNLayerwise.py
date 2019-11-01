@@ -74,7 +74,6 @@ class RunOptions:
         else:
             self.filename = self.dataset + '_' + self.NN_type + '_L1_mhl%d_fs%d_nf%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
-
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the saved parameters
