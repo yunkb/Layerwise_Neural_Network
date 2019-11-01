@@ -35,7 +35,7 @@ class HyperParameters:
     error_TOL         = 1e-2
     batch_size        = 100
     num_epochs        = 15
-    gpu               = '2'
+    gpu               = 2
     
 class RunOptions:
     def __init__(self, hyper_p):    
@@ -123,7 +123,7 @@ if __name__ == "__main__":
         hyper_p.error_TOL         = float(sys.argv[6])
         hyper_p.batch_size        = int(sys.argv[7])
         hyper_p.num_epochs        = int(sys.argv[8])
-        hyper_p.gpu               = str(sys.argv[9])
+        hyper_p.gpu               = int(sys.argv[9])
             
     #=== Set run options ===#         
     run_options = RunOptions(hyper_p)

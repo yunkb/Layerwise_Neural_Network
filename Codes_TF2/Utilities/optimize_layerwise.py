@@ -47,6 +47,17 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
         shutil.rmtree('../Tensorboard/' + run_options.filename)  
     summary_writer = tf.summary.create_file_writer('../Tensorboard/' + run_options.filename)
 
+    #=== GPU Options ===#
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    pdb.set_trace()
+    if gpus:
+      try:
+        tf.config.experimental.set_visible_devices(gpus[hyper_p.gpu], 'GPU')
+        tf.config.experimental.set_memory_growth(gpus[hyper_p.gpu], True)
+      except RuntimeError as e:
+          # Visible devices must be set before GPUs have been initialized
+          print(e)
+
 ###############################################################################
 #                             Train Neural Network                            #
 ############################################################################### 
@@ -67,7 +78,7 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             print('================================')
             print(run_options.filename)
             print('Trainable Hidden Layer Index: %d' %(trainable_hidden_layer_index))
-            print('GPU: ' + hyper_p.gpu + '\n')
+            print('GPU: %d\n' %(hyper_p.gpu))
             print('Optimizing %d batches of size %d:' %(num_batches_train, hyper_p.batch_size))
             start_time_epoch = time.time()
             for batch_num, (data_train, labels_train) in data_and_labels_train.enumerate():
