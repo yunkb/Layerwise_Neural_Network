@@ -5,9 +5,6 @@ Created on Mon Oct 28 14:13:20 2019
 
 @author: hwan
 """
-import numpy as np
-import pandas as pd
-
 from Utilities.get_data import load_data
 from Utilities.NN_CNN_layerwise import CNNLayerwise
 from Utilities.optimize_ADMM_layerwise import optimize_ADMM
@@ -18,9 +15,6 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 import os
 import sys
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-os.environ['OMP_NUM_THREADS'] = '6'
-sys.path.insert(0, '../../Utilities/')
 
 ###############################################################################
 #                       HyperParameters and RunOptions                        #
@@ -33,9 +27,9 @@ class HyperParameters:
     penalty           = 1
     node_TOL          = 1e-3
     error_TOL         = 1e-2
-    batch_size        = 100
+    batch_size        = 1000
     num_epochs        = 15
-    gpu               = 3
+    gpu               = '3'
     
 class RunOptions:
     def __init__(self, hyper_p):        
@@ -89,6 +83,10 @@ class RunOptions:
 #                                 Training                                    #
 ###############################################################################
 def trainer(hyper_p, run_options):
+    #=== GPU Settings ===#
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
+    os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
+    
     #=== Load Train and Test Data ===#  
     data_and_labels_train, data_and_labels_test, data_and_labels_val, data_input_shape, num_channels, label_dimensions, num_batches_train, num_batches_val = load_data(run_options.dataset, hyper_p.batch_size, run_options.random_seed)  
     
