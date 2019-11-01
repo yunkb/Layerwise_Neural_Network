@@ -35,10 +35,7 @@ class HyperParameters:
     gpu               = '2'
     
 class RunOptions:
-    def __init__(self, hyper_p):
-        #=== Use ResNet ===#
-        self.use_resnet = 0
-        
+    def __init__(self, hyper_p):        
         #=== Choose Data Set ===#
         data_MNIST = 1
         data_CIFAR10 = 0  
@@ -80,6 +77,7 @@ def trainer(hyper_p, run_options):
     NN = CNNLayerwise(hyper_p, run_options, data_input_shape, label_dimensions, num_channels,
              None, None,
              run_options.NN_savefile_directory, construct_flag = 1)    
+    
     #=== Training ===#
     storage_loss_array, storage_accuracy_array = optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
 
