@@ -134,8 +134,9 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
         storage_accuracy_array = []
         
         #=== Add Layer ===#
-        relative_number_zeros = NN.sparsify_weights(hyper_p.node_TOL)
-        storage_relative_number_zeros_array = np.append(storage_relative_number_zeros_array, relative_number_zeros)
+        if run_options.use_L1 == 1:
+            relative_number_zeros = NN.sparsify_weights(hyper_p.node_TOL)
+            storage_relative_number_zeros_array = np.append(storage_relative_number_zeros_array, relative_number_zeros)
         NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
     
     ########################
@@ -146,10 +147,11 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
     print('Final Model Saved') 
     
     #=== Saving Relative Number of Zero Elements ===#
-    relative_number_zeros_dict = {}
-    relative_number_zeros_dict['rel_zeros'] = storage_relative_number_zeros_array
-    df_relative_number_zeros = pd.DataFrame(relative_number_zeros_dict)
-    df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)
+    if run_options.use_L1 == 1:
+        relative_number_zeros_dict = {}
+        relative_number_zeros_dict['rel_zeros'] = storage_relative_number_zeros_array
+        df_relative_number_zeros = pd.DataFrame(relative_number_zeros_dict)
+        df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)
         
 
     
