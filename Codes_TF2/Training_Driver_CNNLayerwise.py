@@ -9,8 +9,8 @@ import numpy as np
 import pandas as pd
 
 from Utilities.get_data import load_data
-from Utilities.NN_CNN_Layerwise import CNNLayerwise
-from Utilities.optimize import optimize
+from Utilities.NN_CNN_layerwise import CNNLayerwise
+from Utilities.optimize_layerwise import optimize
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -56,7 +56,7 @@ class RunOptions:
         if data_CIFAR100 == 1:
             self.dataset = 'CIFAR100'
         
-        self.filename = self.dataset + '_' + self.NN_type + '_hl%d_fs%d_nf%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = self.dataset + '_' + self.NN_type + '_hl%d_fs%d_nf%d_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, hyper_p.batch_size, hyper_p.num_epochs)
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
@@ -79,14 +79,7 @@ def trainer(hyper_p, run_options):
              run_options.NN_savefile_directory, construct_flag = 1)    
     
     #=== Training ===#
-    storage_loss_array, storage_accuracy_array = optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
-
-    #=== Saving Metrics ===#
-    metrics_dict = {}
-    metrics_dict['loss'] = storage_loss_array
-    metrics_dict['accuracy'] = storage_accuracy_array
-    df_metrics = pd.DataFrame(metrics_dict)
-    df_metrics.to_csv(run_options.NN_savefile_name + "_metrics" + '.csv', index=False)
+    optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
     
 ###############################################################################
 #                                 Driver                                      #

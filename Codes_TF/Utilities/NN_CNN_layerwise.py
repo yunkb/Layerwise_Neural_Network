@@ -73,7 +73,7 @@ class ConvolutionalLayerwise:
                 restored_W = df_trained_weights.values.reshape([self.layers[l][0], self.layers[l][0], self.layers[l-1][1], self.layers[l][1]])
                 restored_b = df_trained_biases.values.reshape([self.layers[l][1]])
                 W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l][0], self.layers[l][0], self.layers[l-1][1], self.layers[l][1]], initializer = tf.constant_initializer(restored_W), trainable = False)
-                b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [self.layers[l][1]], initializer = tf.constant_initializer(restored_b))                                  
+                b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [self.layers[l][1]], initializer = tf.constant_initializer(restored_b), trainable = False)                                  
                 self.weights.append(W)
                 self.biases.append(b)
                 
