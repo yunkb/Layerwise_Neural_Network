@@ -35,6 +35,7 @@ def accuracy(y_pred,y_true):
 def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train):
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
+    reset_optimizer = tf.group([v.initializer for v in optimizer.variables()])
 
     #=== Define Metrics and Initialize Metric Storage Arrays ===#
     loss_train_batch_average = tf.keras.metrics.Mean()
@@ -134,12 +135,6 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
         df_metrics = pd.DataFrame(metrics_dict)
         df_metrics.to_csv(run_options.NN_savefile_name + "_metrics_hl" + str(trainable_hidden_layer_index) + '.csv', index=False)
         
-        #=== Preparing for Next Iteration ===#
-        loss_validation = loss_val_batch_average.result()
-        trainable_hidden_layer_index += 1
-        storage_loss_array = []
-        storage_accuracy_array = []
-        
         #=== Sparsify Weights of Trained Layer ===#
         relative_number_zeros = NN.sparsify_weights(hyper_p.node_TOL)
         print('Relative Number of Zeros for Last Layer: %d' %(relative_number_zeros))
@@ -147,7 +142,17 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
             
         #=== Add Layer ===#
         NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
-    
+        
+        #=== Preparing for Next Training Cycle ===#
+        loss_validation = loss_val_batch_average.result()
+        trainable_hidden_layer_index += 1
+        storage_loss_array = []
+        storage_accuracy_array = []
+        reset_optimizer
+        loss_train_batch_average.reset_states()
+        loss_val_batch_average.reset_states()
+        accuracy_train_batch_average.reset_states()
+        accuracy_val_batch_average.reset_states()
     
     ########################
     #   Save Final Model   #

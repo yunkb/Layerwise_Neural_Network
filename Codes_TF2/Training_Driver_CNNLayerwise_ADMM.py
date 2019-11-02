@@ -24,18 +24,18 @@ class HyperParameters:
     filter_size       = 3
     num_filters       = 64
     regularization    = 1
-    penalty           = 1
+    penalty           = 0.01
     node_TOL          = 1e-3
     error_TOL         = 1e-2
     batch_size        = 1000
-    num_epochs        = 60
-    gpu               = '3'
+    num_epochs        = 100
+    gpu               = '1'
     
 class RunOptions:
     def __init__(self, hyper_p):        
         #=== Choose Data Set ===#
-        data_MNIST = 0
-        data_CIFAR10 = 1  
+        data_MNIST = 1
+        data_CIFAR10 = 0  
         data_CIFAR100 = 0
         
         #=== Random Seed ===#
