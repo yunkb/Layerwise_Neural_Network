@@ -65,7 +65,7 @@ def plot_and_save_figures(hyper_p, run_options):
     rel_zeros_array_exists = 'rel_zeros_array' in locals() or 'rel_zeros_array' in globals()
     if rel_zeros_array_exists:
         fig_accuracy = plt.figure()
-        x_axis = np.linspace(1,hyper_p.max_hidden_layers, hyper_p.max_hidden_layers, endpoint = True)
+        x_axis = np.linspace(2,hyper_p.max_hidden_layers, hyper_p.max_hidden_layers)
         plt.plot(x_axis, rel_zeros_array, label = 'relative # of 0s')
         plt.title('Rel_#_0s: ' + run_options.filename)
         plt.xlabel('Layers')
