@@ -30,7 +30,7 @@ class HyperParameters:
     error_TOL         = 1e-2
     batch_size        = 1000
     num_epochs        = 20
-    gpu               = '0'
+    gpu               = '2'
     
 class RunOptions:
     def __init__(self, hyper_p):    
@@ -38,8 +38,8 @@ class RunOptions:
         self.use_L1 = 1
         
         #=== Choose Data Set ===#
-        data_MNIST = 1
-        data_CIFAR10 = 0 
+        data_MNIST = 0
+        data_CIFAR10 = 1 
         data_CIFAR100 = 0
         
         #=== Random Seed ===#
