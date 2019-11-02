@@ -30,11 +30,6 @@ def plot_and_save_figures(hyper_p, run_options):
         array_metrics = df_metrics.to_numpy()
         storage_loss_array = array_metrics[:,0]
         storage_accuracy_array = array_metrics[:,1]  
-        try:
-            df_rel_zeros = pd.read_csv(run_options.NN_savefile_name + "_relzeros" + str(l) + '.csv')
-            rel_zeros_array = df_rel_zeros.to_numpy()
-        except:
-            print('No relative number of zeros .csv file!')
         
         #=== Plot and Save Losses===#
         fig_loss = plt.figure()
@@ -61,6 +56,11 @@ def plot_and_save_figures(hyper_p, run_options):
         plt.close(fig_accuracy)
         
     #=== Plot and Save Relative Number of Zeros ===#
+    try:
+        df_rel_zeros = pd.read_csv(run_options.NN_savefile_name + "_relzeros" + str(l) + '.csv')
+        rel_zeros_array = df_rel_zeros.to_numpy()
+    except:
+        print('No relative number of zeros .csv file!')
     rel_zeros_array_exists = 'rel_zeros_array' in locals() or 'rel_zeros_array' in globals()
     if rel_zeros_array_exists:
         fig_accuracy = plt.figure()
