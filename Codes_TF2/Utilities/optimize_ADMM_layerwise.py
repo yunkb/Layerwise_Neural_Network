@@ -123,7 +123,12 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
             print('Training Set: Loss: %.3e, Accuracy: %.3f' %(loss_train_batch_average.result(), accuracy_train_batch_average.result()))
             print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
             print('Previous Layer Relative # of 0s: %.7f\n' %(relative_number_zeros))
-            start_time_epoch = time.time()   
+            start_time_epoch = time.time() 
+            
+            #=== Unfreezing Downsampling and Classification Layer ===#
+            if trainable_hidden_layer_index > 2 and epoch == 5:
+                NN.downsampling_layer.trainable = True
+                NN.classification_layer.trainable = True
         
         ########################################################
         #   Updating Architecture and Saving Current Metrics   #
@@ -142,17 +147,20 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
         relative_number_zeros = NN.sparsify_weights_and_get_relative_number_of_zeros(hyper_p.node_TOL)
         print('Relative Number of Zeros for Last Layer: %d' %(relative_number_zeros))
         storage_relative_number_zeros_array = np.append(storage_relative_number_zeros_array, relative_number_zeros)
-            
-        #=== Add Layer ===#
-        trainable_hidden_layer_index += 1
-        NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
-        
+          
         #=== Saving Relative Number of Zero Elements ===#
         relative_number_zeros_dict = {}
         relative_number_zeros_dict['rel_zeros'] = storage_relative_number_zeros_array
         df_relative_number_zeros = pd.DataFrame(relative_number_zeros_dict)
-        df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)
-  
+        df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)  
+        
+        #=== Add Layer ===#
+        trainable_hidden_layer_index += 1
+        NN.add_layer(trainable_hidden_layer_index, freeze = True, add = True)
+        
+        #=== Freezing Downsampling and Classification Layer ===#
+        NN.downsampling_layer.trainable = False
+        NN.classification_layer.trainable = False
         
         #=== Preparing for Next Training Cycle ===#
         loss_validation = loss_val_batch_average.result()
