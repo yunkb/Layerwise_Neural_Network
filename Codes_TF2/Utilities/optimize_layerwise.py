@@ -113,7 +113,7 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             elapsed_time_epoch = time.time() - start_time_epoch
             print('Time per Epoch: %.2f\n' %(elapsed_time_epoch))
             print('Training Set: Loss: %.3e, Accuracy: %.3f' %(loss_train_batch_average.result(), accuracy_train_batch_average.result()))
-            print('Validation Set: Loss: %.3e, Accuracy: %.3f' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
+            print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
             print('Previous Layer Relative # of 0s: %.7f\n' %(relative_number_zeros))
             start_time_epoch = time.time()   
         
