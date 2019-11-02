@@ -37,7 +37,7 @@ def update_ADMM_penalty_terms(penalty, weights_tf, z, lagrange):
 def update_z_and_lagrange_multiplier(weights, alpha, penalty, z, lagrange):   
     for l in range(0, len(weights)):  
         z[l] = soft_threshold_weights(weights, l, lagrange, alpha, penalty)
-        lagrange[l] = lagrange[l] + penalty*(weights[l] - z[l])
+        lagrange[l] += penalty*(weights[l] - z[l])
         
     return z, lagrange
       
