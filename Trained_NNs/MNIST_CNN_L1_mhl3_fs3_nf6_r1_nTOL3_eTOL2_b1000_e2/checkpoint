@@ -1,2 +1,0 @@
-model_checkpoint_path: "MNIST_CNN_L1_mhl3_fs3_nf6_r1_nTOL3_eTOL2_b1000_e2"
-all_model_checkpoint_paths: "MNIST_CNN_L1_mhl3_fs3_nf6_r1_nTOL3_eTOL2_b1000_e2"
