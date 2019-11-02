@@ -60,15 +60,16 @@ def plot_and_save_figures(hyper_p, run_options):
     try:
         df_rel_zeros = pd.read_csv(run_options.NN_savefile_name + "_relzeros" + '.csv')
         rel_zeros_array = df_rel_zeros.to_numpy()
+        rel_zeros_array = rel_zeros_array.flatten()
     except:
         print('No relative number of zeros .csv file!')
     rel_zeros_array_exists = 'rel_zeros_array' in locals() or 'rel_zeros_array' in globals()
     if rel_zeros_array_exists:
         fig_accuracy = plt.figure()
-        x_axis = np.linspace(2,hyper_p.max_hidden_layers, hyper_p.max_hidden_layers)
+        x_axis = np.linspace(2, hyper_p.max_hidden_layers-1, hyper_p.max_hidden_layers-2, endpoint = True)
         plt.plot(x_axis, rel_zeros_array, label = 'relative # of 0s')
-        plt.title('Rel_#_0s: ' + run_options.filename)
-        plt.xlabel('Layers')
+        plt.title('Rel # of 0s: ' + run_options.filename)
+        plt.xlabel('Layer Number')
         plt.ylabel('Number of Zeros')
         plt.legend()
         figures_savefile_name = run_options.figures_savefile_directory + '/' + 'rel_num_zeros_' + run_options.filename + '.png'

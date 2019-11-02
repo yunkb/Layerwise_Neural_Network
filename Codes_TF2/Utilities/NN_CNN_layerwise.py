@@ -123,16 +123,16 @@ class CNNLayerwise(tf.keras.Model):
         trained_weights = self.hidden_layers_list[-1].get_weights()
         sparsified_weights = []
         for w in trained_weights:
-            bool_mask = (w > threshold).astype(int)
+            bool_mask = (abs(w) > threshold).astype(int)
             sparsified_weights.append(w*bool_mask)
         self.hidden_layers_list[-1].set_weights(sparsified_weights)
         
         total_number_of_zeros = 0
         total_number_of_elements = 0
-        for i in range(0, len(trained_weights)):
-            total_number_of_zeros += np.count_nonzero(trained_weights[i]==0)
-            total_number_of_elements += trained_weights[i].flatten().shape[0]
-        relative_number_zeros = total_number_of_zeros/total_number_of_elements
+        for i in range(0, len(sparsified_weights)):
+            total_number_of_zeros += np.count_nonzero(sparsified_weights[i]==0)
+            total_number_of_elements += sparsified_weights[i].flatten().shape[0]
+        relative_number_zeros = np.float64(total_number_of_zeros/total_number_of_elements)
         
         return relative_number_zeros
     
