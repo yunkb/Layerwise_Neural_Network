@@ -22,6 +22,7 @@ def plot_and_save_figures(hyper_p, run_options):
     print('            Plotting            ')
     print('================================')
     #=== Plotting ===#    
+    print(run_options.file_name)
     for l in range(first_trainable_hidden_layer_index, hyper_p.max_hidden_layers):
         #=== Load Metrics ===#
         print('Loading Metrics for Hidden Layer %d' %(l))
