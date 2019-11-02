@@ -24,7 +24,7 @@ class HyperParameters:
     filter_size       = 3
     num_filters       = 64
     regularization    = 1
-    penalty           = 10
+    penalty           = 0.5
     node_TOL          = 1e-5
     error_TOL         = 1e-2
     batch_size        = 5000
