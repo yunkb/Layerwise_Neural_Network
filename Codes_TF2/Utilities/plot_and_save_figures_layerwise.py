@@ -31,9 +31,9 @@ def plot_and_save_figures(hyper_p, run_options):
         storage_accuracy_array = array_metrics[:,1]  
         try:
             df_rel_zeros = pd.read_csv(run_options.NN_savefile_name + "_relzeros" + str(l) + '.csv')
+            rel_zeros_array = df_rel_zeros.to_numpy()
         except:
             print('No such file!')
-        rel_zeros_array = df_rel_zeros.to_numpy()
         
         #=== Plot and Save Losses===#
         fig_loss = plt.figure()
@@ -60,16 +60,18 @@ def plot_and_save_figures(hyper_p, run_options):
         plt.close(fig_accuracy)
         
     #=== Plot and Save Relative Number of Zeros ===#
-    fig_accuracy = plt.figure()
-    x_axis = np.linspace(1,hyper_p.max_hidden_layers, hyper_p.max_hidden_layers, endpoint = True)
-    plt.plot(x_axis, rel_zeros_array, label = 'relative # of 0s')
-    plt.title('Rel_#_0s: ' + run_options.filename)
-    plt.xlabel('Layers')
-    plt.ylabel('Number of Zeros')
-    plt.legend()
-    figures_savefile_name = run_options.figures_savefile_directory + '/' + 'rel_num_zeros_' + run_options.filename + '.png'
-    plt.savefig(figures_savefile_name)
-    plt.close(fig_accuracy)
+    rel_zeros_array_exists = 'rel_zeros_array' in locals() or 'rel_zeros_array' in globals()
+    if rel_zeros_array_exists:
+        fig_accuracy = plt.figure()
+        x_axis = np.linspace(1,hyper_p.max_hidden_layers, hyper_p.max_hidden_layers, endpoint = True)
+        plt.plot(x_axis, rel_zeros_array, label = 'relative # of 0s')
+        plt.title('Rel_#_0s: ' + run_options.filename)
+        plt.xlabel('Layers')
+        plt.ylabel('Number of Zeros')
+        plt.legend()
+        figures_savefile_name = run_options.figures_savefile_directory + '/' + 'rel_num_zeros_' + run_options.filename + '.png'
+        plt.savefig(figures_savefile_name)
+        plt.close(fig_accuracy)
         
         
         
