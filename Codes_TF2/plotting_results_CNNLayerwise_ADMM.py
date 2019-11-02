@@ -21,11 +21,11 @@ class HyperParameters:
     filter_size       = 3
     num_filters       = 64
     regularization    = 1
-    penalty           = 0.01
-    node_TOL          = 1e-3
+    penalty           = 1e-5
+    node_TOL          = 1e-5
     error_TOL         = 1e-2
     batch_size        = 1000
-    num_epochs        = 100
+    num_epochs        = 20
     gpu               = '3'
     
 class RunOptions:
