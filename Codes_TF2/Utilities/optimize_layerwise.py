@@ -130,16 +130,16 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
         
         #=== Sparsify Weights of Trained Layer ===#
         if run_options.use_L1 == 1:
-            relative_number_zeros = NN.sparsify_weights(hyper_p.node_TOL)
+            relative_number_zeros = NN.sparsify_weights_and_get_relative_number_of_zeros(hyper_p.node_TOL)
             print('Relative Number of Zeros for Last Layer: %d' %(relative_number_zeros))
             storage_relative_number_zeros_array = np.append(storage_relative_number_zeros_array, relative_number_zeros)
             
         #=== Add Layer ===#
+        trainable_hidden_layer_index += 1
         NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
         
         #=== Preparing for Next Training Cycle ===#
         loss_validation = loss_val_batch_average.result()
-        trainable_hidden_layer_index += 1
         storage_loss_array = []
         storage_accuracy_array = []
         reset_optimizer        

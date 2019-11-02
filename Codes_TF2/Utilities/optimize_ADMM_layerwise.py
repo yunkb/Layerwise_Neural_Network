@@ -78,7 +78,7 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
                     start_time_batch = time.time()
                     output = NN(data_train)
                     #=== Display Model Summary ===#
-                    if batch_num == 0 and epoch == 0:
+                    if batch_num == 0 and epoch == 0 and trainable_hidden_layer_index == 2:
                         NN.summary()
                         z, lagrange = initialize_z_and_lagrange_multiplier(NN.get_weights()) 
                     ADMM_penalty = update_ADMM_penalty_terms(hyper_p.penalty, NN.weights, z, lagrange)
@@ -136,16 +136,16 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
         df_metrics.to_csv(run_options.NN_savefile_name + "_metrics_hl" + str(trainable_hidden_layer_index) + '.csv', index=False)
         
         #=== Sparsify Weights of Trained Layer ===#
-        relative_number_zeros = NN.sparsify_weights(hyper_p.node_TOL)
+        relative_number_zeros = NN.sparsify_weights_and_get_relative_number_of_zeros(hyper_p.node_TOL)
         print('Relative Number of Zeros for Last Layer: %d' %(relative_number_zeros))
         storage_relative_number_zeros_array = np.append(storage_relative_number_zeros_array, relative_number_zeros)
             
         #=== Add Layer ===#
+        trainable_hidden_layer_index += 1
         NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
         
         #=== Preparing for Next Training Cycle ===#
         loss_validation = loss_val_batch_average.result()
-        trainable_hidden_layer_index += 1
         storage_loss_array = []
         storage_accuracy_array = []
         reset_optimizer

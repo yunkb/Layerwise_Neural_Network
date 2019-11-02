@@ -63,11 +63,11 @@ class CNNLayerwise(tf.keras.Model):
         #=== Linear Downsampling Layer to Map to Data Space ===#
         l = 3
         self.downsampling_layer = Conv2D(self.architecture[l][1], (1, 1), padding = 'same',
-                                   activation = "linear", use_bias = True,
-                                   input_shape = (None, self.data_input_shape[0], self.data_input_shape[1], self.num_filters),
-                                   kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
-                                   kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
-                                   name = "downsampling_layer")
+                                         activation = "linear", use_bias = True,
+                                         input_shape = (None, self.data_input_shape[0], self.data_input_shape[1], self.num_filters),
+                                         kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
+                                         kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
+                                         name = "downsampling_layer")
         
         #=== Classification Layer ===#
         self.classification_layer = Dense(units = label_dimensions,
@@ -119,14 +119,23 @@ class CNNLayerwise(tf.keras.Model):
 ###############################################################################
 #                              Sparsify Weights                               #
 ###############################################################################            
-    def sparsify_weights(self, threshold = 1e-6):
+    def sparsify_weights_and_get_relative_number_of_zeros(self, threshold = 1e-6):
+        #=== Downsampling Layer ===#
+        down_weights = self.downsampling_layer.get_weights()        
+        sparsified_weights = self.sparsify_weights(down_weights, threshold)
+        self.downsampling_layer.set_weights(sparsified_weights)
+        
+        #=== Classification Layer ===#
+        class_weights = self.classification_layer.get_weights()
+        sparsified_weights = self.sparsify_weights(class_weights, threshold)
+        self.classification_layer.set_weights(sparsified_weights)
+        
+        #=== Trained Hidden Layer ===#
         trained_weights = self.hidden_layers_list[-1].get_weights()
-        sparsified_weights = []
-        for w in trained_weights:
-            bool_mask = (abs(w) > threshold).astype(int)
-            sparsified_weights.append(w*bool_mask)
+        sparsified_weights = self.sparsify_weights(trained_weights, threshold)
         self.hidden_layers_list[-1].set_weights(sparsified_weights)
         
+        #=== Compute Relative Number of Zeros ===#
         total_number_of_zeros = 0
         total_number_of_elements = 0
         for i in range(0, len(sparsified_weights)):
@@ -135,6 +144,20 @@ class CNNLayerwise(tf.keras.Model):
         relative_number_zeros = np.float64(total_number_of_zeros/total_number_of_elements)
         
         return relative_number_zeros
+    
+    def sparsify_weights(self, weights, threshold = 1e-6):
+        sparsified_weights = []
+        if isinstance(weights, float):
+            if abs(weights) > threshold:
+                sparsified_weights = weights
+            else:
+                sparsified_weights = 0
+        else:
+            for w in weights:
+                bool_mask = (abs(w) > threshold).astype(int)
+                sparsified_weights.append(w*bool_mask)
+            
+        return sparsified_weights
     
     
     
