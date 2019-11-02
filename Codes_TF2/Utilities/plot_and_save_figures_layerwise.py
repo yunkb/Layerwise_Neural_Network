@@ -56,6 +56,7 @@ def plot_and_save_figures(hyper_p, run_options):
         plt.close(fig_accuracy)
         
     #=== Plot and Save Relative Number of Zeros ===#
+    print('Loading relative number of zeros .csv file')
     try:
         df_rel_zeros = pd.read_csv(run_options.NN_savefile_name + "_relzeros" + str(l) + '.csv')
         rel_zeros_array = df_rel_zeros.to_numpy()
