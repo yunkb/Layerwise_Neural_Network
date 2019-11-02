@@ -27,7 +27,7 @@ class HyperParameters:
     penalty           = 0.01
     node_TOL          = 1e-5
     error_TOL         = 1e-2
-    batch_size        = 10000
+    batch_size        = 5000
     num_epochs        = 100
     gpu               = '3'
     
