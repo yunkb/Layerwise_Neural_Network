@@ -33,8 +33,8 @@ class RunOptions:
         self.use_L1 = 1
         
         #=== Choose Data Set ===#
-        data_MNIST = 0
-        data_CIFAR10 = 1
+        data_MNIST = 1
+        data_CIFAR10 = 0
         data_CIFAR100 = 0
         
         #=== Random Seed ===#
