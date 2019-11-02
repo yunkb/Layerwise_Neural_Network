@@ -55,6 +55,7 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
 ############################################################################### 
     loss_validation = 1e5
     trainable_hidden_layer_index = 2
+    relative_number_zeros = 0
     storage_loss_array = []
     storage_accuracy_array = []
     storage_relative_number_zeros_array = []
@@ -121,6 +122,7 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
             print('Time per Epoch: %.2f\n' %(elapsed_time_epoch))
             print('Training Set: Loss: %.3e, Accuracy: %.3f' %(loss_train_batch_average.result(), accuracy_train_batch_average.result()))
             print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
+            print('Previous Layer Relative # of 0s\n' %(relative_number_zeros))
             start_time_epoch = time.time()   
         
         ########################################################
