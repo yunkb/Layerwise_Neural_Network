@@ -33,7 +33,7 @@ def plot_and_save_figures(hyper_p, run_options):
             df_rel_zeros = pd.read_csv(run_options.NN_savefile_name + "_relzeros" + str(l) + '.csv')
             rel_zeros_array = df_rel_zeros.to_numpy()
         except:
-            print('No such file!')
+            print('No relative number of zeros .csv file!')
         
         #=== Plot and Save Losses===#
         fig_loss = plt.figure()
