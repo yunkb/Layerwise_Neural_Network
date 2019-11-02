@@ -93,7 +93,7 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
                 accuracy_train_batch_average(accuracy(output, labels_train))
             
             #=== Update ADMM Objects ===#
-            if epoch >= 20: # Warm start
+            if epoch >= 5: # Warm start
                 z, lagrange = update_z_and_lagrange_multiplier(NN.get_weights(), hyper_p.regularization, hyper_p.penalty, z, lagrange)
             
             #=== Computing Accuracy ===#
