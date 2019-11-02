@@ -145,6 +145,13 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
         trainable_hidden_layer_index += 1
         NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
         
+        #=== Saving Relative Number of Zero Elements ===#
+        relative_number_zeros_dict = {}
+        relative_number_zeros_dict['rel_zeros'] = storage_relative_number_zeros_array
+        df_relative_number_zeros = pd.DataFrame(relative_number_zeros_dict)
+        df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)
+  
+        
         #=== Preparing for Next Training Cycle ===#
         loss_validation = loss_val_batch_average.result()
         storage_loss_array = []
@@ -154,6 +161,7 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
         loss_val_batch_average.reset_states()
         accuracy_train_batch_average.reset_states()
         accuracy_val_batch_average.reset_states()
+        
     
     ########################
     #   Save Final Model   #
@@ -161,13 +169,6 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
     #=== Saving Trained Model ===#          
     NN.save_weights(run_options.NN_savefile_name)
     print('Final Model Saved') 
-    
-    #=== Saving Relative Number of Zero Elements ===#
-    relative_number_zeros_dict = {}
-    relative_number_zeros_dict['rel_zeros'] = storage_relative_number_zeros_array
-    df_relative_number_zeros = pd.DataFrame(relative_number_zeros_dict)
-    df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)
-  
         
 
     
