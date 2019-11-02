@@ -78,10 +78,11 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
                     start_time_batch = time.time()
                     output = NN(data_train)
                     #=== Display Model Summary ===#
-                    if batch_num == 0 and epoch == 0 and trainable_hidden_layer_index == 2:
+                    if batch_num == 0 and epoch == 0:
                         NN.summary()
                         z, lagrange = initialize_z_and_lagrange_multiplier(NN.get_weights()) 
                     ADMM_penalty = update_ADMM_penalty_terms(hyper_p.penalty, NN.weights, z, lagrange)
+                    print(str(ADMM_penalty.numpy()))
                     loss_train_batch = data_loss(output, labels_train, label_dimensions) + ADMM_penalty
                     gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
                     optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
