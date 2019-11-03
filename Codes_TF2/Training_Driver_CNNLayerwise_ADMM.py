@@ -25,10 +25,10 @@ class HyperParameters:
     num_filters       = 192
     regularization    = 1
     penalty           = 1e-5
-    node_TOL          = 1e-3
+    node_TOL          = 1e-2
     error_TOL         = 1e-4
     batch_size        = 1000
-    num_epochs        = 30
+    num_epochs        = 5
     gpu               = '3'
     
 class RunOptions:
@@ -83,9 +83,11 @@ class RunOptions:
 #                                 Training                                    #
 ###############################################################################
 def trainer(hyper_p, run_options):
-    #=== GPU Settings ===#
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-    os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
+# =============================================================================
+#     #=== GPU Settings ===#
+#     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
+#     os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
+# =============================================================================
     
     #=== Load Train and Test Data ===#  
     data_and_labels_train, data_and_labels_test, data_and_labels_val, data_input_shape, num_channels, label_dimensions, num_batches_train, num_batches_val = load_data(run_options.dataset, hyper_p.batch_size, run_options.random_seed)  
