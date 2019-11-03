@@ -80,7 +80,6 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
                     if batch_num == 0 and epoch == 0:
                         NN.summary()
                     loss_train_batch = data_loss(output, labels_train, label_dimensions)
-                    print('batch loss: %.4f' %(loss_train_batch))
                     gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
                     optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
                     elapsed_time_batch = time.time() - start_time_batch
