@@ -29,7 +29,7 @@ class HyperParameters:
     node_TOL          = 1e-3
     error_TOL         = 1e-4
     batch_size        = 1000
-    num_epochs        = 2
+    num_epochs        = 30
     gpu               = '0'
     
 class RunOptions:
