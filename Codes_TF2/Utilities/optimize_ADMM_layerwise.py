@@ -159,8 +159,8 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
         NN.add_layer(trainable_hidden_layer_index, freeze = True, add = True)
         
         #=== Freezing Downsampling and Classification Layer ===#
-        NN.downsampling_layer.trainable = False
-        NN.classification_layer.trainable = False
+        NN.downsampling_layer.trainable = True
+        NN.classification_layer.trainable = True
         
         #=== Preparing for Next Training Cycle ===#
         loss_validation = loss_val_batch_average.result()

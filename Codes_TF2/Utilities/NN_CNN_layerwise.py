@@ -50,9 +50,8 @@ class CNNLayerwise(tf.keras.Model):
         
         #=== Define Hidden Layers ===#
         l = 2
-        activation_type = 'relu'
         conv_layer = Conv2D(self.architecture[l][1], (self.architecture[l][0], self.architecture[l][0]), padding = 'same', 
-                            activation = activation_type, use_bias = True, 
+                            activation = 'elu', use_bias = True, 
                             input_shape = (None, self.data_input_shape[0], self.data_input_shape[1], self.num_filters),
                             kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
                             kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
@@ -101,7 +100,7 @@ class CNNLayerwise(tf.keras.Model):
         bias_initializer = 'zeros'
         if add:
             conv_layer = Conv2D(self.num_filters, (self.kernel_size, self.kernel_size), padding = 'same',
-                                activation ='relu', use_bias = True,
+                                activation ='elu', use_bias = True,
                                 input_shape = (None, self.data_input_shape[0], self.data_input_shape[1], self.num_filters),
                                 kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
                                 kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,

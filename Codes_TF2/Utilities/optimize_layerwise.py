@@ -118,7 +118,7 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             start_time_epoch = time.time()   
             
             #=== Unfreezing Downsampling and Classification Layer ===#
-            if trainable_hidden_layer_index > 2 and epoch == 5:
+            if trainable_hidden_layer_index > 2 and epoch == 0:
                 NN.downsampling_layer.trainable = True
                 NN.classification_layer.trainable = True
         
@@ -152,8 +152,8 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
         NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
         
         #=== Freezing Downsampling and Classification Layer ===#
-        NN.downsampling_layer.trainable = False
-        NN.classification_layer.trainable = False
+        NN.downsampling_layer.trainable = True
+        NN.classification_layer.trainable = True
         
         #=== Preparing for Next Training Cycle ===#
         loss_validation = loss_val_batch_average.result()
