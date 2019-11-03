@@ -25,7 +25,7 @@ class HyperParameters:
     num_filters       = 64
     regularization    = 1
     penalty           = 1e-5
-    node_TOL          = 1e-4
+    node_TOL          = 1e-3
     error_TOL         = 1e-2
     batch_size        = 1000
     num_epochs        = 30
@@ -34,8 +34,8 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p):        
         #=== Choose Data Set ===#
-        data_MNIST = 0
-        data_CIFAR10 = 1
+        data_MNIST = 1
+        data_CIFAR10 = 0
         data_CIFAR100 = 0
         
         #=== Random Seed ===#
