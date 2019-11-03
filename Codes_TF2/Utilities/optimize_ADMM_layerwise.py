@@ -126,6 +126,7 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
             start_time_epoch = time.time() 
             
             #=== Reset Metrics ===#
+            loss_validation = loss_val_batch_average.result()
             loss_train_batch_average.reset_states()
             loss_val_batch_average.reset_states()
             accuracy_train_batch_average.reset_states()
@@ -169,15 +170,9 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
         NN.classification_layer.trainable = True
         
         #=== Preparing for Next Training Cycle ===#
-        loss_validation = loss_val_batch_average.result()
         storage_loss_array = []
         storage_accuracy_array = []
-        reset_optimizer
-        loss_train_batch_average.reset_states()
-        loss_val_batch_average.reset_states()
-        accuracy_train_batch_average.reset_states()
-        accuracy_val_batch_average.reset_states()
-        
+        reset_optimizer        
     
     ########################
     #   Save Final Model   #
