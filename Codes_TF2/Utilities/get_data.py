@@ -25,8 +25,6 @@ def load_data(dataset, batch_size, random_seed):
         (data_train, labels_train), (data_test, labels_test) = datasets.cifar100.load_data()
         label_dimensions = 100
     
-    pdb.set_trace()
-    
     #=== Casting as float32 ===#
     data_train = tf.cast(data_train,tf.float32)
     labels_train = tf.cast(labels_train, tf.int32)
