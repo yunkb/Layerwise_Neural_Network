@@ -125,6 +125,12 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
             print('Previous Layer Relative # of 0s: %.7f\n' %(relative_number_zeros))
             start_time_epoch = time.time() 
             
+            #=== Reset Metrics ===#
+            loss_train_batch_average.reset_states()
+            loss_val_batch_average.reset_states()
+            accuracy_train_batch_average.reset_states()
+            accuracy_val_batch_average.reset_states()
+            
             #=== Unfreezing Downsampling and Classification Layer ===#
             if trainable_hidden_layer_index > 2 and epoch == 5:
                 NN.downsampling_layer.trainable = True

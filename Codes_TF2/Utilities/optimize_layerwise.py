@@ -79,13 +79,8 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
                     #=== Display Model Summary ===#
                     if batch_num == 0 and epoch == 0:
                         NN.summary()
-# =============================================================================
-#                         loss_train_batch = data_loss(output, labels_train, label_dimensions)
-#                         print('batch loss: %.4f' %(loss_train_batch))
-#                         pdb.set_trace()
-#                     print('batch loss: %.4f' %(loss_train_batch))
-# =============================================================================
                     loss_train_batch = data_loss(output, labels_train, label_dimensions)
+                    print('batch loss: %.4f' %(loss_train_batch))
                     gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
                     optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
                     elapsed_time_batch = time.time() - start_time_batch
@@ -122,6 +117,12 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
             print('Previous Layer Relative # of 0s: %.7f\n' %(relative_number_zeros))
             start_time_epoch = time.time()   
+            
+            #=== Reset Metrics ===#
+            loss_train_batch_average.reset_states()
+            loss_val_batch_average.reset_states()
+            accuracy_train_batch_average.reset_states()
+            accuracy_val_batch_average.reset_states()
             
             #=== Unfreezing Downsampling and Classification Layer ===#
             if trainable_hidden_layer_index > 2 and epoch == 0:
@@ -166,10 +167,6 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
         storage_loss_array = []
         storage_accuracy_array = []
         reset_optimizer        
-        loss_train_batch_average.reset_states()
-        loss_val_batch_average.reset_states()
-        accuracy_train_batch_average.reset_states()
-        accuracy_val_batch_average.reset_states()
     
     ########################
     #   Save Final Model   #
