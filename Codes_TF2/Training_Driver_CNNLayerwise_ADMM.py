@@ -34,8 +34,8 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p):        
         #=== Choose Data Set ===#
-        data_MNIST = 1
-        data_CIFAR10 = 0
+        data_MNIST = 0
+        data_CIFAR10 = 1
         data_CIFAR100 = 0
         
         #=== Random Seed ===#
@@ -83,11 +83,9 @@ class RunOptions:
 #                                 Training                                    #
 ###############################################################################
 def trainer(hyper_p, run_options):
-# =============================================================================
-#     #=== GPU Settings ===#
-#     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-#     os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
-# =============================================================================
+    #=== GPU Settings ===#
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
+    os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
     
     #=== Load Train and Test Data ===#  
     data_and_labels_train, data_and_labels_test, data_and_labels_val, data_input_shape, num_channels, label_dimensions, num_batches_train, num_batches_val = load_data(run_options.dataset, hyper_p.batch_size, run_options.random_seed)  
