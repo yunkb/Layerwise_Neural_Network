@@ -80,6 +80,7 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
                     if batch_num == 0 and epoch == 0:
                         NN.summary()
                     loss_train_batch = data_loss(output, labels_train, label_dimensions)
+                    loss_train_batch += sum(NN.losses)
                     gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
                     optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
                     elapsed_time_batch = time.time() - start_time_batch
@@ -92,6 +93,7 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             for data_val, labels_val in data_and_labels_val:
                 output_val = NN(data_val)
                 loss_val_batch = data_loss(output_val, labels_val, label_dimensions)
+                loss_val_batch += sum(NN.losses)
                 loss_val_batch_average(loss_val_batch)
                 accuracy_val_batch_average(accuracy(output_val, labels_val))
             
@@ -153,11 +155,11 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             relative_number_zeros_dict['rel_zeros'] = storage_relative_number_zeros_array
             df_relative_number_zeros = pd.DataFrame(relative_number_zeros_dict)
             df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)
-        
+                
         #=== Add Layer ===#
         trainable_hidden_layer_index += 1
         NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
-        
+                
         #=== Freezing Downsampling and Classification Layer ===#
         NN.downsampling_layer.trainable = True
         NN.classification_layer.trainable = True
@@ -166,7 +168,7 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
         storage_loss_array = []
         storage_accuracy_array = []
         reset_optimizer   
-    
+        
     ########################
     #   Save Final Model   #
     ########################            
