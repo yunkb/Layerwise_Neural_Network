@@ -22,7 +22,7 @@ class HyperParameters:
     num_filters       = 192
     regularization    = 1
     node_TOL          = 1e-3
-    error_TOL         = 1e-2
+    error_TOL         = 1e-4
     batch_size        = 1000
     num_epochs        = 30
     gpu               = '2'
