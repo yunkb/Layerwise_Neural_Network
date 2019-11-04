@@ -81,15 +81,12 @@ class CNNLayerwise(tf.keras.Model):
     def call(self, inputs):
         #=== Upsampling ===#
         output = self.upsampling_layer(inputs)  
-        #output = BatchNormalization()(output)
         for hidden_layer in self.hidden_layers_list:
             #=== Hidden Layers ===#
             prev_output = output
             output = prev_output + hidden_layer(output)
-            #output = BatchNormalization()(output)
         #=== Downsampling ===#
         output = self.downsampling_layer(output)
-        #output = BatchNormalization()(output)
         #=== Classification ===#
         output = Flatten()(output)
         output = self.classification_layer(output)
