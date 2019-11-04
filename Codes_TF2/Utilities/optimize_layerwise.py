@@ -175,10 +175,10 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)
                 
         #=== Add Layer ===#
-        if retrain == 0:
+        if trainable_hidden_layer_index > 2 and retrain == 0:
             NN.add_layer(trainable_hidden_layer_index, freeze=False, add = False)
             retrain = 1
-        if retrain == 1:
+        if trainable_hidden_layer_index > 2 and retrain == 1:
             trainable_hidden_layer_index += 1
             NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
             retrain = 0
