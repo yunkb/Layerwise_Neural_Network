@@ -1,23 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Mon Nov  4 09:55:12 2019
-
-@author: hwan
-"""
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
 Created on Mon Oct 28 14:13:20 2019
 
 @author: hwan
 """
-import tensorflow as tf
-
 from Utilities.get_data import load_data
 from Utilities.NN_FC_layerwise import FCLayerwise
-from Utilities.optimize_layerwise import optimize
+from Utilities.optimize_ADMM_layerwise import optimize_ADMM
 
 from decimal import Decimal # for filenames
 
@@ -31,19 +21,17 @@ import sys
 ###############################################################################
 class HyperParameters:
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
-    num_hidden_nodes  = 3000
+    num_hidden_nodes  = 100
     regularization    = 0.001
+    penalty           = 0.001
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
     num_epochs        = 30
-    gpu               = '3'
+    gpu               = '1'
     
 class RunOptions:
-    def __init__(self, hyper_p):    
-        #=== Use L_1 Regularization ===#
-        self.use_L1 = 1
-        
+    def __init__(self, hyper_p):        
         #=== Choose Data Set ===#
         data_MNIST = 0
         data_CIFAR10 = 1
@@ -68,16 +56,19 @@ class RunOptions:
             regularization_string = str(hyper_p.regularization)
         else:
             regularization_string = str(hyper_p.regularization)
-            regularization_string = 'pt' + regularization_string[2:]                        
+            regularization_string = 'pt' + regularization_string[2:]            
+        if hyper_p.penalty >= 1:
+            hyper_p.penalty = int(hyper_p.penalty)
+            penalty_string = str(hyper_p.penalty)
+        else:
+            penalty_string = str(hyper_p.penalty)
+            penalty_string = 'pt' + penalty_string[2:]            
         node_TOL_string = str('%.2e' %Decimal(hyper_p.node_TOL))
         node_TOL_string = node_TOL_string[-1]
         error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
         error_TOL_string = error_TOL_string[-1]
         
-        if self.use_L1 == 0:
-            self.filename = self.dataset + '_' + self.NN_type + '_mhl%d_hl%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.num_hidden_nodes, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
-        else:
-            self.filename = self.dataset + '_' + self.NN_type + '_L1_mhl%d_hl%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.num_hidden_nodes, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = self.dataset + '_' + self.NN_type + '_ADMM_mhl%d_hl%d_r%s_p%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.num_hidden_nodes, regularization_string, penalty_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
@@ -99,18 +90,12 @@ def trainer(hyper_p, run_options):
     data_and_labels_train, data_and_labels_test, data_and_labels_val, data_input_shape, num_channels, label_dimensions, num_batches_train, num_batches_val = load_data(run_options.NN_type, run_options.dataset, hyper_p.batch_size, run_options.random_seed)  
     
     #=== Neural network ===#
-    if run_options.use_L1 == 0:
-        kernel_regularizer = None
-        bias_regularizer = None  
-    else:
-        kernel_regularizer = tf.keras.regularizers.l1(hyper_p.regularization)
-        bias_regularizer = tf.keras.regularizers.l1(hyper_p.regularization)
     NN = FCLayerwise(hyper_p, run_options, data_input_shape, label_dimensions, num_channels,
-                      kernel_regularizer, bias_regularizer,
+                      None, None,
                       run_options.NN_savefile_directory, construct_flag = 1)    
     
     #=== Training ===#
-    optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
+    optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
     
 ###############################################################################
 #                                 Driver                                      #
@@ -125,11 +110,12 @@ if __name__ == "__main__":
         hyper_p.filter_size       = int(sys.argv[2])
         hyper_p.num_filters       = int(sys.argv[3])
         hyper_p.regularization    = float(sys.argv[4])
-        hyper_p.node_TOL          = float(sys.argv[5])
-        hyper_p.error_TOL         = float(sys.argv[6])
-        hyper_p.batch_size        = int(sys.argv[7])
-        hyper_p.num_epochs        = int(sys.argv[8])
-        hyper_p.gpu               = int(sys.argv[9])
+        hyper_p.penalty           = float(sys.argv[5])
+        hyper_p.node_TOL          = float(sys.argv[6])
+        hyper_p.error_TOL         = float(sys.argv[7])
+        hyper_p.batch_size        = int(sys.argv[8])
+        hyper_p.num_epochs        = int(sys.argv[9])
+        hyper_p.gpu               = int(sys.argv[10])
             
     #=== Set run options ===#         
     run_options = RunOptions(hyper_p)
