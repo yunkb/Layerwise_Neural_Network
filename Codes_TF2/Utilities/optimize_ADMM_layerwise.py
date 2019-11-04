@@ -67,14 +67,12 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
         #=== Initial Loss and Accuracy ===#
         for batch_num, (data_train, labels_train) in data_and_labels_train.enumerate():
             output = NN(data_train)
-            z, lagrange = initialize_z_and_lagrange_multiplier(NN.get_weights()) 
-            ADMM_penalty = update_ADMM_penalty_terms(hyper_p.penalty, NN.weights, z, lagrange)
-            loss_train_batch = data_loss(output, labels_train, label_dimensions) + ADMM_penalty
+            loss_train_batch = data_loss(output, labels_train, label_dimensions)
             loss_train_batch_average(loss_train_batch) 
             accuracy_train_batch_average(accuracy(output, labels_train))
         for data_val, labels_val in data_and_labels_val:
             output_val = NN(data_val)
-            loss_val_batch = data_loss(output_val, labels_val, label_dimensions) + ADMM_penalty
+            loss_val_batch = data_loss(output_val, labels_val, label_dimensions)
             loss_val_batch_average(loss_val_batch)
             accuracy_val_batch_average(accuracy(output_val, labels_val))
         storage_loss_array = np.append(storage_loss_array, loss_train_batch_average.result())
