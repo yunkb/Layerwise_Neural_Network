@@ -138,7 +138,8 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             print('Training Set: Loss: %.3e, Accuracy: %.3f' %(loss_train_batch_average.result(), accuracy_train_batch_average.result()))
             print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
             print('Previous Layer Relative # of 0s: %.7f\n' %(relative_number_zeros))
-            print('retrain equals %d' %(retrain))
+            if run_options.use_unfreeze_all_and_train == 1:    
+                print('retrain equals %d' %(retrain))
             start_time_epoch = time.time()   
             
             #=== Reset Metrics ===#
@@ -172,19 +173,25 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             relative_number_zeros_dict['rel_zeros'] = storage_relative_number_zeros_array
             df_relative_number_zeros = pd.DataFrame(relative_number_zeros_dict)
             df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)
-                
+        
+        data_draw = data_and_labels_train.take(1)
+        loss_1 = data_loss(NN(data_draw), labels_val, label_dimensions)
+        pdb.set_trace()
+        
         #=== Add Layer ===#
-# =============================================================================
-#         if trainable_hidden_layer_index > 2 and retrain == 0:
-#             NN.add_layer(trainable_hidden_layer_index, freeze=False, add = False)
-#             retrain = 1
-#         elif trainable_hidden_layer_index == 2 or (trainable_hidden_layer_index > 2 and retrain == 1):
-#             trainable_hidden_layer_index += 1
-#             NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
-#             retrain = 0
-# =============================================================================
-        trainable_hidden_layer_index += 1
-        NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
+        if run_options.use_unfreeze_all_and_train == 1:                 
+            if trainable_hidden_layer_index > 2 and retrain == 0:
+                NN.add_layer(trainable_hidden_layer_index, freeze=False, add = False)
+                retrain = 1
+            elif trainable_hidden_layer_index == 2 or (trainable_hidden_layer_index > 2 and retrain == 1):
+                trainable_hidden_layer_index += 1
+                NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
+                retrain = 0
+        else:
+            trainable_hidden_layer_index += 1
+            NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
+            
+        
                         
         #=== Preparing for Next Training Cycle ===#
         storage_loss_array = []

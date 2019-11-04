@@ -36,7 +36,7 @@ class HyperParameters:
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 100
-    num_epochs        = 30
+    num_epochs        = 3
     gpu               = '0'
     
 class RunOptions:
@@ -45,9 +45,12 @@ class RunOptions:
         self.use_L1 = 1
         
         #=== Choose Data Set ===#
-        data_MNIST = 0
-        data_CIFAR10 = 1
+        data_MNIST = 1
+        data_CIFAR10 = 0
         data_CIFAR100 = 0
+        
+        #=== Unfreeze All Layers and Train ===#
+        self.use_unfreeze_all_and_train = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234

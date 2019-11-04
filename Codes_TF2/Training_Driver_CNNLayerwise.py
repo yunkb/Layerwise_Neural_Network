@@ -24,23 +24,26 @@ import sys
 class HyperParameters:
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     filter_size       = 3
-    num_filters       = 10
+    num_filters       = 128
     regularization    = 0.001
-    node_TOL          = 1e-4
+    node_TOL          = 1e-8
     error_TOL         = 1e-4
     batch_size        = 1000
     num_epochs        = 3
-    gpu               = '1'
+    gpu               = '2'
     
 class RunOptions:
     def __init__(self, hyper_p):    
         #=== Use L_1 Regularization ===#
-        self.use_L1 = 0
+        self.use_L1 = 1
         
         #=== Choose Data Set ===#
-        data_MNIST = 1
-        data_CIFAR10 = 0
+        data_MNIST = 0
+        data_CIFAR10 = 1
         data_CIFAR100 = 0
+        
+        #=== Unfreeze All Layers and Train ===#
+        self.use_unfreeze_all_and_train = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234

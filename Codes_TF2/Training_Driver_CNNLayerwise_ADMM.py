@@ -38,6 +38,9 @@ class RunOptions:
         data_CIFAR10 = 1
         data_CIFAR100 = 0
         
+        #=== Unfreeze All Layers and Train ===#
+        self.use_unfreeze_all_and_train = 0
+        
         #=== Random Seed ===#
         self.random_seed = 1234
         
