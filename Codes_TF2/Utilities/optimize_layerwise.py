@@ -177,7 +177,6 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
         if trainable_hidden_layer_index > 2 and retrain == 0:
             NN.add_layer(trainable_hidden_layer_index, freeze=False, add = False)
             retrain = 1
-            pdb.set_trace()
         if trainable_hidden_layer_index == 2 or (trainable_hidden_layer_index > 2 and retrain == 1):
             trainable_hidden_layer_index += 1
             NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
