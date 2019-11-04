@@ -88,7 +88,7 @@ def trainer(hyper_p, run_options):
     os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
     
     #=== Load Train and Test Data ===#  
-    data_and_labels_train, data_and_labels_test, data_and_labels_val, data_input_shape, num_channels, label_dimensions, num_batches_train, num_batches_val = load_data(run_options.dataset, hyper_p.batch_size, run_options.random_seed)  
+    data_and_labels_train, data_and_labels_test, data_and_labels_val, data_input_shape, num_channels, label_dimensions, num_batches_train, num_batches_val = load_data(run_options.NN_type, run_options.dataset, hyper_p.batch_size, run_options.random_seed)  
     
     #=== Neural network ===#
     NN = CNNLayerwise(hyper_p, run_options, data_input_shape, label_dimensions, num_channels,

@@ -148,11 +148,6 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
             loss_val_batch_average.reset_states()
             accuracy_train_batch_average.reset_states()
             accuracy_val_batch_average.reset_states()
-            
-            #=== Unfreezing Downsampling and Classification Layer ===#
-            if trainable_hidden_layer_index > 2 and epoch == 5:
-                NN.downsampling_layer.trainable = True
-                NN.classification_layer.trainable = True
         
         ########################################################
         #   Updating Architecture and Saving Current Metrics   #
@@ -181,10 +176,6 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
         #=== Add Layer ===#
         trainable_hidden_layer_index += 1
         NN.add_layer(trainable_hidden_layer_index, freeze = True, add = True)
-        
-        #=== Freezing Downsampling and Classification Layer ===#
-        NN.downsampling_layer.trainable = True
-        NN.classification_layer.trainable = True
         
         #=== Preparing for Next Training Cycle ===#
         storage_loss_array = []

@@ -12,27 +12,25 @@ import numpy as np
 import pandas as pd
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-class CNNLayerwise(tf.keras.Model):
+class FCLayerwise(tf.keras.Model):
     def __init__(self, hyper_p, run_options, data_input_shape, label_dimensions, num_channels, kernel_regularizer, bias_regularizer, savefilepath, construct_flag):
-        super(CNNLayerwise, self).__init__()
+        super(FCLayerwise, self).__init__()
 ###############################################################################
 #                  Constuct Initial Neural Network Architecture               #
 ###############################################################################
         #=== Defining Attributes ===#
         self.data_input_shape = data_input_shape
+        self.num_hidden_nodes = hyper_p.num_hidden_nodes
         self.architecture = [] # storage for layer information, each entry is [filter_size, num_filters]
-        self.num_filters = hyper_p.num_filters
-        self.kernel_size = hyper_p.filter_size
         self.kernel_regularizer = kernel_regularizer
         self.bias_regularizer = bias_regularizer
         self.hidden_layers_list = [] # This will be a list of Keras layers
 
         #=== Define Initial Architecture and Create Layer Storage ===#
-        self.architecture.append([self.data_input_shape[0], num_channels]) # input information
-        self.architecture.append([1, self.num_filters]) # 1x1 convolutional layer for upsampling data
-        self.architecture.append([hyper_p.filter_size, self.num_filters]) # First hidden layer
-        self.architecture.append([1, num_channels]) # 1x1 convolutional layer for downsampling features
-        self.architecture.append(label_dimensions) # fully-connected output layer
+        self.architecture.append(self.data_input_shape[0]) # input information
+        self.architecture.append(self.num_hidden_nodes) # Upsampling data
+        self.architecture.append(self.num_hidden_nodes) # First hidden layer
+        self.architecture.append(label_dimensions) # classification_layer
         print(self.architecture)
 
         #=== Weights and Biases Initializer ===#
@@ -41,34 +39,23 @@ class CNNLayerwise(tf.keras.Model):
         
         #=== Linear Upsampling Layer to Map to Feature Space ===#
         l = 1
-        self.upsampling_layer = Conv2D(self.architecture[l][1], (1, 1), padding = 'same',
-                                       activation = 'linear', use_bias = True,
-                                       input_shape = self.data_input_shape,
-                                       kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
-                                       kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
-                                       name='upsampling_layer')
+        self.upsampling_layer = Dense(units = self.architecture[l],
+                                      activation = 'linear', use_bias = True,
+                                      kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
+                                      kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
+                                      name = 'upsampling_layer')
         
         #=== Define Hidden Layers ===#
         l = 2
-        conv_layer = Conv2D(self.architecture[l][1], (self.architecture[l][0], self.architecture[l][0]), padding = 'same', 
-                            activation = 'elu', use_bias = True, 
-                            input_shape = (None, self.data_input_shape[0], self.data_input_shape[1], self.num_filters),
-                            kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
-                            kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
-                            name = "W" + str(l))
-        self.hidden_layers_list.append(conv_layer)
-            
-            
-        #=== Linear Downsampling Layer to Map to Data Space ===#
-        l = 3
-        self.downsampling_layer = Conv2D(self.architecture[l][1], (1, 1), padding = 'same',
-                                         activation = "linear", use_bias = True,
-                                         input_shape = (None, self.data_input_shape[0], self.data_input_shape[1], self.num_filters),
-                                         kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
-                                         kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
-                                         name = "downsampling_layer")
+        dense_layer = Dense(units = self.architecture[l],
+                           activation = 'elu', use_bias = True,
+                           kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
+                           kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
+                           name = "W" + str(l))
+        self.hidden_layers_list.append(dense_layer)
         
         #=== Classification Layer ===#
+        l = 3
         self.classification_layer = Dense(units = label_dimensions,
                                           activation = 'linear', use_bias = True,
                                           kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
@@ -85,10 +72,7 @@ class CNNLayerwise(tf.keras.Model):
             #=== Hidden Layers ===#
             prev_output = output
             output = prev_output + hidden_layer(output)          
-        #=== Downsampling ===#
-        output = self.downsampling_layer(output)
         #=== Classification ===#
-        output = Flatten()(output)
         output = self.classification_layer(output)
         return output
     
@@ -99,13 +83,12 @@ class CNNLayerwise(tf.keras.Model):
         kernel_initializer = 'zeros'
         bias_initializer = 'zeros'
         if add:
-            conv_layer = Conv2D(self.num_filters, (self.kernel_size, self.kernel_size), padding = 'same',
-                                activation ='elu', use_bias = True,
-                                input_shape = (None, self.data_input_shape[0], self.data_input_shape[1], self.num_filters),
+            dense_layer = Dense(units = self.num_hidden_nodes,
+                                activation = 'elu', use_bias = True,
                                 kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
                                 kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
                                 name = "W" + str(trainable_hidden_layer_index))
-        self.hidden_layers_list.append(conv_layer)
+        self.hidden_layers_list.append(dense_layer)
         if freeze:
             self.upsampling_layer.trainable = False
             for index in range(0, trainable_hidden_layer_index-2):
@@ -118,12 +101,7 @@ class CNNLayerwise(tf.keras.Model):
 ###############################################################################
 #                              Sparsify Weights                               #
 ###############################################################################            
-    def sparsify_weights_and_get_relative_number_of_zeros(self, threshold = 1e-6):
-        #=== Downsampling Layer ===#
-        down_weights = self.downsampling_layer.get_weights()        
-        sparsified_weights = self.sparsify_weights(down_weights, threshold)
-        self.downsampling_layer.set_weights(sparsified_weights)
-        
+    def sparsify_weights_and_get_relative_number_of_zeros(self, threshold = 1e-6):       
         #=== Classification Layer ===#
         class_weights = self.classification_layer.get_weights()
         sparsified_weights = self.sparsify_weights(class_weights, threshold)

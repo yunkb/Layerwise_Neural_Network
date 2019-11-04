@@ -31,13 +31,13 @@ import sys
 ###############################################################################
 class HyperParameters:
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
-    num_hidden_nodes  = 500
+    num_hidden_nodes  = 1000
     regularization    = 0.001
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
     num_epochs        = 30
-    gpu               = '0'
+    gpu               = '2'
     
 class RunOptions:
     def __init__(self, hyper_p):    
@@ -45,8 +45,8 @@ class RunOptions:
         self.use_L1 = 1
         
         #=== Choose Data Set ===#
-        data_MNIST = 0
-        data_CIFAR10 = 1
+        data_MNIST = 1
+        data_CIFAR10 = 0
         data_CIFAR100 = 0
         
         #=== Random Seed ===#
@@ -96,7 +96,7 @@ def trainer(hyper_p, run_options):
     os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
     
     #=== Load Train and Test Data ===#  
-    data_and_labels_train, data_and_labels_test, data_and_labels_val, data_input_shape, num_channels, label_dimensions, num_batches_train, num_batches_val = load_data(run_options.dataset, hyper_p.batch_size, run_options.random_seed)  
+    data_and_labels_train, data_and_labels_test, data_and_labels_val, data_input_shape, num_channels, label_dimensions, num_batches_train, num_batches_val = load_data(run_options.NN_type, run_options.dataset, hyper_p.batch_size, run_options.random_seed)  
     
     #=== Neural network ===#
     if run_options.use_L1 == 0:
