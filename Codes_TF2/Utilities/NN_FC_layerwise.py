@@ -68,12 +68,12 @@ class FCLayerwise(tf.keras.Model):
     def call(self, inputs):
         #=== Upsampling ===#
         output = self.upsampling_layer(inputs)  
-        output = BatchNormalization()(output)
+        #output = BatchNormalization()(output)
         for hidden_layer in self.hidden_layers_list:
             #=== Hidden Layers ===#
             prev_output = output
             output = prev_output + hidden_layer(output)  
-            output = BatchNormalization()(output)
+            #output = BatchNormalization()(output)
         #=== Classification ===#
         output = self.classification_layer(output)
         return output
