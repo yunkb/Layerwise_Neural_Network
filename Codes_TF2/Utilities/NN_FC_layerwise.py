@@ -6,7 +6,7 @@ Created on Sun Sep 15 14:29:36 2019
 @author: hwan
 """
 import tensorflow as tf
-from tensorflow.keras.layers import Dense, Conv2D, Flatten
+from tensorflow.keras.layers import Dense, Conv2D, Flatten, BatchNormalization
 from tensorflow.keras.initializers import RandomNormal, RandomUniform, Constant
 import numpy as np
 import pandas as pd
@@ -68,10 +68,12 @@ class FCLayerwise(tf.keras.Model):
     def call(self, inputs):
         #=== Upsampling ===#
         output = self.upsampling_layer(inputs)  
+        output = BatchNormalization()(output)
         for hidden_layer in self.hidden_layers_list:
             #=== Hidden Layers ===#
             prev_output = output
-            output = prev_output + hidden_layer(output)          
+            output = prev_output + hidden_layer(output)  
+            output = BatchNormalization()(output)
         #=== Classification ===#
         output = self.classification_layer(output)
         return output
