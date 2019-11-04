@@ -107,13 +107,12 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
                     elapsed_time_batch = time.time() - start_time_batch
                     if batch_num  == 0:
                         print('Time per Batch: %.2f' %(elapsed_time_batch))
+                    #=== Update ADMM Objects ===#
+                    if batch_num != 0 and batch_num % 10 == 0 and epoch >= 5: # Warm start and updating before w is fully minimized
+                        z, lagrange = update_z_and_lagrange_multiplier(NN.get_weights(), hyper_p.regularization, hyper_p.penalty, z, lagrange)
                 loss_train_batch_average(loss_train_batch) 
                 accuracy_train_batch_average(accuracy(output, labels_train))
-            
-            #=== Update ADMM Objects ===#
-            if epoch >= 15: # Warm start
-                z, lagrange = update_z_and_lagrange_multiplier(NN.get_weights(), hyper_p.regularization, hyper_p.penalty, z, lagrange)
-            
+                        
             #=== Computing Accuracy ===#
             for data_val, labels_val in data_and_labels_val:
                 output_val = NN(data_val)
