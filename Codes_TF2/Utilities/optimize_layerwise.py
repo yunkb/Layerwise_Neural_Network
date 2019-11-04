@@ -54,6 +54,7 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
     loss_validation = 1e5
     trainable_hidden_layer_index = 2
     relative_number_zeros = 0
+    retrain = 0
     storage_loss_array = []
     storage_accuracy_array = []
     storage_relative_number_zeros_array = []
@@ -137,6 +138,8 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             print('Training Set: Loss: %.3e, Accuracy: %.3f' %(loss_train_batch_average.result(), accuracy_train_batch_average.result()))
             print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
             print('Previous Layer Relative # of 0s: %.7f\n' %(relative_number_zeros))
+            if retrain == 1:
+                print('retraining')
             start_time_epoch = time.time()   
             
             #=== Reset Metrics ===#
@@ -172,10 +175,13 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)
                 
         #=== Add Layer ===#
-        add = True
-        NN.add_layer(trainable_hidden_layer_index, freeze=True, add = add)
-        if add == True:
+        if retrain == 0:
+            NN.add_layer(trainable_hidden_layer_index, freeze=False, add = False)
+            retrain = 1
+        if retrain == 1:
             trainable_hidden_layer_index += 1
+            NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
+            retrain = 0
                         
         #=== Preparing for Next Training Cycle ===#
         storage_loss_array = []

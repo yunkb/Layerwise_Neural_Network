@@ -108,7 +108,7 @@ class CNNLayerwise(tf.keras.Model):
                                 kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
                                 kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
                                 name = "W" + str(trainable_hidden_layer_index))
-        self.hidden_layers_list.append(conv_layer)
+            self.hidden_layers_list.append(conv_layer)
         if freeze:
             self.upsampling_layer.trainable = False
             for index in range(0, trainable_hidden_layer_index-2):
