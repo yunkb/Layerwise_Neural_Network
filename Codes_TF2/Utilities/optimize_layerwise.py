@@ -62,6 +62,26 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
     #   Training Current Architecture   #
     #####################################
     while loss_validation > hyper_p.error_TOL and trainable_hidden_layer_index < hyper_p.max_hidden_layers:    
+        #=== Initial Loss and Accuracy ===#
+        for batch_num, (data_train, labels_train) in data_and_labels_train.enumerate():
+            output = NN(data_train)
+            loss_train_batch = data_loss(output, labels_train, label_dimensions)
+            loss_train_batch += sum(NN.losses)
+            loss_train_batch_average(loss_train_batch) 
+            accuracy_train_batch_average(accuracy(output, labels_train))
+        for data_val, labels_val in data_and_labels_val:
+            output_val = NN(data_val)
+            loss_val_batch = data_loss(output_val, labels_val, label_dimensions)
+            loss_val_batch += sum(NN.losses)
+            loss_val_batch_average(loss_val_batch)
+            accuracy_val_batch_average(accuracy(output_val, labels_val))
+        storage_loss_array = np.append(storage_loss_array, loss_train_batch_average.result())
+        storage_accuracy_array = np.append(storage_accuracy_array, accuracy_val_batch_average.result())
+        print('Initial Losses:')
+        print('Training Set: Loss: %.3e, Accuracy: %.3f' %(loss_train_batch_average.result(), accuracy_train_batch_average.result()))
+        print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
+        
+        #=== Begin Training ===#
         print('Beginning Training')
         for epoch in range(hyper_p.num_epochs):
             print('================================')
@@ -147,7 +167,7 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
         #=== Sparsify Weights of Trained Layer ===#
         if run_options.use_L1 == 1:
             relative_number_zeros = NN.sparsify_weights_and_get_relative_number_of_zeros(hyper_p.node_TOL)
-            print('Relative Number of Zeros for Last Layer: %d' %(relative_number_zeros))
+            print('Relative Number of Zeros for Last Layer: %d\n' %(relative_number_zeros))
             storage_relative_number_zeros_array = np.append(storage_relative_number_zeros_array, relative_number_zeros)
             
         #=== Saving Relative Number of Zero Elements ===#
