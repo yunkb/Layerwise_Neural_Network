@@ -33,7 +33,7 @@ def plot_and_save_figures(hyper_p, run_options):
         
         #=== Plot and Save Losses===#
         fig_loss = plt.figure()
-        x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+        x_axis = np.linspace(0, hyper_p.num_epochs+1, hyper_p.num_epochs+1, endpoint = True)
         plt.plot(x_axis, storage_loss_array, label = 'hl' + str(l))
         plt.title('Loss for: ' + run_options.filename)
         plt.xlabel('Epochs')
@@ -45,7 +45,7 @@ def plot_and_save_figures(hyper_p, run_options):
         
         #=== Plot and Save Accuracies===#
         fig_accuracy = plt.figure()
-        x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+        x_axis = np.linspace(0, hyper_p.num_epochs+1, hyper_p.num_epochs+1, endpoint = True)
         plt.plot(x_axis, storage_accuracy_array, label = 'hl' + str(l))
         plt.title('Accuracy for: ' + run_options.filename)
         plt.xlabel('Epochs')
