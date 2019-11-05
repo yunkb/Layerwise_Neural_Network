@@ -41,7 +41,7 @@ class CNNLayerwise(tf.keras.Model):
         
         #=== Linear Upsampling Layer to Map to Feature Space ===#
         l = 1
-        self.upsampling_layer = Conv2D(self.architecture[l][1], (1, 1), padding = 'same',
+        self.upsampling_layer = Conv2D(self.architecture[l][1], (7, 7), padding = 'same',
                                        activation = 'linear', use_bias = True,
                                        input_shape = self.data_input_shape,
                                        kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
@@ -61,7 +61,7 @@ class CNNLayerwise(tf.keras.Model):
             
         #=== Linear Downsampling Layer to Map to Data Space ===#
         l = 3
-        self.downsampling_layer = Conv2D(self.architecture[l][1], (1, 1), padding = 'same',
+        self.downsampling_layer = Conv2D(self.architecture[l][1], (7, 7), padding = 'same',
                                          activation = "linear", use_bias = True,
                                          input_shape = (None, self.data_input_shape[0], self.data_input_shape[1], self.num_filters),
                                          kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
@@ -96,7 +96,7 @@ class CNNLayerwise(tf.keras.Model):
 #                                 Add Layer                                   #
 ###############################################################################     
     def add_layer(self, trainable_hidden_layer_index, freeze = True, add = True):
-        kernel_initializer = RandomNormal(mean=0.0, stddev=0.05)
+        kernel_initializer = 'zeros'
         bias_initializer = 'zeros'
         if add:
             conv_layer = Conv2D(self.num_filters, (self.kernel_size, self.kernel_size), padding = 'same',
