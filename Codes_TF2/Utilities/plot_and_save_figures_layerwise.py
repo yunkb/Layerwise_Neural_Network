@@ -107,7 +107,7 @@ def plot_and_save_figures_paper_results(hyper_p, run_options):
     plt.title('Training Loss on MNIST')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
-    #plt.axis([0,30,0,1.2])
+    plt.axis([0,30,0,0.6])
     plt.legend()
     figures_savefile_name = run_options.figures_savefile_directory + '/' + 'loss' + '_all_layers_' + run_options.filename + '.png'
     plt.savefig(figures_savefile_name)

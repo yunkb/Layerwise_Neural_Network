@@ -36,7 +36,7 @@ class CNNLayerwise(tf.keras.Model):
         print(self.architecture)
 
         #=== Weights and Biases Initializer ===#
-        kernel_initializer = 'zeros'
+        kernel_initializer = RandomNormal(mean=0.0, stddev=0.05)
         bias_initializer = 'zeros'
         
         #=== Linear Upsampling Layer to Map to Feature Space ===#

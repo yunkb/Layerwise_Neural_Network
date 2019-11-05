@@ -28,14 +28,14 @@ class HyperParameters:
     regularization    = 0.001
     node_TOL          = 1e-4
     error_TOL         = 1e-4
-    batch_size        = 1000
+    batch_size        = 5000
     num_epochs        = 30
-    gpu               = '1'
+    gpu               = '2'
     
 class RunOptions:
     def __init__(self, hyper_p):    
         #=== Use L_1 Regularization ===#
-        self.use_L1 = 0
+        self.use_L1 = 1
         
         #=== Choose Data Set ===#
         data_MNIST = 0
