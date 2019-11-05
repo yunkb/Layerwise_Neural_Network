@@ -6,7 +6,7 @@ Created on Sat Oct 26 21:23:46 2019
 @author: hwan
 """
 
-from Utilities.plot_and_save_figures_layerwise import plot_and_save_figures
+from Utilities.plot_and_save_figures_layerwise import plot_and_save_figures, plot_and_save_figures_paper_results
 from decimal import Decimal # for filenames
 import os
 import sys
@@ -33,8 +33,8 @@ class RunOptions:
         self.use_L1 = 1
         
         #=== Choose Data Set ===#
-        data_MNIST = 1
-        data_CIFAR10 = 0
+        data_MNIST = 0
+        data_CIFAR10 = 1
         data_CIFAR100 = 0
         
         #=== Random Seed ===#
@@ -103,4 +103,5 @@ if __name__ == "__main__":
     run_options = RunOptions(hyper_p)
     
     #=== Plot and save figures ===#
-    plot_and_save_figures(hyper_p, run_options)
+    #plot_and_save_figures(hyper_p, run_options)
+    plot_and_save_figures_paper_results(hyper_p, run_options)
