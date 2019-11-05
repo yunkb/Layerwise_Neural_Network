@@ -35,7 +35,7 @@ class HyperParameters:
     regularization    = 0.001
     node_TOL          = 1e-4
     error_TOL         = 1e-4
-    batch_size        = 100
+    batch_size        = 1000
     num_epochs        = 3
     gpu               = '0'
     
