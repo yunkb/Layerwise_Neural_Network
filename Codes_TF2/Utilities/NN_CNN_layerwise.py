@@ -96,7 +96,7 @@ class CNNLayerwise(tf.keras.Model):
 #                                 Add Layer                                   #
 ###############################################################################     
     def add_layer(self, trainable_hidden_layer_index, freeze = True, add = True):
-        kernel_initializer = 'zeros'
+        kernel_initializer = RandomNormal(mean=0.0, stddev=0.05)
         bias_initializer = 'zeros'
         if add:
             conv_layer = Conv2D(self.num_filters, (self.kernel_size, self.kernel_size), padding = 'same',

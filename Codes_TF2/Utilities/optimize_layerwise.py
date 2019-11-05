@@ -102,6 +102,7 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
                         NN.summary()
                     loss_train_batch = data_loss(output, labels_train, label_dimensions)
                     loss_train_batch += sum(NN.losses)
+                    pdb.set_trace()
                     gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
                     optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
                     elapsed_time_batch = time.time() - start_time_batch
@@ -167,13 +168,13 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             relative_number_zeros = NN.sparsify_weights_and_get_relative_number_of_zeros(hyper_p.node_TOL)
             print('Relative Number of Zeros for Last Layer: %d\n' %(relative_number_zeros))
             storage_relative_number_zeros_array = np.append(storage_relative_number_zeros_array, relative_number_zeros)
-            
+        
         #=== Saving Relative Number of Zero Elements ===#
             relative_number_zeros_dict = {}
             relative_number_zeros_dict['rel_zeros'] = storage_relative_number_zeros_array
             df_relative_number_zeros = pd.DataFrame(relative_number_zeros_dict)
             df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)
-        
+       
         #=== Add Layer ===#
         if run_options.use_unfreeze_all_and_train == 1:                 
             if trainable_hidden_layer_index > 2 and retrain == 0:
@@ -186,7 +187,7 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
         else:
             trainable_hidden_layer_index += 1
             NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
-                        
+            
         #=== Preparing for Next Training Cycle ===#
         storage_loss_array = []
         storage_accuracy_array = []
