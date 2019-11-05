@@ -45,7 +45,7 @@ class CNNLayerwise(tf.keras.Model):
                                        activation = 'linear', use_bias = True,
                                        input_shape = self.data_input_shape,
                                        kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
-                                       kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
+                                       kernel_regularizer = None, bias_regularizer = None,
                                        name='upsampling_layer')
         
         #=== Define Hidden Layers ===#
@@ -65,14 +65,14 @@ class CNNLayerwise(tf.keras.Model):
                                          activation = "linear", use_bias = True,
                                          input_shape = (None, self.data_input_shape[0], self.data_input_shape[1], self.num_filters),
                                          kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
-                                         kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
+                                         kernel_regularizer = None, bias_regularizer = None,
                                          name = "downsampling_layer")
         
         #=== Classification Layer ===#
         self.classification_layer = Dense(units = label_dimensions,
                                           activation = 'linear', use_bias = True,
                                           kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
-                                          kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
+                                          kernel_regularizer = None, bias_regularizer = None,
                                           name = 'classification_layer')
         
 ###############################################################################
