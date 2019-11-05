@@ -36,7 +36,7 @@ class CNNLayerwise(tf.keras.Model):
         print(self.architecture)
 
         #=== Weights and Biases Initializer ===#
-        kernel_initializer = RandomNormal(mean=0.0, stddev=0.05)
+        kernel_initializer = 'zeros'
         bias_initializer = 'zeros'
         
         #=== Linear Upsampling Layer to Map to Feature Space ===#
@@ -45,7 +45,7 @@ class CNNLayerwise(tf.keras.Model):
                                        activation = 'linear', use_bias = True,
                                        input_shape = self.data_input_shape,
                                        kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
-                                       kernel_regularizer = None, bias_regularizer = None,
+                                       kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
                                        name='upsampling_layer')
         
         #=== Define Hidden Layers ===#
@@ -65,14 +65,14 @@ class CNNLayerwise(tf.keras.Model):
                                          activation = "linear", use_bias = True,
                                          input_shape = (None, self.data_input_shape[0], self.data_input_shape[1], self.num_filters),
                                          kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
-                                         kernel_regularizer = None, bias_regularizer = None,
+                                         kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
                                          name = "downsampling_layer")
         
         #=== Classification Layer ===#
         self.classification_layer = Dense(units = label_dimensions,
                                           activation = 'linear', use_bias = True,
                                           kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
-                                          kernel_regularizer = None, bias_regularizer = None,
+                                          kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
                                           name = 'classification_layer')
         
 ###############################################################################
