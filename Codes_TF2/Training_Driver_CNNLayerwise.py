@@ -30,12 +30,12 @@ class HyperParameters:
     error_TOL         = 1e-4
     batch_size        = 3000
     num_epochs        = 30
-    gpu               = '3'
+    gpu               = '2'
     
 class RunOptions:
     def __init__(self, hyper_p):    
         #=== Use L_1 Regularization ===#
-        self.use_L1 = 0
+        self.use_L1 = 1
         
         #=== Choose Data Set ===#
         data_MNIST = 0
