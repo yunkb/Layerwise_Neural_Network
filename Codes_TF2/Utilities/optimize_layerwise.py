@@ -187,7 +187,7 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
         else:
             trainable_hidden_layer_index += 1
             NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
-            if hyper_p.reg_schedule > 0:
+            if hyper_p.reg_schedule > 0 and trainable_hidden_layer_index > 7:
                 hyper_p.regularization += hyper_p.reg_schedule
                 NN.get_layer('W' + str(trainable_hidden_layer_index)).kernel_regularizer = tf.keras.regularizers.l1(hyper_p.regularization)
                 NN.get_layer('W' + str(trainable_hidden_layer_index)).bias_regularizer = tf.keras.regularizers.l1(hyper_p.regularization)
