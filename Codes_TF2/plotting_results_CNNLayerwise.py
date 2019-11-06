@@ -19,13 +19,14 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 class HyperParameters:
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     filter_size       = 3
-    num_filters       = 128
+    num_filters       = 64
     regularization    = 0.001
+    reg_schedule      = 0.0000
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
     num_epochs        = 30
-    gpu               = '2'
+    gpu               = '0'
     
 class RunOptions:
     def __init__(self, hyper_p):    
@@ -38,8 +39,8 @@ class RunOptions:
             self.use_L1 = 1
         
         #=== Choose Data Set ===#
-        data_MNIST = 0
-        data_CIFAR10 = 1
+        data_MNIST = 1
+        data_CIFAR10 = 0
         data_CIFAR100 = 0
         
         #=== Unfreeze All Layers and Train ===#
@@ -112,11 +113,12 @@ if __name__ == "__main__":
         hyper_p.filter_size       = int(sys.argv[2])
         hyper_p.num_filters       = int(sys.argv[3])
         hyper_p.regularization    = float(sys.argv[4])
-        hyper_p.node_TOL          = float(sys.argv[5])
-        hyper_p.error_TOL         = float(sys.argv[6])
-        hyper_p.batch_size        = int(sys.argv[7])
-        hyper_p.num_epochs        = int(sys.argv[8])
-        hyper_p.gpu               = int(sys.argv[9])
+        hyper_p.reg_schedule      = float(sys.argv[5])
+        hyper_p.node_TOL          = float(sys.argv[6])
+        hyper_p.error_TOL         = float(sys.argv[7])
+        hyper_p.batch_size        = int(sys.argv[8])
+        hyper_p.num_epochs        = int(sys.argv[9])
+        hyper_p.gpu               = int(sys.argv[10])
             
     #=== Set run options ===#         
     run_options = RunOptions(hyper_p)
