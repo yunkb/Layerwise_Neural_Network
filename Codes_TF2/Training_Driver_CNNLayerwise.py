@@ -26,7 +26,7 @@ class HyperParameters:
     filter_size       = 3
     num_filters       = 64
     regularization    = 0.001
-    reg_schedule      = 0.0001
+    reg_schedule      = 0.0000
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
@@ -37,6 +37,7 @@ class RunOptions:
     def __init__(self, hyper_p):    
         #=== Use L_1 Regularization ===#
         self.use_L1 = 0
+        self.use_L2 = 1
         
         #=== Use Regularization Schedule ===#
         if hyper_p.reg_schedule > 0:
@@ -66,6 +67,11 @@ class RunOptions:
         if data_CIFAR100 == 1:
             self.dataset = 'CIFAR100'
             
+        if self.use_L1 == 1:
+            reg_string = '_L1'
+        if self.use_L2 == 1:
+            reg_string = '_L2
+            
         if hyper_p.regularization >= 1:
             hyper_p.regularization = int(hyper_p.regularization)
             regularization_string = str(hyper_p.regularization)
@@ -89,10 +95,10 @@ class RunOptions:
         error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
         error_TOL_string = error_TOL_string[-1]
         
-        if self.use_L1 == 0:
+        if self.use_L1 == 0 and self.use_L2 == 0:
             self.filename = self.dataset + '_' + self.NN_type + reg_sched_string + '_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
         else:
-            self.filename = self.dataset + '_' + self.NN_type + reg_sched_string + '_L1_mhl%d_fs%d_nf%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+            self.filename = self.dataset + '_' + self.NN_type + reg_sched_string + reg_string + '_mhl%d_fs%d_nf%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
@@ -115,12 +121,15 @@ def trainer(hyper_p, run_options):
     data_and_labels_train, data_and_labels_test, data_and_labels_val, data_input_shape, num_channels, label_dimensions, num_batches_train, num_batches_val = load_data(run_options.NN_type, run_options.dataset, hyper_p.batch_size, run_options.random_seed)  
     
     #=== Neural network ===#
-    if run_options.use_L1 == 0:
+    if run_options.use_L1 == 0 and run_options.use_L2 == 0:
         kernel_regularizer = None
         bias_regularizer = None  
-    else:
+    if run_options.use_L1 == 1:
         kernel_regularizer = tf.keras.regularizers.l1(hyper_p.regularization)
         bias_regularizer = tf.keras.regularizers.l1(hyper_p.regularization)
+    if run_options.use_L2 == 1:
+        kernel_regularizer = tf.keras.regularizers.l2(hyper_p.regularization)
+        bias_regularizer = tf.keras.regularizers.l2(hyper_p.regularization)
     NN = CNNLayerwise(hyper_p, run_options, data_input_shape, label_dimensions, num_channels,
                       kernel_regularizer, bias_regularizer,
                       run_options.NN_savefile_directory, construct_flag = 1)    
