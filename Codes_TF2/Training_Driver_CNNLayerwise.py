@@ -25,7 +25,8 @@ class HyperParameters:
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     filter_size       = 3
     num_filters       = 64
-    regularization    = 0.00
+    regularization    = 0.001
+    reg_schedule      = 0.0001
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
@@ -37,8 +38,10 @@ class RunOptions:
         #=== Use L_1 Regularization ===#
         self.use_L1 = 1
         
-        #=== Use Staging ===#
-        self.use_regularization_scheduler = 1
+        #=== Use Regularization Schedule ===#
+        if hyper_p.reg_schedule > 0:
+            hyper_p.regularization = 0.0
+            self.use_L1 = 1
         
         #=== Choose Data Set ===#
         data_MNIST = 0
@@ -62,20 +65,29 @@ class RunOptions:
             self.dataset = 'CIFAR10'
         if data_CIFAR100 == 1:
             self.dataset = 'CIFAR100'
+            
         if hyper_p.regularization >= 1:
             hyper_p.regularization = int(hyper_p.regularization)
             regularization_string = str(hyper_p.regularization)
         else:
             regularization_string = str(hyper_p.regularization)
-            regularization_string = 'pt' + regularization_string[2:]                        
+            regularization_string = 'pt' + regularization_string[2:]    
+            
+        if hyper_p.reg_schedule > 0:
+            if hyper_p.reg_schedule >= 1:
+                hyper_p.reg_schedule = int(hyper_p.reg_schedule)
+                reg_sched_param_string = str(hyper_p.reg_schedule)
+            else:
+                reg_sched_param_string = str(hyper_p.reg_schedule)
+                reg_sched_param_string = 'pt' + reg_sched_param_string[2:]
+            reg_sched_string = '_rschd' + reg_sched_param_string
+        else:
+            reg_sched_string = ''
+                    
         node_TOL_string = str('%.2e' %Decimal(hyper_p.node_TOL))
         node_TOL_string = node_TOL_string[-1]
         error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
         error_TOL_string = error_TOL_string[-1]
-        if self.use_regularization_scheduler == 1:
-            reg_sched_string = '_rschd'
-        else:
-            reg_sched_string = ''
         
         if self.use_L1 == 0:
             self.filename = self.dataset + '_' + self.NN_type + reg_sched_string + '_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
@@ -89,6 +101,7 @@ class RunOptions:
         #=== Creating Directories ===#
         if not os.path.exists(self.NN_savefile_directory):
             os.makedirs(self.NN_savefile_directory)
+
 
 ###############################################################################
 #                                 Training                                    #
@@ -128,11 +141,12 @@ if __name__ == "__main__":
         hyper_p.filter_size       = int(sys.argv[2])
         hyper_p.num_filters       = int(sys.argv[3])
         hyper_p.regularization    = float(sys.argv[4])
-        hyper_p.node_TOL          = float(sys.argv[5])
-        hyper_p.error_TOL         = float(sys.argv[6])
-        hyper_p.batch_size        = int(sys.argv[7])
-        hyper_p.num_epochs        = int(sys.argv[8])
-        hyper_p.gpu               = int(sys.argv[9])
+        hyper_p.reg_schedule      = float(sys.argv[5])
+        hyper_p.node_TOL          = float(sys.argv[6])
+        hyper_p.error_TOL         = float(sys.argv[7])
+        hyper_p.batch_size        = int(sys.argv[8])
+        hyper_p.num_epochs        = int(sys.argv[9])
+        hyper_p.gpu               = int(sys.argv[10])
             
     #=== Set run options ===#         
     run_options = RunOptions(hyper_p)

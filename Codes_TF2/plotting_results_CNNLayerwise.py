@@ -30,12 +30,20 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p):    
         #=== Use L_1 Regularization ===#
-        self.use_L1 = 0
+        self.use_L1 = 1
+        
+        #=== Use Regularization Schedule ===#
+        if hyper_p.reg_schedule > 0:
+            hyper_p.regularization = 0.0
+            self.use_L1 = 1
         
         #=== Choose Data Set ===#
         data_MNIST = 0
         data_CIFAR10 = 1
         data_CIFAR100 = 0
+        
+        #=== Unfreeze All Layers and Train ===#
+        self.use_unfreeze_all_and_train = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -51,21 +59,34 @@ class RunOptions:
             self.dataset = 'CIFAR10'
         if data_CIFAR100 == 1:
             self.dataset = 'CIFAR100'
+            
         if hyper_p.regularization >= 1:
             hyper_p.regularization = int(hyper_p.regularization)
             regularization_string = str(hyper_p.regularization)
         else:
             regularization_string = str(hyper_p.regularization)
-            regularization_string = 'pt' + regularization_string[2:]                        
+            regularization_string = 'pt' + regularization_string[2:]    
+            
+        if hyper_p.reg_schedule > 0:
+            if hyper_p.reg_schedule >= 1:
+                hyper_p.reg_schedule = int(hyper_p.reg_schedule)
+                reg_sched_param_string = str(hyper_p.reg_schedule)
+            else:
+                reg_sched_param_string = str(hyper_p.reg_schedule)
+                reg_sched_param_string = 'pt' + reg_sched_param_string[2:]
+            reg_sched_string = '_rschd' + reg_sched_param_string
+        else:
+            reg_sched_string = ''
+                    
         node_TOL_string = str('%.2e' %Decimal(hyper_p.node_TOL))
         node_TOL_string = node_TOL_string[-1]
         error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
         error_TOL_string = error_TOL_string[-1]
         
         if self.use_L1 == 0:
-            self.filename = self.dataset + '_' + self.NN_type + '_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+            self.filename = self.dataset + '_' + self.NN_type + reg_sched_string + '_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
         else:
-            self.filename = self.dataset + '_' + self.NN_type + '_L1_mhl%d_fs%d_nf%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+            self.filename = self.dataset + '_' + self.NN_type + reg_sched_string + '_L1_mhl%d_fs%d_nf%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
@@ -75,8 +96,6 @@ class RunOptions:
         self.figures_savefile_directory = '../Figures/' + self.filename
 
         #=== Creating Directories ===#
-        if not os.path.exists(self.NN_savefile_directory):
-            os.makedirs(self.NN_savefile_directory)
         if not os.path.exists(self.figures_savefile_directory):
             os.makedirs(self.figures_savefile_directory)
             
