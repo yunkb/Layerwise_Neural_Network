@@ -41,7 +41,11 @@ class CNNLayerwise(tf.keras.Model):
         
         #=== Linear Upsampling Layer to Map to Feature Space ===#
         l = 1
+<<<<<<< HEAD
         self.upsampling_layer = Conv2D(self.architecture[l][1], (1, 1), padding = 'same',
+=======
+        self.upsampling_layer = Conv2D(self.architecture[l][1], (3, 3), padding = 'same',
+>>>>>>> 7ffe008b8101b585a934fcd3084b72cbe236db3a
                                        activation = 'linear', use_bias = True,
                                        input_shape = self.data_input_shape,
                                        kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
@@ -61,7 +65,11 @@ class CNNLayerwise(tf.keras.Model):
             
         #=== Linear Downsampling Layer to Map to Data Space ===#
         l = 3
+<<<<<<< HEAD
         self.downsampling_layer = Conv2D(self.architecture[l][1], (1, 1), padding = 'same',
+=======
+        self.downsampling_layer = Conv2D(self.architecture[l][1], (3, 3), padding = 'same',
+>>>>>>> 7ffe008b8101b585a934fcd3084b72cbe236db3a
                                          activation = "linear", use_bias = True,
                                          input_shape = (None, self.data_input_shape[0], self.data_input_shape[1], self.num_filters),
                                          kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,

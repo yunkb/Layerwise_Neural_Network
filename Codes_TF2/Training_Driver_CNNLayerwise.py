@@ -9,7 +9,6 @@ import tensorflow as tf
 
 from Utilities.get_data import load_data
 from Utilities.NN_CNN_layerwise import CNNLayerwise
-from Utilities.NN_CNN_layerwise_staged import CNNLayerwiseStaged
 from Utilities.optimize_layerwise import optimize
 
 from decimal import Decimal # for filenames
@@ -25,9 +24,14 @@ import sys
 class HyperParameters:
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     filter_size       = 3
+<<<<<<< HEAD
     num_filters       = 32
     regularization    = 0.001
     reg_schedule      = 0.0001
+=======
+    num_filters       = 64
+    regularization    = 0.000
+>>>>>>> 7ffe008b8101b585a934fcd3084b72cbe236db3a
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
@@ -37,8 +41,16 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p):    
         #=== Use L_1 Regularization ===#
+<<<<<<< HEAD
         self.use_L1 = 0
                 
+=======
+        self.use_L1 = 1
+        
+        #=== Use Staging ===#
+        self.use_regularization_scheduler = 1
+        
+>>>>>>> 7ffe008b8101b585a934fcd3084b72cbe236db3a
         #=== Choose Data Set ===#
         data_MNIST = 0
         data_CIFAR10 = 1
@@ -86,11 +98,23 @@ class RunOptions:
         node_TOL_string = node_TOL_string[-1]
         error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
         error_TOL_string = error_TOL_string[-1]
+<<<<<<< HEAD
         
         if self.use_L1 == 0:
             self.filename = self.dataset + '_' + self.NN_type + staging_string + '_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
         else:
             self.filename = self.dataset + '_' + self.NN_type + staging_string + '_L1_mhl%d_fs%d_nf%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+=======
+        if self.use_regularization_scheduler == 1:
+            reg_sched_string = '_rschd'
+        else:
+            reg_sched_string = ''
+        
+        if self.use_L1 == 0:
+            self.filename = self.dataset + '_' + self.NN_type + reg_sched_string + '_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+        else:
+            self.filename = self.dataset + '_' + self.NN_type + reg_sched_string + '_L1_mhl%d_fs%d_nf%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+>>>>>>> 7ffe008b8101b585a934fcd3084b72cbe236db3a
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
@@ -118,14 +142,9 @@ def trainer(hyper_p, run_options):
     else:
         kernel_regularizer = tf.keras.regularizers.l1(hyper_p.regularization)
         bias_regularizer = tf.keras.regularizers.l1(hyper_p.regularization)
-    if run_options.use_staging == 1:
-        NN = CNNLayerwiseStaged(hyper_p, run_options, data_input_shape, label_dimensions, num_channels,
-                  kernel_regularizer, bias_regularizer,
-                  run_options.NN_savefile_directory, construct_flag = 1) 
-    else:
-        NN = CNNLayerwise(hyper_p, run_options, data_input_shape, label_dimensions, num_channels,
-                          kernel_regularizer, bias_regularizer,
-                          run_options.NN_savefile_directory, construct_flag = 1)    
+    NN = CNNLayerwise(hyper_p, run_options, data_input_shape, label_dimensions, num_channels,
+                      kernel_regularizer, bias_regularizer,
+                      run_options.NN_savefile_directory, construct_flag = 1)    
     
     #=== Training ===#
     optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
