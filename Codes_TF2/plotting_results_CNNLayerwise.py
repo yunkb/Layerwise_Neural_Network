@@ -19,9 +19,9 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 class HyperParameters:
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     filter_size       = 3
-    num_filters       = 64
+    num_filters       = 128
     regularization    = 0.001
-    reg_schedule      = 0.0000
+    reg_schedule      = 0.0001
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
@@ -39,8 +39,8 @@ class RunOptions:
             self.use_L1 = 1
         
         #=== Choose Data Set ===#
-        data_MNIST = 1
-        data_CIFAR10 = 0
+        data_MNIST = 0
+        data_CIFAR10 = 1
         data_CIFAR100 = 0
         
         #=== Unfreeze All Layers and Train ===#
