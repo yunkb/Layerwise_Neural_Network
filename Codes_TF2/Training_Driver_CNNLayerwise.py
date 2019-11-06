@@ -31,7 +31,7 @@ class HyperParameters:
     error_TOL         = 1e-4
     batch_size        = 1000
     num_epochs        = 30
-    gpu               = '3'
+    gpu               = '0'
     
 class RunOptions:
     def __init__(self, hyper_p):    
@@ -70,7 +70,7 @@ class RunOptions:
         if self.use_L1 == 1:
             reg_string = '_L1'
         if self.use_L2 == 1:
-            reg_string = '_L2
+            reg_string = '_L2'
             
         if hyper_p.regularization >= 1:
             hyper_p.regularization = int(hyper_p.regularization)
