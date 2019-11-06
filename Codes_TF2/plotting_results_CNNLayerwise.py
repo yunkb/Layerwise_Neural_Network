@@ -30,7 +30,7 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p):    
         #=== Use L_1 Regularization ===#
-        self.use_L1 = 1
+        self.use_L1 = 0
         
         #=== Choose Data Set ===#
         data_MNIST = 0
