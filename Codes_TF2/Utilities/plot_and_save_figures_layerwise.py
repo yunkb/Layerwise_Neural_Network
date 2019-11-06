@@ -104,14 +104,10 @@ def plot_and_save_figures_paper_results(hyper_p, run_options):
         array_metrics = df_metrics.to_numpy()
         storage_loss_array = array_metrics[2:,0]
         plt.plot(x_axis, storage_loss_array, label = 'hl' + str(l))
-<<<<<<< HEAD
-    plt.title('Training Loss on CIFAR-10 RSched 64F')
-=======
     plt.title('Training Loss on CIFAR-10 NoReg')
->>>>>>> 7ffe008b8101b585a934fcd3084b72cbe236db3a
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
-    #plt.axis([0,30,1.4,3])
+    #plt.axis([0,30,1.5,3])
     plt.legend()
     figures_savefile_name = run_options.figures_savefile_directory + '/' + 'loss' + '_all_layers_' + run_options.filename + '.png'
     plt.savefig(figures_savefile_name)
@@ -127,11 +123,7 @@ def plot_and_save_figures_paper_results(hyper_p, run_options):
         array_metrics = df_metrics.to_numpy()
         storage_accuracy_array = array_metrics[2:,1]
         plt.plot(x_axis, storage_accuracy_array, label = 'hl' + str(l))
-<<<<<<< HEAD
-    plt.title('Testing Accuracy on CIFAR-10 RSched 64F')
-=======
     plt.title('Testing Accuracy on CIFAR-10 NoReg')
->>>>>>> 7ffe008b8101b585a934fcd3084b72cbe236db3a
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
     #plt.axis([0,30,0.9,1])

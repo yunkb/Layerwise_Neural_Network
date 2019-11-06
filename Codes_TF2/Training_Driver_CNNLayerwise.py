@@ -24,33 +24,22 @@ import sys
 class HyperParameters:
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     filter_size       = 3
-<<<<<<< HEAD
-    num_filters       = 32
-    regularization    = 0.001
-    reg_schedule      = 0.0001
-=======
     num_filters       = 64
-    regularization    = 0.000
->>>>>>> 7ffe008b8101b585a934fcd3084b72cbe236db3a
+    regularization    = 0.00
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
-    num_epochs        = 30
+    num_epochs        = 3
     gpu               = '1'
     
 class RunOptions:
     def __init__(self, hyper_p):    
         #=== Use L_1 Regularization ===#
-<<<<<<< HEAD
-        self.use_L1 = 0
-                
-=======
         self.use_L1 = 1
         
         #=== Use Staging ===#
         self.use_regularization_scheduler = 1
         
->>>>>>> 7ffe008b8101b585a934fcd3084b72cbe236db3a
         #=== Choose Data Set ===#
         data_MNIST = 0
         data_CIFAR10 = 1
@@ -73,38 +62,16 @@ class RunOptions:
             self.dataset = 'CIFAR10'
         if data_CIFAR100 == 1:
             self.dataset = 'CIFAR100'
-            
-        if hyper_p.reg_schedule > 0:
-            self.use_L1 = 1
-            hyper_p.regularization = 0.00
-            if hyper_p.reg_schedule >= 1:
-                hyper_p.reg_schedule = int(hyper_p.reg_schedule)
-                reg_schedule_string = str(hyper_p.reg_schedule)
-            else:
-                reg_schedule_string = str(hyper_p.reg_schedule)
-                reg_schedule_string = 'pt' + reg_schedule_string[2:]                   
-            staging_string = '_rschd' + reg_schedule_string
-        else:
-            staging_string = ''
-            
         if hyper_p.regularization >= 1:
             hyper_p.regularization = int(hyper_p.regularization)
             regularization_string = str(hyper_p.regularization)
         else:
             regularization_string = str(hyper_p.regularization)
-            regularization_string = 'pt' + regularization_string[2:] 
-                       
+            regularization_string = 'pt' + regularization_string[2:]                        
         node_TOL_string = str('%.2e' %Decimal(hyper_p.node_TOL))
         node_TOL_string = node_TOL_string[-1]
         error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
         error_TOL_string = error_TOL_string[-1]
-<<<<<<< HEAD
-        
-        if self.use_L1 == 0:
-            self.filename = self.dataset + '_' + self.NN_type + staging_string + '_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
-        else:
-            self.filename = self.dataset + '_' + self.NN_type + staging_string + '_L1_mhl%d_fs%d_nf%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
-=======
         if self.use_regularization_scheduler == 1:
             reg_sched_string = '_rschd'
         else:
@@ -114,7 +81,6 @@ class RunOptions:
             self.filename = self.dataset + '_' + self.NN_type + reg_sched_string + '_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
         else:
             self.filename = self.dataset + '_' + self.NN_type + reg_sched_string + '_L1_mhl%d_fs%d_nf%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
->>>>>>> 7ffe008b8101b585a934fcd3084b72cbe236db3a
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
@@ -162,12 +128,11 @@ if __name__ == "__main__":
         hyper_p.filter_size       = int(sys.argv[2])
         hyper_p.num_filters       = int(sys.argv[3])
         hyper_p.regularization    = float(sys.argv[4])
-        hyper_p.reg_schedule      = float(sys.argv[5])
-        hyper_p.node_TOL          = float(sys.argv[6])
-        hyper_p.error_TOL         = float(sys.argv[7])
-        hyper_p.batch_size        = int(sys.argv[8])
-        hyper_p.num_epochs        = int(sys.argv[9])
-        hyper_p.gpu               = int(sys.argv[10])
+        hyper_p.node_TOL          = float(sys.argv[5])
+        hyper_p.error_TOL         = float(sys.argv[6])
+        hyper_p.batch_size        = int(sys.argv[7])
+        hyper_p.num_epochs        = int(sys.argv[8])
+        hyper_p.gpu               = int(sys.argv[9])
             
     #=== Set run options ===#         
     run_options = RunOptions(hyper_p)
