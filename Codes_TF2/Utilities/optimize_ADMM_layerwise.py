@@ -38,6 +38,8 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
     reset_optimizer = tf.group([v.initializer for v in optimizer.variables()])
 
     #=== Define Metrics and Initialize Metric Storage Arrays ===#
+    data_loss_train_batch_average = tf.keras.metrics.Mean()
+    data_loss_val_batch_average = tf.keras.metrics.Mean()
     loss_train_batch_average = tf.keras.metrics.Mean()
     loss_val_batch_average = tf.keras.metrics.Mean()
     accuracy_train_batch_average = tf.keras.metrics.Mean()
@@ -53,9 +55,10 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
 ###############################################################################
 #                             Train Neural Network                            #
 ############################################################################### 
-    loss_validation = 1e5
+    data_loss_validation = 1e5
     trainable_hidden_layer_index = 2
     relative_number_zeros = 0
+    storage_data_loss_array = []
     storage_loss_array = []
     storage_accuracy_array = []
     storage_relative_number_zeros_array = []
@@ -64,18 +67,23 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
     #####################################
     #   Training Current Architecture   #
     #####################################
-    while loss_validation > hyper_p.error_TOL and trainable_hidden_layer_index < hyper_p.max_hidden_layers:    
+    while data_loss_validation > hyper_p.error_TOL and trainable_hidden_layer_index < hyper_p.max_hidden_layers:    
         #=== Initial Loss and Accuracy ===#
         for batch_num, (data_train, labels_train) in data_and_labels_train.enumerate():
             output = NN(data_train)
-            loss_train_batch = data_loss(output, labels_train, label_dimensions)
+            data_loss_train_batch = data_loss(output, labels_train, label_dimensions)
+            loss_train_batch = data_loss_train_batch # ADMM penalty equals 0
+            data_loss_train_batch_average(data_loss_train_batch)
             loss_train_batch_average(loss_train_batch) 
             accuracy_train_batch_average(accuracy(output, labels_train))
         for data_val, labels_val in data_and_labels_val:
             output_val = NN(data_val)
-            loss_val_batch = data_loss(output_val, labels_val, label_dimensions)
+            data_loss_val_batch = data_loss(output, labels_train, label_dimensions)
+            loss_val_batch = data_loss_val_batch # ADMM penalty equals 0
+            data_loss_train_batch_average(data_loss_val_batch)
             loss_val_batch_average(loss_val_batch)
             accuracy_val_batch_average(accuracy(output_val, labels_val))
+        storage_data_loss_array = np.append(storage_data_loss_array, data_loss_train_batch_average.result())
         storage_loss_array = np.append(storage_loss_array, loss_train_batch_average.result())
         storage_accuracy_array = np.append(storage_accuracy_array, accuracy_val_batch_average.result())
         print('Initial Losses:')
@@ -102,7 +110,8 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
                         NN.summary()
                         z, lagrange = initialize_z_and_lagrange_multiplier(NN.get_weights()) 
                     ADMM_penalty = update_ADMM_penalty_terms(hyper_p.penalty, NN.weights, z, lagrange)
-                    loss_train_batch = data_loss(output, labels_train, label_dimensions) + ADMM_penalty
+                    data_loss_train_batch = data_loss(output, labels_train, label_dimensions) 
+                    loss_train_batch = data_loss_train_batch + ADMM_penalty
                     gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
                     optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
                     elapsed_time_batch = time.time() - start_time_batch
@@ -111,22 +120,28 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
                     #=== Update ADMM Objects ===#
                     if batch_num != 0 and batch_num % 10 == 0 and epoch >= 5: # Warm start and updating before w is fully minimized
                         z, lagrange = update_z_and_lagrange_multiplier(NN.get_weights(), hyper_p.regularization, hyper_p.penalty, z, lagrange)
+                data_loss_train_batch_average(data_loss_train_batch)
                 loss_train_batch_average(loss_train_batch) 
                 accuracy_train_batch_average(accuracy(output, labels_train))
                         
             #=== Computing Accuracy ===#
             for data_val, labels_val in data_and_labels_val:
                 output_val = NN(data_val)
-                loss_val_batch = data_loss(output_val, labels_val, label_dimensions)
+                data_loss_val_batch = data_loss(output_val, labels_val, label_dimensions)
+                loss_val_batch = data_loss_val_batch + ADMM_penalty
+                data_loss_val_batch_average(data_loss_val_batch)
                 loss_val_batch_average(loss_val_batch)
                 accuracy_val_batch_average(accuracy(output_val, labels_val))
             
             #=== Track Training Metrics, Weights and Gradients ===#
             with summary_writer.as_default():
+                tf.summary.scalar('data_loss_training', data_loss_train_batch_average.result(), step=epoch)
                 tf.summary.scalar('loss_training', loss_train_batch_average.result(), step=epoch)
                 tf.summary.scalar('accuracy_training', accuracy_train_batch_average.result(), step=epoch)
+                tf.summary.scalar('data_loss_validation', data_loss_val_batch_average.result(), step=epoch)
                 tf.summary.scalar('loss_validation', loss_val_batch_average.result(), step=epoch)
                 tf.summary.scalar('accuracy_validation', accuracy_val_batch_average.result(), step=epoch)
+                storage_data_loss_array = np.append(storage_data_loss_array, data_loss_train_batch_average.result())
                 storage_loss_array = np.append(storage_loss_array, loss_train_batch_average.result())
                 storage_accuracy_array = np.append(storage_accuracy_array, accuracy_val_batch_average.result())
                 for w in NN.weights:
@@ -138,16 +153,18 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
             #=== Display Epoch Iteration Information ===#
             elapsed_time_epoch = time.time() - start_time_epoch
             print('Time per Epoch: %.2f\n' %(elapsed_time_epoch))
-            print('Training Set: Loss: %.3e, Accuracy: %.3f' %(loss_train_batch_average.result(), accuracy_train_batch_average.result()))
-            print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
+            print('Training Set: Data Loss: %.3e, Loss: %.3e, Accuracy: %.3f' %(data_loss_train_batch_average.result(), loss_train_batch_average.result(), accuracy_train_batch_average.result()))
+            print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(data_loss_val_batch_average.result(), loss_val_batch_average.result(), accuracy_val_batch_average.result()))
             print('Previous Layer Relative # of 0s: %.7f\n' %(relative_number_zeros))
             if run_options.use_unfreeze_all_and_train == 1:    
                 print('retrain equals %d' %(retrain))
             start_time_epoch = time.time() 
             
             #=== Reset Metrics ===#
-            loss_validation = loss_val_batch_average.result()
+            data_loss_validation = data_loss_val_batch_average.result()
+            data_loss_train_batch_average.reset_states()
             loss_train_batch_average.reset_states()
+            data_loss_val_batch_average.reset_states()
             loss_val_batch_average.reset_states()
             accuracy_train_batch_average.reset_states()
             accuracy_val_batch_average.reset_states()
@@ -160,6 +177,7 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
         print('================================')          
         #=== Saving Metrics ===#
         metrics_dict = {}
+        metrics_dict['data_loss'] = storage_data_loss_array
         metrics_dict['loss'] = storage_loss_array
         metrics_dict['accuracy'] = storage_accuracy_array
         df_metrics = pd.DataFrame(metrics_dict)
@@ -190,6 +208,7 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
             NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
         
         #=== Preparing for Next Training Cycle ===#
+        storage_data_loss_array = []
         storage_loss_array = []
         storage_accuracy_array = []
         reset_optimizer        

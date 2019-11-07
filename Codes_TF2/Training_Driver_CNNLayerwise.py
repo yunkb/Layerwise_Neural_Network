@@ -25,8 +25,8 @@ class HyperParameters:
     max_hidden_layers = 7 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     filter_size       = 3
     num_filters       = 64
-    regularization    = 10
-    reg_schedule      = 0.0000
+    regularization    = 0.001
+    reg_schedule      = 0.0002
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
@@ -36,8 +36,8 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p):    
         #=== Use L_1 Regularization ===#
-        self.use_L1 = 0
-        self.use_L2 = 1
+        self.use_L1 = 1
+        self.use_L2 = 0
         
         #=== Use Regularization Schedule ===#
         if hyper_p.reg_schedule > 0:
