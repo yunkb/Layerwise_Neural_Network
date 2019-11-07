@@ -10,7 +10,7 @@ import subprocess
 from mpi4py import MPI
 import copy
 from Utilities.schedule_and_run import get_hyperparameter_permutations, schedule_runs
-from Training_Driver_CNN_ADMM import HyperParameters
+from Training_Driver_CNNLayerwise_ADMM import HyperParameters
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class FLAGS:
