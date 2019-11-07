@@ -24,12 +24,12 @@ class HyperParameters:
     filter_size       = 3
     num_filters       = 64
     regularization    = 0.001
-    penalty           = 10
+    penalty           = 5
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
     num_epochs        = 30
-    gpu               = '3'
+    gpu               = '1'
     
 class RunOptions:
     def __init__(self, hyper_p):        
