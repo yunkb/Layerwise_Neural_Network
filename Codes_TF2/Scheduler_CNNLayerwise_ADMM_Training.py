@@ -71,7 +71,7 @@ if __name__ == '__main__':
             if status.tag == FLAGS.EXIT:
                 break
             
-            proc = subprocess.Popen(['./Training_Driver_CNNLayerwise_ADMM.py', f'{data.max_hidden_layers}', f'{data.filter_size}', f'{data.num_filters}', f'{data.regularization}', f'{data.penalty:.4f}', f'{data.penalty:.4f}', f'{data.node_TOL:.4e}', f'{data.error_TOL:.4e}', f'{data.batch_size}', f'{data.num_epochs}',  f'{data.gpu}'])
+            proc = subprocess.Popen(['./Training_Driver_CNNLayerwise_ADMM.py', f'{data.max_hidden_layers}', f'{data.filter_size}', f'{data.num_filters}', f'{data.regularization}', f'{data.penalty:.4f}', f'{data.node_TOL:.4e}', f'{data.error_TOL:.4e}', f'{data.batch_size}', f'{data.num_epochs}',  f'{data.gpu}'])
             proc.wait() # without this, the process will detach itself once the python code is done running
             
             req = comm.isend([], 0, FLAGS.RUN_FINISHED)
