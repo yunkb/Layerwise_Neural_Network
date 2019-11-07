@@ -25,7 +25,7 @@ class HyperParameters:
     max_hidden_layers = 7 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     filter_size       = 3
     num_filters       = 64
-    regularization    = 0.001
+    regularization    = 10
     reg_schedule      = 0.0000
     node_TOL          = 1e-4
     error_TOL         = 1e-4
@@ -73,7 +73,6 @@ class RunOptions:
             reg_string = '_L2'
             
         if hyper_p.regularization >= 1:
-            hyper_p.regularization = int(hyper_p.regularization)
             regularization_string = str(hyper_p.regularization)
         else:
             regularization_string = str(hyper_p.regularization)
@@ -81,7 +80,6 @@ class RunOptions:
             
         if hyper_p.reg_schedule > 0:
             if hyper_p.reg_schedule >= 1:
-                hyper_p.reg_schedule = int(hyper_p.reg_schedule)
                 reg_sched_param_string = str(hyper_p.reg_schedule)
             else:
                 reg_sched_param_string = str(hyper_p.reg_schedule)
@@ -107,7 +105,6 @@ class RunOptions:
         #=== Creating Directories ===#
         if not os.path.exists(self.NN_savefile_directory):
             os.makedirs(self.NN_savefile_directory)
-
 
 ###############################################################################
 #                                 Training                                    #
