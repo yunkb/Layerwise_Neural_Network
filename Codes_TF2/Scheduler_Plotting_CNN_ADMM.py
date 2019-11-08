@@ -44,6 +44,6 @@ if __name__ == '__main__':
         scenarios_class_instances.append(copy.deepcopy(hyper_p_scenario))
 
     for scenario in scenarios_class_instances:
-        subprocess.Popen(['./plotting_results_CNNLayerwise_ADMM.py', f'{scenario.max_hidden_layers}', f'{scenario.filter_size}', f'{scenario.num_filters}', f'{scenario.regularization}', f'{scenario.penalty:.4f}', f'{scenario.node_TOL:.4e}', f'{scenario.error_TOL:.4e}', f'{scenario.batch_size}', f'{scenario.num_epochs}',  f'{scenario.gpu}'])
+        subprocess.Popen(['./Plotting_Results_CNNLayerwise_ADMM.py', f'{scenario.max_hidden_layers}', f'{scenario.filter_size}', f'{scenario.num_filters}', f'{scenario.regularization}', f'{scenario.penalty:.4f}', f'{scenario.node_TOL:.4e}', f'{scenario.error_TOL:.4e}', f'{scenario.batch_size}', f'{scenario.num_epochs}',  f'{scenario.gpu}'])
     
     print('All scenarios plotted')
