@@ -1,0 +1,2 @@
+model_checkpoint_path: "CIFAR10_CNN_L1_mhl12_fs3_nf64_rpt0006_nTOL4_eTOL4_b1000_e60"
+all_model_checkpoint_paths: "CIFAR10_CNN_L1_mhl12_fs3_nf64_rpt0006_nTOL4_eTOL4_b1000_e60"

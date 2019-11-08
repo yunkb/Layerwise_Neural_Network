@@ -25,8 +25,8 @@ class HyperParameters:
     max_hidden_layers = 12 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     filter_size       = 3
     num_filters       = 64
-    regularization    = 0.0005
-    reg_schedule      = 0.0000
+    regularization    = 0.001
+    reg_schedule      = 0.001
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
