@@ -118,13 +118,15 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
                 loss_train_batch_average(loss_train_batch) 
                 accuracy_train_batch_average(accuracy(output, labels_train))
                                         
-            #=== Computing Accuracy ===#
+            #=== Computing Validation Metrics ===#
             for data_val, labels_val in data_and_labels_val:
                 output_val = NN(data_val)
                 loss_val_batch = data_loss(output_val, labels_val, label_dimensions)
                 loss_val_batch += sum(NN.losses)
                 loss_val_batch_average(loss_val_batch)
-                
+                accuracy_val_batch_average(accuracy(output_val, labels_val))
+            
+            #=== Computing Testing Metrics ===#
             for data_test, labels_test in data_and_labels_test:
                 output_test = NN(data_test)
                 loss_test_batch = data_loss(output_test, labels_test, label_dimensions)
