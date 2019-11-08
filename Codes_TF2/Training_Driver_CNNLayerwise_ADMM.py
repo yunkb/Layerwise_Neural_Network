@@ -93,7 +93,7 @@ def trainer(hyper_p, run_options):
     #=== Neural network ===#
     NN = CNNLayerwise(hyper_p, run_options, data_input_shape, label_dimensions, num_channels,
                       None, None,
-                      run_options.NN_savefile_directory, construct_flag = 1)    
+                      run_options.NN_savefile_directory)    
     
     #=== Training ===#
     optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)

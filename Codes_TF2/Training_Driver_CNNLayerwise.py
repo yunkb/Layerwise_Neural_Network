@@ -125,7 +125,7 @@ def trainer(hyper_p, run_options):
         bias_regularizer = tf.keras.regularizers.l2(hyper_p.regularization)
     NN = CNNLayerwise(hyper_p, run_options, data_input_shape, label_dimensions, num_channels,
                       kernel_regularizer, bias_regularizer,
-                      run_options.NN_savefile_directory, construct_flag = 1)    
+                      run_options.NN_savefile_directory)    
     
     #=== Training ===#
     optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
