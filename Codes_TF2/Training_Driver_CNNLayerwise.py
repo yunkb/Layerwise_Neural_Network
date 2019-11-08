@@ -152,7 +152,7 @@ if __name__ == "__main__":
         hyper_p.error_TOL         = float(sys.argv[7])
         hyper_p.batch_size        = int(sys.argv[8])
         hyper_p.num_epochs        = int(sys.argv[9])
-        hyper_p.gpu               = int(sys.argv[10])
+        hyper_p.gpu               = str(sys.argv[10])
             
     #=== Set run options ===#         
     run_options = RunOptions(hyper_p)
