@@ -38,8 +38,10 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
     #=== Define Metrics and Initialize Metric Storage Arrays ===#
     loss_train_batch_average = tf.keras.metrics.Mean()
     loss_val_batch_average = tf.keras.metrics.Mean()
+    loss_test_batch_average = tf.keras.metrics.Mean()
     accuracy_train_batch_average = tf.keras.metrics.Mean()
     accuracy_val_batch_average = tf.keras.metrics.Mean()
+    accuracy_test_batch_average = tf.keras.metrics.Mean()
     storage_loss_array = np.array([])
     storage_accuracy_array = np.array([])
     
@@ -75,11 +77,18 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             loss_val_batch += sum(NN.losses)
             loss_val_batch_average(loss_val_batch)
             accuracy_val_batch_average(accuracy(output_val, labels_val))
+        for data_test, labels_test in data_and_labels_test:
+            output_test = NN(data_test)
+            loss_test_batch = data_loss(output_test, labels_test, label_dimensions)
+            loss_test_batch += sum(NN.losses)
+            loss_test_batch_average(loss_test_batch)
+            accuracy_test_batch_average(accuracy(output_test, labels_test))
         storage_loss_array = np.append(storage_loss_array, loss_train_batch_average.result())
-        storage_accuracy_array = np.append(storage_accuracy_array, accuracy_val_batch_average.result())
+        storage_accuracy_array = np.append(storage_accuracy_array, accuracy_test_batch_average.result())
         print('Initial Losses:')
         print('Training Set: Loss: %.3e, Accuracy: %.3f' %(loss_train_batch_average.result(), accuracy_train_batch_average.result()))
-        print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
+        print('Validation Set: Loss: %.3e, Accuracy: %.3f' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
+        print('Test Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_test_batch_average.result(), accuracy_test_batch_average.result()))
         
         #=== Begin Training ===#
         print('Beginning Training')
@@ -115,7 +124,13 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
                 loss_val_batch = data_loss(output_val, labels_val, label_dimensions)
                 loss_val_batch += sum(NN.losses)
                 loss_val_batch_average(loss_val_batch)
-                accuracy_val_batch_average(accuracy(output_val, labels_val))
+                
+            for data_test, labels_test in data_and_labels_test:
+                output_test = NN(data_test)
+                loss_test_batch = data_loss(output_test, labels_test, label_dimensions)
+                loss_test_batch += sum(NN.losses)
+                loss_test_batch_average(loss_test_batch)
+                accuracy_test_batch_average(accuracy(output_test, labels_test))
             
             #=== Track Training Metrics, Weights and Gradients ===#
             with summary_writer.as_default():
@@ -123,8 +138,10 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
                 tf.summary.scalar('accuracy_training', accuracy_train_batch_average.result(), step=epoch)
                 tf.summary.scalar('loss_validation', loss_val_batch_average.result(), step=epoch)
                 tf.summary.scalar('accuracy_validation', accuracy_val_batch_average.result(), step=epoch)
+                tf.summary.scalar('loss_test', loss_test_batch_average.result(), step=epoch)
+                tf.summary.scalar('accuracy_test', accuracy_test_batch_average.result(), step=epoch)
                 storage_loss_array = np.append(storage_loss_array, loss_train_batch_average.result())
-                storage_accuracy_array = np.append(storage_accuracy_array, accuracy_val_batch_average.result())
+                storage_accuracy_array = np.append(storage_accuracy_array, accuracy_test_batch_average.result())
                 for w in NN.weights:
                     tf.summary.histogram(w.name, w, step=epoch)
                 l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
@@ -135,7 +152,8 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             elapsed_time_epoch = time.time() - start_time_epoch
             print('Time per Epoch: %.2f\n' %(elapsed_time_epoch))
             print('Training Set: Loss: %.3e, Accuracy: %.3f' %(loss_train_batch_average.result(), accuracy_train_batch_average.result()))
-            print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
+            print('Validation Set: Loss: %.3e, Accuracy: %.3f' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
+            print('Test Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_test_batch_average.result(), accuracy_test_batch_average.result()))
             print('Previous Layer Relative # of 0s: %.7f\n' %(relative_number_zeros))
             start_time_epoch = time.time()   
             
@@ -143,8 +161,10 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
             loss_validation = loss_val_batch_average.result()
             loss_train_batch_average.reset_states()
             loss_val_batch_average.reset_states()
+            loss_test_batch_average.reset_states()
             accuracy_train_batch_average.reset_states()
             accuracy_val_batch_average.reset_states()
+            accuracy_test_batch_average.reset_states()
                    
         ########################################################
         #   Updating Architecture and Saving Current Metrics   #
