@@ -34,23 +34,19 @@ class HyperParameters:
     gpu               = '3'
     
 class RunOptions:
-    def __init__(self, hyper_p):    
-        #=== Use L_1 Regularization ===#
-        self.use_L1 = 1
-        self.use_L2 = 0
-        
+    def __init__(self, hyper_p):
         #=== Use Regularization Schedule ===#
         if hyper_p.reg_schedule > 0:
             hyper_p.regularization = 0.0
-            self.use_L1 = 1
+        
+        #=== Use L_1 Regularization ===#
+        self.use_L1 = 1
+        self.use_L2 = 0
         
         #=== Choose Data Set ===#
         data_MNIST = 0
         data_CIFAR10 = 1
         data_CIFAR100 = 0
-        
-        #=== Unfreeze All Layers and Train ===#
-        self.use_unfreeze_all_and_train = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
