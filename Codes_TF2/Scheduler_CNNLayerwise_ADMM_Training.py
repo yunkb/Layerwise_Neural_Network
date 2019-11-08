@@ -9,7 +9,8 @@ Created on Wed Sep 18 20:53:06 2019
 import subprocess
 from mpi4py import MPI
 import copy
-from Utilities.schedule_and_run import get_hyperparameter_permutations, schedule_runs
+from Utilities.get_hyperparameter_permutations import get_hyperparameter_permutations
+from Utilities.schedule_and_run import schedule_runs
 from Training_Driver_CNNLayerwise_ADMM import HyperParameters
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -39,7 +40,7 @@ if __name__ == '__main__':
         hyper_p = HyperParameters() # Assign instance attributes below, DO NOT assign an instance attribute to GPU
         
         # assign instance attributes for hyper_p
-        hyper_p.max_hidden_layers = [7]
+        hyper_p.max_hidden_layers = [8]
         hyper_p.filter_size       = [3] # Indexing includes input and output layer with input layer indexed by 0
         hyper_p.num_filters       = [64]
         hyper_p.regularization    = [0.01, 0.1, 1]

@@ -6,7 +6,7 @@ Created on Sat Oct 26 21:38:28 2019
 @author: hwan
 """
 
-from Utilities.plot_and_save_figures_layerwise import plot_and_save_figures
+from Utilities.plot_and_save_figures_layerwise import plot_and_save_figures, plot_and_save_figures_paper_results
 from decimal import Decimal # for filenames
 import os
 import sys
@@ -17,11 +17,11 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
+    max_hidden_layers = 7 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     filter_size       = 3
-    num_filters       = 128
-    regularization    = 0.001
-    penalty           = 0.0001
+    num_filters       = 64
+    regularization    = 1
+    penalty           = 1
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
@@ -108,6 +108,7 @@ if __name__ == "__main__":
     run_options = RunOptions(hyper_p)
     
     #=== Plot and save figures ===#
-    plot_and_save_figures(hyper_p, run_options)
+    #plot_and_save_figures(hyper_p, run_options)
+    plot_and_save_figures_paper_results(hyper_p, run_options)
 
 

@@ -121,7 +121,7 @@ def plot_and_save_figures_paper_results(hyper_p, run_options):
         print('Loading Metrics for Hidden Layer %d' %(l))
         df_metrics = pd.read_csv(run_options.NN_savefile_name + "_metrics_hl" + str(l) + '.csv')
         array_metrics = df_metrics.to_numpy()
-        storage_accuracy_array = array_metrics[2:,1]
+        storage_accuracy_array = array_metrics[2:,2]
         plt.plot(x_axis, storage_accuracy_array, label = 'hl' + str(l))
     plt.title('Testing Accuracy on MNIST')
     plt.xlabel('Epochs')
