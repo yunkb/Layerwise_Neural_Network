@@ -6,7 +6,7 @@ Created on Sat Oct 26 21:38:28 2019
 @author: hwan
 """
 
-from Utilities.plot_and_save_figures_layerwise import plot_and_save_figures, plot_and_save_figures_paper_results
+from Utilities.plot_and_save_figures_layerwise import plot_and_save_figures
 from decimal import Decimal # for filenames
 import os
 import sys
@@ -108,7 +108,6 @@ if __name__ == "__main__":
     run_options = RunOptions(hyper_p)
     
     #=== Plot and save figures ===#
-    #plot_and_save_figures(hyper_p, run_options)
-    plot_and_save_figures_paper_results(hyper_p, run_options)
+    plot_and_save_figures(hyper_p, run_options)
 
 
