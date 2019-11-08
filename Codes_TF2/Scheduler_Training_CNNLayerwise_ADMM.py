@@ -25,7 +25,7 @@ class FLAGS:
 ###############################################################################
 if __name__ == '__main__':
                     
-    # To run this code "mpirun -n 10 ./Scheduler_CNNLayerwise_ADMM_Training.py" in command line
+    # To run this code "mpirun -n 4 ./Scheduler_Training_CNNLayerwise_ADMM.py" in command line
     
     # mpi stuff
     comm   = MPI.COMM_WORLD
