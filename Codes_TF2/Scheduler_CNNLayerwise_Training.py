@@ -25,7 +25,7 @@ class FLAGS:
 ###############################################################################
 if __name__ == '__main__':
                     
-    # To run this code "mpirun -n 10 ./Scheduler_CNNLayerwise_ADMM_Training.py" in command line
+    # To run this code "mpirun -n 4 ./Scheduler_CNNLayerwise_Training.py" in command line
     
     # mpi stuff
     comm   = MPI.COMM_WORLD
@@ -48,7 +48,7 @@ if __name__ == '__main__':
         hyper_p.node_TOL          = [1e-4]
         hyper_p.error_TOL         = [1e-4]
         hyper_p.batch_size        = [1000]
-        hyper_p.num_epochs        = [30]
+        hyper_p.num_epochs        = [30, 60]
         
         permutations_list, hyper_p_keys = get_hyperparameter_permutations(hyper_p) 
         print('permutations_list generated')
