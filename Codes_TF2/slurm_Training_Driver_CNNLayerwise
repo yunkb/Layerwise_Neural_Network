@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH -J Layerwise_Test
+#SBATCH -J Layerwise_L2
 #SBATCH -p gtx
 #SBATCH -N 1
 #SBATCH -n 1
