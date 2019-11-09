@@ -40,8 +40,8 @@ class RunOptions:
             hyper_p.regularization = 0.0
         
         #=== Use L_1 Regularization ===#
-        self.use_L1 = 1
-        self.use_L2 = 0
+        self.use_L1 = 0
+        self.use_L2 = 1
         
         #=== Choose Data Set ===#
         data_MNIST = 0
