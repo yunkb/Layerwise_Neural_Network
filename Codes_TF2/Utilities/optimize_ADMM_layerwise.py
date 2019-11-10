@@ -40,10 +40,13 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
     #=== Define Metrics and Initialize Metric Storage Arrays ===#
     data_loss_train_batch_average = tf.keras.metrics.Mean()
     data_loss_val_batch_average = tf.keras.metrics.Mean()
+    data_loss_test_batch_average = tf.keras.metrics.Mean()
+    loss_test_batch_average = tf.keras.metrics.Mean()
     loss_train_batch_average = tf.keras.metrics.Mean()
     loss_val_batch_average = tf.keras.metrics.Mean()
     accuracy_train_batch_average = tf.keras.metrics.Mean()
     accuracy_val_batch_average = tf.keras.metrics.Mean()
+    accuracy_test_batch_average = tf.keras.metrics.Mean()
     storage_loss_array = np.array([])
     storage_accuracy_array = np.array([])
     
@@ -82,12 +85,19 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
             data_loss_train_batch_average(data_loss_val_batch)
             loss_val_batch_average(loss_val_batch)
             accuracy_val_batch_average(accuracy(output_val, labels_val))
+        for data_test, labels_test in data_and_labels_test:
+            output_test = NN(data_test)
+            data_loss_test_batch = data_loss(output_test, labels_test, label_dimensions)
+            loss_test_batch = data_loss_test_batch # ADMM penalty equals 0
+            loss_test_batch_average(loss_test_batch)
+            accuracy_test_batch_average(accuracy(output_test, labels_test))
         storage_data_loss_array = np.append(storage_data_loss_array, data_loss_train_batch_average.result())
         storage_loss_array = np.append(storage_loss_array, loss_train_batch_average.result())
         storage_accuracy_array = np.append(storage_accuracy_array, accuracy_val_batch_average.result())
         print('Initial Losses:')
         print('Training Set: Loss: %.3e, Accuracy: %.3f' %(loss_train_batch_average.result(), accuracy_train_batch_average.result()))
         print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
+        print('Test Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_test_batch_average.result(), accuracy_test_batch_average.result()))
         
         #==== Beginning Training ===#
         print('Beginning Training')
@@ -123,7 +133,7 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
                 loss_train_batch_average(loss_train_batch) 
                 accuracy_train_batch_average(accuracy(output, labels_train))
                         
-            #=== Computing Accuracy ===#
+            #=== Computing Validation Metrics ===#
             for data_val, labels_val in data_and_labels_val:
                 output_val = NN(data_val)
                 data_loss_val_batch = data_loss(output_val, labels_val, label_dimensions)
@@ -131,6 +141,15 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
                 data_loss_val_batch_average(data_loss_val_batch)
                 loss_val_batch_average(loss_val_batch)
                 accuracy_val_batch_average(accuracy(output_val, labels_val))
+                
+            #=== Computing Testing Metrics ===#
+            for data_test, labels_test in data_and_labels_test:
+                output_test = NN(data_test)
+                data_loss_test_batch = data_loss(output_test, labels_test, label_dimensions)
+                loss_test_batch += data_loss_test_batch + ADMM_penalty
+                data_loss_test_batch_average(data_loss_test_batch)
+                loss_test_batch_average(loss_test_batch)
+                accuracy_test_batch_average(accuracy(output_test, labels_test))
             
             #=== Track Training Metrics, Weights and Gradients ===#
             with summary_writer.as_default():
@@ -140,9 +159,12 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
                 tf.summary.scalar('data_loss_validation', data_loss_val_batch_average.result(), step=epoch)
                 tf.summary.scalar('loss_validation', loss_val_batch_average.result(), step=epoch)
                 tf.summary.scalar('accuracy_validation', accuracy_val_batch_average.result(), step=epoch)
+                tf.summary.scalar('data_loss_testing', data_loss_test_batch_average.result(), step=epoch)
+                tf.summary.scalar('loss_test', loss_test_batch_average.result(), step=epoch)
+                tf.summary.scalar('accuracy_test', accuracy_test_batch_average.result(), step=epoch)
                 storage_data_loss_array = np.append(storage_data_loss_array, data_loss_train_batch_average.result())
                 storage_loss_array = np.append(storage_loss_array, loss_train_batch_average.result())
-                storage_accuracy_array = np.append(storage_accuracy_array, accuracy_val_batch_average.result())
+                storage_accuracy_array = np.append(storage_accuracy_array, accuracy_test_batch_average.result())
                 for w in NN.weights:
                     tf.summary.histogram(w.name, w, step=epoch)
                 l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
@@ -154,6 +176,7 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
             print('Time per Epoch: %.2f\n' %(elapsed_time_epoch))
             print('Training Set: Data Loss: %.3e, Loss: %.3e, Accuracy: %.3f' %(data_loss_train_batch_average.result(), loss_train_batch_average.result(), accuracy_train_batch_average.result()))
             print('Validation Set: Data Loss: %.3e, Loss: %.3e, Accuracy: %.3f\n' %(data_loss_val_batch_average.result(), loss_val_batch_average.result(), accuracy_val_batch_average.result()))
+            print('Test Set: Data_Loss: %.3e, Loss: %.3e, Accuracy: %.3f\n' %(data_loss_test_batch_average.result(), loss_test_batch_average.result(), accuracy_test_batch_average.result()))
             print('Previous Layer Relative # of 0s: %.7f\n' %(relative_number_zeros))
             start_time_epoch = time.time() 
             
@@ -161,10 +184,13 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
             data_loss_validation = data_loss_val_batch_average.result()
             data_loss_train_batch_average.reset_states()
             loss_train_batch_average.reset_states()
+            accuracy_train_batch_average.reset_states()
             data_loss_val_batch_average.reset_states()
             loss_val_batch_average.reset_states()
-            accuracy_train_batch_average.reset_states()
             accuracy_val_batch_average.reset_states()
+            data_loss_test_batch_average.reset_states()
+            loss_test_batch_average.reset_states()
+            accuracy_test_batch_average.reset_states()
         
         ########################################################
         #   Updating Architecture and Saving Current Metrics   #
