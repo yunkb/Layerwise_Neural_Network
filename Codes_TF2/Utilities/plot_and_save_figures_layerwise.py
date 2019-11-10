@@ -17,6 +17,7 @@ def plot_and_save_figures(hyper_p, run_options):
     print('================================')
     
     first_trainable_hidden_layer_index = 2  
+    marker_list = ['+', '*', 'x', 'D', 'o', '.', 'h']
 ###############################################################################
 #                                    Loss                                     #
 ###############################################################################       
@@ -29,11 +30,11 @@ def plot_and_save_figures(hyper_p, run_options):
         df_metrics = pd.read_csv(run_options.NN_savefile_name + "_metrics_hl" + str(l) + '.csv')
         array_metrics = df_metrics.to_numpy()
         storage_loss_array = array_metrics[2:,0]
-        plt.plot(x_axis, storage_loss_array, label = 'hl' + str(l))
+        plt.plot(x_axis, storage_loss_array, label = 'hl' + str(l), marker = marker_list[l-2])
         
     #=== Figure Properties ===#   
-    #plt.title('Training Loss on MNIST')
-    plt.title(run_options.filename)
+    plt.title('Training Loss on MNIST')
+    #plt.title(run_options.filename)
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     #plt.axis([0,30,1.5,3])
@@ -55,11 +56,11 @@ def plot_and_save_figures(hyper_p, run_options):
         df_metrics = pd.read_csv(run_options.NN_savefile_name + "_metrics_hl" + str(l) + '.csv')
         array_metrics = df_metrics.to_numpy()
         storage_accuracy_array = array_metrics[2:,1]
-        plt.plot(x_axis, storage_accuracy_array, label = 'hl' + str(l))
+        plt.plot(x_axis, storage_accuracy_array, label = 'hl' + str(l), marker = marker_list[l-2])
         
     #=== Figure Properties ===#   
-    #plt.title('Testing Accuracy on MNIST')
-    plt.title(run_options.filename)
+    plt.title('Testing Accuracy on MNIST')
+    #plt.title(run_options.filename)
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
     #plt.axis([0,30,0.9,1])
