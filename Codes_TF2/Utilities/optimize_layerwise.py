@@ -108,6 +108,7 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
                     #=== Display Model Summary ===#
                     if batch_num == 0 and epoch == 0:
                         NN.summary()
+                        pdb.set_trace()
                     loss_train_batch = data_loss(output, labels_train, label_dimensions)
                     loss_train_batch += sum(NN.losses)
                     gradients = tape.gradient(loss_train_batch, NN.trainable_variables)

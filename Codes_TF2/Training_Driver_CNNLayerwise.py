@@ -22,15 +22,15 @@ import sys
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    max_hidden_layers = 7 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
+    max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     filter_size       = 3
-    num_filters       = 64
+    num_filters       = 128
     regularization    = 0.001
     reg_schedule      = 0.0
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
-    num_epochs        = 30
+    num_epochs        = 1
     gpu               = '3'
     
 class RunOptions:
