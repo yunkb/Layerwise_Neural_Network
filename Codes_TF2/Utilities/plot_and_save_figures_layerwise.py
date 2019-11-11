@@ -30,13 +30,13 @@ def plot_and_save_figures(hyper_p, run_options):
         df_metrics = pd.read_csv(run_options.NN_savefile_name + "_metrics_hl" + str(l) + '.csv')
         array_metrics = df_metrics.to_numpy()
         storage_loss_array = array_metrics[2:,0]
-        plt.plot(x_axis, storage_loss_array, label = 'hl' + str(l), marker = marker_list[l-2])
+        plt.plot(x_axis, np.log(storage_loss_array), label = 'hl' + str(l), marker = marker_list[l-2])
         
     #=== Figure Properties ===#   
-    plt.title('Training Loss on MNIST')
+    plt.title('Training Log-Loss on MNIST')
     #plt.title(run_options.filename)
     plt.xlabel('Epochs')
-    plt.ylabel('Loss')
+    plt.ylabel('Log-Loss')
     #plt.axis([0,30,1.5,3])
     plt.legend()
     

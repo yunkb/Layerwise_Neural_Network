@@ -42,8 +42,8 @@ if __name__ == '__main__':
         # assign instance attributes for hyper_p
         hyper_p.max_hidden_layers = [8]
         hyper_p.filter_size       = [3] # Indexing includes input and output layer with input layer indexed by 0
-        hyper_p.num_filters       = [192]
-        hyper_p.regularization    = [0.001, 0.01, 0.1, 1]
+        hyper_p.num_filters       = [128]
+        hyper_p.regularization    = [0.001]
         hyper_p.penalty           = [1, 5, 10, 20, 100]
         hyper_p.node_TOL          = [1e-4]
         hyper_p.error_TOL         = [1e-4]
