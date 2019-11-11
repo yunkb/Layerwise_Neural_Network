@@ -93,7 +93,7 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
             accuracy_test_batch_average(accuracy(output_test, labels_test))
         storage_data_loss_array = np.append(storage_data_loss_array, data_loss_train_batch_average.result())
         storage_loss_array = np.append(storage_loss_array, loss_train_batch_average.result())
-        storage_accuracy_array = np.append(storage_accuracy_array, accuracy_val_batch_average.result())
+        storage_accuracy_array = np.append(storage_accuracy_array, accuracy_test_batch_average.result())
         print('Initial Losses:')
         print('Training Set: Loss: %.3e, Accuracy: %.3f' %(loss_train_batch_average.result(), accuracy_train_batch_average.result()))
         print('Validation Set: Loss: %.3e, Accuracy: %.3f\n' %(loss_val_batch_average.result(), accuracy_val_batch_average.result()))
