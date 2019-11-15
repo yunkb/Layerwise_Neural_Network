@@ -9,6 +9,7 @@ import tensorflow as tf
 
 from Utilities.get_data import load_data
 from Utilities.NN_CNN_layerwise import CNNLayerwise
+from Utilities.loss_and_accuracies import data_loss_classification, accuracy_classification
 from Utilities.optimize_layerwise import optimize
 
 from decimal import Decimal # for filenames
@@ -26,7 +27,6 @@ class HyperParameters:
     filter_size       = 3
     num_filters       = 128
     regularization    = 0.001
-    reg_schedule      = 0.0
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
@@ -34,14 +34,10 @@ class HyperParameters:
     gpu               = '2'
     
 class RunOptions:
-    def __init__(self, hyper_p):
-        #=== Use Regularization Schedule ===#
-        if hyper_p.reg_schedule > 0:
-            hyper_p.regularization = 0.0
-        
+    def __init__(self, hyper_p):        
         #=== Use L_1 Regularization ===#
-        self.use_L1 = 0
-        self.use_L2 = 1
+        self.use_L1 = 1
+        self.use_L2 = 0
         
         #=== Choose Data Set ===#
         data_MNIST = 1
@@ -73,16 +69,6 @@ class RunOptions:
         else:
             regularization_string = str(hyper_p.regularization)
             regularization_string = 'pt' + regularization_string[2:]    
-            
-        if hyper_p.reg_schedule > 0:
-            if hyper_p.reg_schedule >= 1:
-                reg_sched_param_string = str(hyper_p.reg_schedule)
-            else:
-                reg_sched_param_string = str(hyper_p.reg_schedule)
-                reg_sched_param_string = 'pt' + reg_sched_param_string[2:]
-            reg_sched_string = '_rschd' + reg_sched_param_string
-        else:
-            reg_sched_string = ''
                     
         node_TOL_string = str('%.2e' %Decimal(hyper_p.node_TOL))
         node_TOL_string = node_TOL_string[-1]
@@ -90,9 +76,9 @@ class RunOptions:
         error_TOL_string = error_TOL_string[-1]
         
         if self.use_L1 == 0 and self.use_L2 == 0:
-            self.filename = self.dataset + '_' + self.NN_type + reg_sched_string + '_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+            self.filename = self.dataset + '_' + self.NN_type + '_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
         else:
-            self.filename = self.dataset + '_' + self.NN_type + reg_sched_string + reg_string + '_mhl%d_fs%d_nf%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+            self.filename = self.dataset + '_' + self.NN_type + reg_string + '_mhl%d_fs%d_nf%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
@@ -128,7 +114,7 @@ def trainer(hyper_p, run_options):
                       run_options.NN_savefile_directory)    
     
     #=== Training ===#
-    optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
+    optimize(hyper_p, run_options, NN,  data_loss_classification, accuracy_classification, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
     
 ###############################################################################
 #                                 Driver                                      #

@@ -16,21 +16,9 @@ import time
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
-#                             Loss and Accuracy                               #
-###############################################################################
-def data_loss(y_pred, y_true, label_dimensions):
-    y_true = tf.one_hot(tf.cast(y_true,tf.int64), label_dimensions, dtype=tf.float32)
-    return  tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y_true,y_pred))
-
-def accuracy(y_pred,y_true):
-    correct = tf.math.in_top_k(tf.cast(tf.squeeze(y_true),tf.int64),tf.cast(y_pred, tf.float32),  1)
-    accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
-    return accuracy
-
-###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train):
+def optimize(hyper_p, run_options, NN, data_loss, accuracy, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train):
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
     reset_optimizer = tf.group([v.initializer for v in optimizer.variables()])
@@ -196,14 +184,6 @@ def optimize(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_te
         #=== Add Layer ===#
         trainable_hidden_layer_index += 1
         NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
-        if hyper_p.reg_schedule > 0 and trainable_hidden_layer_index > 7:
-            hyper_p.regularization += hyper_p.reg_schedule
-            if run_options.use_L1 == 1:
-                NN.get_layer('W' + str(trainable_hidden_layer_index)).kernel_regularizer = tf.keras.regularizers.l1(hyper_p.regularization)
-                NN.get_layer('W' + str(trainable_hidden_layer_index)).bias_regularizer = tf.keras.regularizers.l1(hyper_p.regularization)
-            if run_options.use_L2 == 1:
-                NN.get_layer('W' + str(trainable_hidden_layer_index)).kernel_regularizer = tf.keras.regularizers.l2(hyper_p.regularization)
-                NN.get_layer('W' + str(trainable_hidden_layer_index)).bias_regularizer = tf.keras.regularizers.l2(hyper_p.regularization)
             
         #=== Preparing for Next Training Cycle ===#
         storage_loss_array = []

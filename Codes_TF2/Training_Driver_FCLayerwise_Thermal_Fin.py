@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+Created on Thu Nov 14 21:41:12 2019
+
+@author: hwan
+"""
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
 Created on Mon Nov  4 09:55:12 2019
 
 @author: hwan
@@ -15,9 +23,9 @@ Created on Mon Oct 28 14:13:20 2019
 """
 import tensorflow as tf
 
-from Utilities.get_data import load_data
+from Utilities.get_thermal_fin_data import load_thermal_fin_data 
 from Utilities.NN_FC_layerwise import FCLayerwise
-from Utilities.loss_and_accuracies import data_loss_classification, accuracy_classification
+from Utilities.loss_and_accuracies import data_loss_regression, relative_error
 from Utilities.optimize_layerwise import optimize
 
 from decimal import Decimal # for filenames
@@ -32,12 +40,12 @@ import sys
 ###############################################################################
 class HyperParameters:
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
-    num_hidden_nodes  = 1000
+    num_hidden_nodes  = 10
     regularization    = 0.001
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
-    num_epochs        = 30
+    num_epochs        = 1
     gpu               = '0'
     
 class RunOptions:
@@ -45,13 +53,21 @@ class RunOptions:
         #=== Use L_1 Regularization ===#
         self.use_L1 = 1
         
-        #=== Choose Data Set ===#
-        data_MNIST = 1
-        data_CIFAR10 = 0
-        data_CIFAR100 = 0
+        #=== Choose Thermal Fin Dataset ===#
+        data_thermal_fin_nine = 1
+        data_thermal_fin_vary = 0
+        self.use_full_domain_data = 1
+        self.use_bnd_data = 0
+        self.use_bnd_data_only = 0
+        self.num_training_data = 2000
+        self.num_testing_data = 200
         
-        #=== Unfreeze All Layers and Train ===#
-        self.use_unfreeze_all_and_train = 0
+        #=== Observation Dimensions === #
+        self.full_domain_dimensions = 1446 
+        if self.use_full_domain_data == 1:
+            self.state_obs_dimensions = self.full_domain_dimensions 
+        if self.use_bnd_data == 1 or self.use_bnd_data_only == 1:
+            self.state_obs_dimensions = 614
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -61,12 +77,12 @@ class RunOptions:
         
         #=== Setting Filename ===# 
         self.NN_type = 'FC'
-        if data_MNIST == 1:
-            self.dataset = 'MNIST'
-        if data_CIFAR10 == 1:
-            self.dataset = 'CIFAR10'
-        if data_CIFAR100 == 1:
-            self.dataset = 'CIFAR100'
+        if data_thermal_fin_nine == 1:
+            self.dataset = 'thermalfin9'
+            parameter_type = ''
+        if data_thermal_fin_vary == 1:
+            self.dataset = 'thermalfinvary'
+            parameter_type = '_vary'
         if hyper_p.regularization >= 1:
             hyper_p.regularization = int(hyper_p.regularization)
             regularization_string = str(hyper_p.regularization)
@@ -82,6 +98,20 @@ class RunOptions:
             self.filename = self.dataset + '_' + self.NN_type + '_mhl%d_hl%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.num_hidden_nodes, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
         else:
             self.filename = self.dataset + '_' + self.NN_type + '_L1_mhl%d_hl%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.num_hidden_nodes, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+            
+        #=== Loading and saving data ===#
+        if self.use_full_domain_data == 1:
+            self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'thermal_fin_full_domain'
+            self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(self.num_training_data) + parameter_type
+            self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(self.num_training_data) + parameter_type
+            self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(self.num_testing_data) + parameter_type
+            self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(self.num_testing_data) + parameter_type
+        if self.use_bnd_data == 1 or self.use_bnd_data_only == 1:
+            self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'thermal_fin_bnd_indices'
+            self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_bnd_%d' %(self.num_training_data) + parameter_type
+            self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_bnd_%d' %(self.num_training_data) + parameter_type
+            self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_bnd_%d' %(self.num_testing_data) + parameter_type
+            self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_bnd_%d' %(self.num_testing_data) + parameter_type    
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
@@ -100,8 +130,9 @@ def trainer(hyper_p, run_options):
     os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
     
     #=== Load Train and Test Data ===#  
-    data_and_labels_train, data_and_labels_test, data_and_labels_val, data_input_shape, num_channels, label_dimensions, num_batches_train, num_batches_val = load_data(run_options.NN_type, run_options.dataset, hyper_p.batch_size, run_options.random_seed)  
-    
+    obs_indices, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, data_input_shape, parameter_dimension, num_batches_train, num_batches_val = load_thermal_fin_data(run_options, run_options.num_training_data, hyper_p.batch_size, run_options.random_seed) 
+    output_dimensions = len(obs_indices)
+        
     #=== Neural network ===#
     if run_options.use_L1 == 0:
         kernel_regularizer = None
@@ -109,12 +140,12 @@ def trainer(hyper_p, run_options):
     else:
         kernel_regularizer = tf.keras.regularizers.l1(hyper_p.regularization)
         bias_regularizer = tf.keras.regularizers.l1(hyper_p.regularization)
-    NN = FCLayerwise(hyper_p, run_options, data_input_shape, label_dimensions,
-                      kernel_regularizer, bias_regularizer,
-                      run_options.NN_savefile_directory)    
+    NN = FCLayerwise(hyper_p, run_options, data_input_shape, output_dimensions,
+                     kernel_regularizer, bias_regularizer,
+                     run_options.NN_savefile_directory)    
     
     #=== Training ===#
-    optimize(hyper_p, run_options, NN, data_loss_classification, accuracy_classification, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
+    optimize(hyper_p, run_options, NN, data_loss_regression, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, output_dimensions, num_batches_train)
     
 ###############################################################################
 #                                 Driver                                      #

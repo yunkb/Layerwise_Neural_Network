@@ -7,6 +7,7 @@ Created on Mon Oct 28 14:13:20 2019
 """
 from Utilities.get_data import load_data
 from Utilities.NN_CNN_layerwise import CNNLayerwise
+from Utilities.loss_and_accuracies import data_loss_classification, accuracy_classification
 from Utilities.optimize_ADMM_layerwise import optimize_ADMM
 
 from decimal import Decimal # for filenames
@@ -96,7 +97,7 @@ def trainer(hyper_p, run_options):
                       run_options.NN_savefile_directory)    
     
     #=== Training ===#
-    optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
+    optimize_ADMM(hyper_p, run_options, NN, data_loss_classification, accuracy_classification, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
     
 ###############################################################################
 #                                 Driver                                      #

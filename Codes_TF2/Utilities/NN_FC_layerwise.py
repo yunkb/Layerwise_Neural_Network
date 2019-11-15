@@ -13,7 +13,7 @@ import pandas as pd
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class FCLayerwise(tf.keras.Model):
-    def __init__(self, hyper_p, run_options, data_input_shape, label_dimensions, num_channels, kernel_regularizer, bias_regularizer, savefilepath):
+    def __init__(self, hyper_p, run_options, data_input_shape, output_dimensions, kernel_regularizer, bias_regularizer, savefilepath):
         super(FCLayerwise, self).__init__()
 ###############################################################################
 #                  Construct Initial Neural Network Architecture               #
@@ -30,7 +30,7 @@ class FCLayerwise(tf.keras.Model):
         self.architecture.append(self.data_input_shape[0]) # input information
         self.architecture.append(self.num_hidden_nodes) # Upsampling data
         self.architecture.append(self.num_hidden_nodes) # First hidden layer
-        self.architecture.append(label_dimensions) # classification_layer
+        self.architecture.append(output_dimensions) # classification_layer
         print(self.architecture)
 
         #=== Weights and Biases Initializer ===#
@@ -56,7 +56,7 @@ class FCLayerwise(tf.keras.Model):
         
         #=== Classification Layer ===#
         l = 3
-        self.classification_layer = Dense(units = label_dimensions,
+        self.classification_layer = Dense(units = output_dimensions,
                                           activation = 'linear', use_bias = True,
                                           kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
                                           kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
