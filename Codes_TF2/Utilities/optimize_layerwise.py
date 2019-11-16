@@ -96,6 +96,7 @@ def optimize(hyper_p, run_options, NN, data_loss, accuracy, data_and_labels_trai
                     #=== Display Model Summary ===#
                     if batch_num == 0 and epoch == 0:
                         NN.summary()
+                        pdb.set_trace()
                     loss_train_batch = data_loss(output, labels_train, label_dimensions)
                     loss_train_batch += sum(NN.losses)
                     gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
@@ -182,6 +183,8 @@ def optimize(hyper_p, run_options, NN, data_loss, accuracy, data_and_labels_trai
             df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)
        
         #=== Add Layer ===#
+        trainable_hidden_layer_index += 1
+        NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
         trainable_hidden_layer_index += 1
         NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
             
