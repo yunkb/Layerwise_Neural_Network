@@ -39,7 +39,7 @@ import sys
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    data_type         = 'bnd'
+    data_type         = 'full'
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     num_hidden_nodes  = 500
     regularization    = 0.001
@@ -55,8 +55,8 @@ class RunOptions:
         self.use_L1 = 1
         
         #=== Data Set ===#
-        data_thermal_fin_nine = 1
-        data_thermal_fin_vary = 0
+        data_thermal_fin_nine = 0
+        data_thermal_fin_vary = 1
         self.num_training_data = 50000
         self.num_testing_data = 200
         
