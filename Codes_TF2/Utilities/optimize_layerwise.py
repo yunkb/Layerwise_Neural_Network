@@ -184,8 +184,6 @@ def optimize(hyper_p, run_options, NN, data_loss, accuracy, data_and_labels_trai
         #=== Add Layer ===#
         trainable_hidden_layer_index += 1
         NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
-        trainable_hidden_layer_index += 1
-        NN.add_layer(trainable_hidden_layer_index, freeze=True, add = True)
             
         #=== Preparing for Next Training Cycle ===#
         storage_loss_array = []

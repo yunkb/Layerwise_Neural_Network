@@ -108,7 +108,7 @@ class CNNLayerwise(tf.keras.Model):
             self.hidden_layers_list.append(conv_layer)
         if freeze:
             self.upsampling_layer.trainable = False
-            for index in range(0, trainable_hidden_layer_index-3):
+            for index in range(0, trainable_hidden_layer_index-2):
               self.hidden_layers_list[index].trainable = False
         else:
             self.upsampling_layer.trainable = True
