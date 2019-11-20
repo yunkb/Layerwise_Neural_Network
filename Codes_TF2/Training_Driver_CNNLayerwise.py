@@ -114,7 +114,7 @@ def trainer(hyper_p, run_options):
                       run_options.NN_savefile_directory)    
     
     #=== Training ===#
-    optimize(hyper_p, run_options, NN,  data_loss_classification, accuracy_classification, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
+    optimize(hyper_p, run_options, NN, data_loss_classification, accuracy_classification, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
     
 ###############################################################################
 #                                 Driver                                      #

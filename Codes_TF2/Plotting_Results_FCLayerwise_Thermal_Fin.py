@@ -17,15 +17,15 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    data_type         = 'bnd'
+    data_type         = 'full'
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
-    num_hidden_nodes  = 10
-    regularization    = 0.001
+    num_hidden_nodes  = 500
+    regularization    = 0.0002
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
-    num_epochs        = 2
-    gpu               = '0'
+    num_epochs        = 30
+    gpu               = '1'
     
 class RunOptions:
     def __init__(self, hyper_p):    
@@ -35,8 +35,14 @@ class RunOptions:
         #=== Data Set ===#
         data_thermal_fin_nine = 0
         data_thermal_fin_vary = 1
-        self.num_training_data = 200
+        
+        #=== Data Set Size ===#
+        self.num_training_data = 50000
         self.num_testing_data = 200
+        
+        #=== Data Dimensions ===#
+        self.fin_dimensions_2D = 0
+        self.fin_dimensions_3D = 1
         
         #=== Data Dimensions ===#
         self.fin_dimensions_2D = 1
@@ -82,8 +88,11 @@ class RunOptions:
         if self.use_L1 == 0:
             self.filename = self.dataset + '_' + hyper_p.data_type + fin_dimension + '_' + self.NN_type + '_mhl%d_hl%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.num_hidden_nodes, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
         else:
-            self.filename = self.dataset + '_' + self.NN_type + '_L1_mhl%d_hl%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.num_hidden_nodes, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+            self.filename = self.dataset + '_' + hyper_p.data_type + fin_dimension + '_' + self.NN_type + '_L1_mhl%d_hl%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.num_hidden_nodes, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
+###############################################################################
+#                                 File Paths                                  #
+###############################################################################                     
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the saved parameters

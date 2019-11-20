@@ -55,10 +55,16 @@ class RunOptions:
         self.use_L1 = 0
         
         #=== Data Set ===#
-        data_thermal_fin_nine = 1
-        data_thermal_fin_vary = 0
+        data_thermal_fin_nine = 0
+        data_thermal_fin_vary = 1
+        
+        #=== Data Set Size ===#
         self.num_training_data = 50000
         self.num_testing_data = 200
+        
+        #=== Data Dimensions ===#
+        self.fin_dimensions_2D = 0
+        self.fin_dimensions_3D = 1
         
         #=== Data Dimensions ===#
         self.fin_dimensions_2D = 1
@@ -106,7 +112,7 @@ class RunOptions:
         if self.use_L1 == 0:
             self.filename = self.dataset + '_' + hyper_p.data_type + fin_dimension + '_' + self.NN_type + '_mhl%d_hl%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.num_hidden_nodes, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
         else:
-            self.filename = self.dataset + '_' + self.NN_type + '_L1_mhl%d_hl%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.num_hidden_nodes, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+            self.filename = self.dataset + '_' + hyper_p.data_type + fin_dimension + '_' + self.NN_type + '_L1_mhl%d_hl%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.num_hidden_nodes, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
 
 ###############################################################################
 #                                 File Paths                                  #
