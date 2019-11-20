@@ -44,10 +44,6 @@ class RunOptions:
         self.fin_dimensions_2D = 0
         self.fin_dimensions_3D = 1
         
-        #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 1
-        self.fin_dimensions_3D = 0
-        
         #=== Random Seed ===#
         self.random_seed = 1234
 

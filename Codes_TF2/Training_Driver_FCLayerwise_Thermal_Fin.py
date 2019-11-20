@@ -42,17 +42,17 @@ class HyperParameters:
     data_type         = 'full'
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     num_hidden_nodes  = 500
-    regularization    = 0.0002
+    regularization    = 0.001
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
     num_epochs        = 30
-    gpu               = '1'
+    gpu               = '2'
     
 class RunOptions:
     def __init__(self, hyper_p):    
         #=== Use L_1 Regularization ===#
-        self.use_L1 = 0
+        self.use_L1 = 1
         
         #=== Data Set ===#
         data_thermal_fin_nine = 0
@@ -65,10 +65,6 @@ class RunOptions:
         #=== Data Dimensions ===#
         self.fin_dimensions_2D = 0
         self.fin_dimensions_3D = 1
-        
-        #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 1
-        self.fin_dimensions_3D = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
