@@ -33,7 +33,7 @@ def plot_and_save_figures(hyper_p, run_options):
         plt.plot(x_axis, np.log(storage_loss_array), label = 'hl' + str(l), marker = marker_list[l-2])
         
     #=== Figure Properties ===#   
-    plt.title('Training Log-Loss on MNIST')
+    plt.title('Training Log-Loss')
     #plt.title(run_options.filename)
     plt.xlabel('Epochs')
     plt.ylabel('Log-Loss')
@@ -59,7 +59,7 @@ def plot_and_save_figures(hyper_p, run_options):
         plt.plot(x_axis, storage_accuracy_array, label = 'hl' + str(l), marker = marker_list[l-2])
         
     #=== Figure Properties ===#   
-    plt.title('Testing Accuracy on MNIST')
+    plt.title('Testing Accuracy')
     #plt.title(run_options.filename)
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
