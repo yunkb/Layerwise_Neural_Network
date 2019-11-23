@@ -16,6 +16,17 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
+class Hyperparameters:
+    max_hidden_layers = 3 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
+    filter_size       = 3
+    num_filters       = 12
+    activation        = 'elu'
+    regularization    = 0.001
+    node_TOL          = 1e-4
+    error_TOL         = 1e-4
+    batch_size        = 1000
+    num_epochs        = 3
+
 class RunOptions:
     def __init__(self):            
         #=== Use L_1 Regularization ===#
