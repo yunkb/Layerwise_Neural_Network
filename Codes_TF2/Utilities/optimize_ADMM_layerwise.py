@@ -32,7 +32,7 @@ def accuracy(y_pred,y_true):
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train):
+def optimize_ADMM(hyper_p, run_options, NN, data_loss, accuracy, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train):
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
     reset_optimizer = tf.group([v.initializer for v in optimizer.variables()])
@@ -50,10 +50,14 @@ def optimize_ADMM(hyper_p, run_options, NN, data_and_labels_train, data_and_labe
     storage_loss_array = np.array([])
     storage_accuracy_array = np.array([])
     
+    #=== Creating Directory for Trained Neural Network ===#
+    if not os.path.exists(run_options.NN_savefile_directory):
+        os.makedirs(run_options.NN_savefile_directory)
+    
     #=== Tensorboard ===# Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
-    if os.path.exists('../Tensorboard/' + run_options.filename): # Remove existing directory because Tensorboard graphs mess up of you write over it
-        shutil.rmtree('../Tensorboard/' + run_options.filename)  
-    summary_writer = tf.summary.create_file_writer('../Tensorboard/' + run_options.filename)
+    if os.path.exists(run_options.tensorboard_directory): # Remove existing directory because Tensorboard graphs mess up of you write over it
+        shutil.rmtree(run_options.tensorboard_directory)  
+    summary_writer = tf.summary.create_file_writer(run_options.tensorboard_directory)
 
 ###############################################################################
 #                             Train Neural Network                            #

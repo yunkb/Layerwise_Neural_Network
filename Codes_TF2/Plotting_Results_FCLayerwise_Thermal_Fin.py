@@ -16,7 +16,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
-class HyperParameters:
+class Hyperparameters:
     data_type         = 'full'
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     num_hidden_nodes  = 50
@@ -28,7 +28,7 @@ class HyperParameters:
     gpu               = '1'
     
 class RunOptions:
-    def __init__(self, hyper_p):    
+    def __init__(self, hyperp):    
         #=== Use L_1 Regularization ===#
         self.use_L1 = 1
         
@@ -70,21 +70,21 @@ class RunOptions:
             fin_dimension = ''
         if self.fin_dimensions_3D == 1:
             fin_dimension = '_3D'
-        if hyper_p.regularization >= 1:
-            hyper_p.regularization = int(hyper_p.regularization)
-            regularization_string = str(hyper_p.regularization)
+        if hyperp.regularization >= 1:
+            hyperp.regularization = int(hyperp.regularization)
+            regularization_string = str(hyperp.regularization)
         else:
-            regularization_string = str(hyper_p.regularization)
+            regularization_string = str(hyperp.regularization)
             regularization_string = 'pt' + regularization_string[2:]                        
-        node_TOL_string = str('%.2e' %Decimal(hyper_p.node_TOL))
+        node_TOL_string = str('%.2e' %Decimal(hyperp.node_TOL))
         node_TOL_string = node_TOL_string[-1]
-        error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
+        error_TOL_string = str('%.2e' %Decimal(hyperp.error_TOL))
         error_TOL_string = error_TOL_string[-1]
                 
         if self.use_L1 == 0:
-            self.filename = self.dataset + '_' + hyper_p.data_type + fin_dimension + '_' + self.NN_type + '_mhl%d_hl%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.num_hidden_nodes, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_mhl%d_hl%d_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
         else:
-            self.filename = self.dataset + '_' + hyper_p.data_type + fin_dimension + '_' + self.NN_type + '_L1_mhl%d_hl%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.num_hidden_nodes, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_L1_mhl%d_hl%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, regularization_string, node_TOL_string, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
 
 ###############################################################################
 #                                 File Paths                                  #
@@ -106,22 +106,22 @@ class RunOptions:
 if __name__ == "__main__":
     
     #=== Hyperparameters ===#    
-    hyper_p = HyperParameters()
+    hyperp = Hyperparameters()
     
     if len(sys.argv) > 1:
-        hyper_p.max_hidden_layers = int(sys.argv[1])
-        hyper_p.filter_size       = int(sys.argv[2])
-        hyper_p.num_filters       = int(sys.argv[3])
-        hyper_p.regularization    = float(sys.argv[4])
-        hyper_p.reg_schedule      = float(sys.argv[5])
-        hyper_p.node_TOL          = float(sys.argv[6])
-        hyper_p.error_TOL         = float(sys.argv[7])
-        hyper_p.batch_size        = int(sys.argv[8])
-        hyper_p.num_epochs        = int(sys.argv[9])
-        hyper_p.gpu               = int(sys.argv[10])
+        hyperp.max_hidden_layers = int(sys.argv[1])
+        hyperp.filter_size       = int(sys.argv[2])
+        hyperp.num_filters       = int(sys.argv[3])
+        hyperp.regularization    = float(sys.argv[4])
+        hyperp.reg_schedule      = float(sys.argv[5])
+        hyperp.node_TOL          = float(sys.argv[6])
+        hyperp.error_TOL         = float(sys.argv[7])
+        hyperp.batch_size        = int(sys.argv[8])
+        hyperp.num_epochs        = int(sys.argv[9])
+        hyperp.gpu               = int(sys.argv[10])
             
     #=== Set run options ===#         
-    run_options = RunOptions(hyper_p)
+    run_options = RunOptions(hyperp)
     
     #=== Plot and save figures ===#
-    plot_and_save_figures(hyper_p, run_options)
+    plot_and_save_figures(hyperp, run_options)

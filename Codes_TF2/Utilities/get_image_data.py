@@ -6,8 +6,7 @@ Created on Mon Oct 28 19:46:02 2019
 @author: hwan
 """
 import tensorflow as tf
-from tensorflow.keras import datasets, utils
-import numpy as np
+from tensorflow.keras import datasets
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -51,16 +50,5 @@ def load_data(NN_type, dataset, batch_size, random_seed):
         num_channels = data_train.shape[-1]
     else:
         num_channels = None
-    
-    #=== Shuffling Data ===#
-    data_and_labels_train_full = tf.data.Dataset.from_tensor_slices((data_train, labels_train)).shuffle(8192, seed=random_seed)
-    data_and_labels_test = tf.data.Dataset.from_tensor_slices((data_test, labels_test)).shuffle(8192, seed=random_seed).batch(batch_size)
-    
-    #=== Partitioning Out Validation Set and Constructing Batches ===#
-    num_training_data = int(0.8 * len(data_train))
-    data_and_labels_train = data_and_labels_train_full.take(num_training_data).batch(batch_size)
-    data_and_labels_val = data_and_labels_train_full.skip(num_training_data).batch(batch_size)    
-    num_batches_train = len(list(data_and_labels_train))
-    num_batches_val = len(list(data_and_labels_train))
 
-    return data_and_labels_train, data_and_labels_test, data_and_labels_val, data_input_shape, num_channels, label_dimensions, num_batches_train, num_batches_val
+    return data_train, labels_train, data_test, labels_test, data_input_shape, num_channels, label_dimensions

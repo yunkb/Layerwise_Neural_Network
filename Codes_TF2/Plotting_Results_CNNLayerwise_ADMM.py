@@ -16,7 +16,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
-class HyperParameters:
+class Hyperparameters:
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     filter_size       = 3
     num_filters       = 128
@@ -29,7 +29,7 @@ class HyperParameters:
     gpu               = '3'
     
 class RunOptions:
-    def __init__(self, hyper_p):        
+    def __init__(self, hyperp):        
         #=== Choose Data Set ===#
         data_MNIST = 1
         data_CIFAR10 = 0
@@ -52,24 +52,24 @@ class RunOptions:
             self.dataset = 'CIFAR10'
         if data_CIFAR100 == 1:
             self.dataset = 'CIFAR100'
-        if hyper_p.regularization >= 1:
-            hyper_p.regularization = int(hyper_p.regularization)
-            regularization_string = str(hyper_p.regularization)
+        if hyperp.regularization >= 1:
+            hyperp.regularization = int(hyperp.regularization)
+            regularization_string = str(hyperp.regularization)
         else:
-            regularization_string = str(hyper_p.regularization)
+            regularization_string = str(hyperp.regularization)
             regularization_string = 'pt' + regularization_string[2:]            
-        if hyper_p.penalty >= 1:
-            hyper_p.penalty = int(hyper_p.penalty)
-            penalty_string = str(hyper_p.penalty)
+        if hyperp.penalty >= 1:
+            hyperp.penalty = int(hyperp.penalty)
+            penalty_string = str(hyperp.penalty)
         else:
-            penalty_string = str(hyper_p.penalty)
+            penalty_string = str(hyperp.penalty)
             penalty_string = 'pt' + penalty_string[2:]            
-        node_TOL_string = str('%.2e' %Decimal(hyper_p.node_TOL))
+        node_TOL_string = str('%.2e' %Decimal(hyperp.node_TOL))
         node_TOL_string = node_TOL_string[-1]
-        error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
+        error_TOL_string = str('%.2e' %Decimal(hyperp.error_TOL))
         error_TOL_string = error_TOL_string[-1]
         
-        self.filename = self.dataset + '_' + self.NN_type + '_ADMM_mhl%d_fs%d_nf%d_r%s_p%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, regularization_string, penalty_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = self.dataset + '_' + self.NN_type + '_ADMM_mhl%d_fs%d_nf%d_r%s_p%s_nTOL%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.filter_size, hyperp.num_filters, regularization_string, penalty_string, node_TOL_string, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
 
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
@@ -90,24 +90,24 @@ class RunOptions:
 if __name__ == "__main__":
     
     #=== Hyperparameters ===#    
-    hyper_p = HyperParameters()
+    hyperp = Hyperparameters()
     
     if len(sys.argv) > 1:
-        hyper_p.max_hidden_layers = int(sys.argv[1])
-        hyper_p.filter_size       = int(sys.argv[2])
-        hyper_p.num_filters       = int(sys.argv[3])
-        hyper_p.regularization    = float(sys.argv[4])
-        hyper_p.penalty           = float(sys.argv[5])
-        hyper_p.node_TOL          = float(sys.argv[6])
-        hyper_p.error_TOL         = float(sys.argv[7])
-        hyper_p.batch_size        = int(sys.argv[8])
-        hyper_p.num_epochs        = int(sys.argv[9])
-        hyper_p.gpu               = int(sys.argv[10])
+        hyperp.max_hidden_layers = int(sys.argv[1])
+        hyperp.filter_size       = int(sys.argv[2])
+        hyperp.num_filters       = int(sys.argv[3])
+        hyperp.regularization    = float(sys.argv[4])
+        hyperp.penalty           = float(sys.argv[5])
+        hyperp.node_TOL          = float(sys.argv[6])
+        hyperp.error_TOL         = float(sys.argv[7])
+        hyperp.batch_size        = int(sys.argv[8])
+        hyperp.num_epochs        = int(sys.argv[9])
+        hyperp.gpu               = int(sys.argv[10])
             
     #=== Set run options ===#         
-    run_options = RunOptions(hyper_p)
+    run_options = RunOptions(hyperp)
     
     #=== Plot and save figures ===#
-    plot_and_save_figures(hyper_p, run_options)
+    plot_and_save_figures(hyperp, run_options)
 
 

@@ -7,7 +7,8 @@ Created on Mon Oct 28 14:13:20 2019
 """
 import tensorflow as tf
 
-from Utilities.get_data import load_data
+from Utilities.get_image_data import load_data
+from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_CNN_layerwise import CNNLayerwise
 from Utilities.loss_and_accuracies import data_loss_classification, accuracy_classification
 from Utilities.optimize_layerwise import optimize
@@ -22,7 +23,7 @@ import sys
 ###############################################################################
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
-class HyperParameters:
+class Hyperparameters:
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     filter_size       = 3
     num_filters       = 128
@@ -34,14 +35,14 @@ class HyperParameters:
     gpu               = '2'
     
 class RunOptions:
-    def __init__(self, hyper_p):        
+    def __init__(self, hyperp):        
         #=== Use L_1 Regularization ===#
         self.use_L1 = 1
         self.use_L2 = 0
         
         #=== Choose Data Set ===#
-        data_MNIST = 0
-        data_CIFAR10 = 1
+        data_MNIST = 1
+        data_CIFAR10 = 0
         data_CIFAR100 = 0
         
         #=== Random Seed ===#
@@ -64,57 +65,55 @@ class RunOptions:
         if self.use_L2 == 1:
             reg_string = '_L2'
             
-        if hyper_p.regularization >= 1:
-            regularization_string = str(hyper_p.regularization)
+        if hyperp.regularization >= 1:
+            regularization_string = str(hyperp.regularization)
         else:
-            regularization_string = str(hyper_p.regularization)
+            regularization_string = str(hyperp.regularization)
             regularization_string = 'pt' + regularization_string[2:]    
                     
-        node_TOL_string = str('%.2e' %Decimal(hyper_p.node_TOL))
+        node_TOL_string = str('%.2e' %Decimal(hyperp.node_TOL))
         node_TOL_string = node_TOL_string[-1]
-        error_TOL_string = str('%.2e' %Decimal(hyper_p.error_TOL))
+        error_TOL_string = str('%.2e' %Decimal(hyperp.error_TOL))
         error_TOL_string = error_TOL_string[-1]
         
         if self.use_L1 == 0 and self.use_L2 == 0:
-            self.filename = self.dataset + '_' + self.NN_type + '_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+            self.filename = self.dataset + '_' + self.NN_type + '_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.filter_size, hyperp.num_filters, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
         else:
-            self.filename = self.dataset + '_' + self.NN_type + reg_string + '_mhl%d_fs%d_nf%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyper_p.max_hidden_layers, hyper_p.filter_size, hyper_p.num_filters, regularization_string, node_TOL_string, error_TOL_string, hyper_p.batch_size, hyper_p.num_epochs)
+            self.filename = self.dataset + '_' + self.NN_type + reg_string + '_mhl%d_fs%d_nf%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.filter_size, hyperp.num_filters, regularization_string, node_TOL_string, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
 
-        #=== Saving neural network ===#
-        self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
-        self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the saved parameters
-
-        #=== Creating Directories ===#
-        if not os.path.exists(self.NN_savefile_directory):
-            os.makedirs(self.NN_savefile_directory)
+        #=== Saving Trained Neural Network and Tensorboard ===#
+        self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
+        self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
+        self.tensorboard_directory = '../Tensorboard/' + self.filename
 
 ###############################################################################
 #                                 Training                                    #
 ###############################################################################
-def trainer(hyper_p, run_options):
+def trainer(hyperp, run_options):
     #=== GPU Settings ===#
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-    os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = hyperp.gpu
     
     #=== Load Train and Test Data ===#  
-    data_and_labels_train, data_and_labels_test, data_and_labels_val, data_input_shape, num_channels, label_dimensions, num_batches_train, num_batches_val = load_data(run_options.NN_type, run_options.dataset, hyper_p.batch_size, run_options.random_seed)  
+    data_train, labels_train, data_test, labels_test, data_input_shape, num_channels, label_dimensions = load_data(run_options.NN_type, run_options.dataset, hyperp.batch_size, run_options.random_seed) 
+    data_and_labels_train, data_and_labels_test, data_and_labels_val, num_training_data, num_batches_train, num_batches_val = form_train_val_test_batches(len(data_train), data_train, labels_train, data_test, labels_test, hyperp.batch_size, run_options.random_seed)
     
     #=== Neural network ===#
     if run_options.use_L1 == 0 and run_options.use_L2 == 0:
         kernel_regularizer = None
         bias_regularizer = None  
     if run_options.use_L1 == 1:
-        kernel_regularizer = tf.keras.regularizers.l1(hyper_p.regularization)
-        bias_regularizer = tf.keras.regularizers.l1(hyper_p.regularization)
+        kernel_regularizer = tf.keras.regularizers.l1(hyperp.regularization)
+        bias_regularizer = tf.keras.regularizers.l1(hyperp.regularization)
     if run_options.use_L2 == 1:
-        kernel_regularizer = tf.keras.regularizers.l2(hyper_p.regularization)
-        bias_regularizer = tf.keras.regularizers.l2(hyper_p.regularization)
-    NN = CNNLayerwise(hyper_p, run_options, data_input_shape, label_dimensions, num_channels,
+        kernel_regularizer = tf.keras.regularizers.l2(hyperp.regularization)
+        bias_regularizer = tf.keras.regularizers.l2(hyperp.regularization)
+    NN = CNNLayerwise(hyperp, run_options, data_input_shape, label_dimensions, num_channels,
                       kernel_regularizer, bias_regularizer,
                       run_options.NN_savefile_directory)    
     
     #=== Training ===#
-    optimize(hyper_p, run_options, NN, data_loss_classification, accuracy_classification, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
+    optimize(hyperp, run_options, NN, data_loss_classification, accuracy_classification, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
     
 ###############################################################################
 #                                 Driver                                      #
@@ -122,22 +121,22 @@ def trainer(hyper_p, run_options):
 if __name__ == "__main__":     
 
     #=== Hyperparameters ===#    
-    hyper_p = HyperParameters()
+    hyperp = Hyperparameters()
     
     if len(sys.argv) > 1:
-        hyper_p.max_hidden_layers = int(sys.argv[1])
-        hyper_p.filter_size       = int(sys.argv[2])
-        hyper_p.num_filters       = int(sys.argv[3])
-        hyper_p.regularization    = float(sys.argv[4])
-        hyper_p.reg_schedule      = float(sys.argv[5])
-        hyper_p.node_TOL          = float(sys.argv[6])
-        hyper_p.error_TOL         = float(sys.argv[7])
-        hyper_p.batch_size        = int(sys.argv[8])
-        hyper_p.num_epochs        = int(sys.argv[9])
-        hyper_p.gpu               = str(sys.argv[10])
+        hyperp.max_hidden_layers = int(sys.argv[1])
+        hyperp.filter_size       = int(sys.argv[2])
+        hyperp.num_filters       = int(sys.argv[3])
+        hyperp.regularization    = float(sys.argv[4])
+        hyperp.reg_schedule      = float(sys.argv[5])
+        hyperp.node_TOL          = float(sys.argv[6])
+        hyperp.error_TOL         = float(sys.argv[7])
+        hyperp.batch_size        = int(sys.argv[8])
+        hyperp.num_epochs        = int(sys.argv[9])
+        hyperp.gpu               = str(sys.argv[10])
             
     #=== Set run options ===#         
-    run_options = RunOptions(hyper_p)
+    run_options = RunOptions(hyperp)
     
     #=== Initiate training ===#
-    trainer(hyper_p, run_options) 
+    trainer(hyperp, run_options) 

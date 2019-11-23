@@ -13,7 +13,7 @@ import pandas as pd
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class CNNLayerwise(tf.keras.Model):
-    def __init__(self, hyper_p, run_options, data_input_shape, label_dimensions, num_channels, kernel_regularizer, bias_regularizer, savefilepath):
+    def __init__(self, hyperp, run_options, data_input_shape, label_dimensions, num_channels, kernel_regularizer, bias_regularizer, savefilepath):
         super(CNNLayerwise, self).__init__()
 ###############################################################################
 #                  Construct Initial Neural Network Architecture               #
@@ -21,8 +21,8 @@ class CNNLayerwise(tf.keras.Model):
         #=== Defining Attributes ===#
         self.data_input_shape = data_input_shape
         self.architecture = [] # storage for layer information, each entry is [filter_size, num_filters]
-        self.num_filters = hyper_p.num_filters
-        self.kernel_size = hyper_p.filter_size
+        self.num_filters = hyperp.num_filters
+        self.kernel_size = hyperp.filter_size
         self.kernel_regularizer = kernel_regularizer
         self.bias_regularizer = bias_regularizer
         self.hidden_layers_list = [] # This will be a list of Keras layers
@@ -30,7 +30,7 @@ class CNNLayerwise(tf.keras.Model):
         #=== Define Initial Architecture and Create Layer Storage ===#
         self.architecture.append([self.data_input_shape[0], num_channels]) # input information
         self.architecture.append([1, self.num_filters]) # 1x1 convolutional layer for upsampling data
-        self.architecture.append([hyper_p.filter_size, self.num_filters]) # First hidden layer
+        self.architecture.append([hyperp.filter_size, self.num_filters]) # First hidden layer
         self.architecture.append([1, num_channels]) # 1x1 convolutional layer for downsampling features
         self.architecture.append(label_dimensions) # fully-connected output layer
         print(self.architecture)

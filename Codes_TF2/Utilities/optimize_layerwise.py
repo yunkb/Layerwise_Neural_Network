@@ -18,7 +18,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyper_p, run_options, NN, data_loss, accuracy, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train):
+def optimize(hyperp, run_options, NN, data_loss, accuracy, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train):
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
     reset_optimizer = tf.group([v.initializer for v in optimizer.variables()])
@@ -32,6 +32,10 @@ def optimize(hyper_p, run_options, NN, data_loss, accuracy, data_and_labels_trai
     accuracy_test_batch_average = tf.keras.metrics.Mean()
     storage_loss_array = np.array([])
     storage_accuracy_array = np.array([])
+    
+    #=== Creating Directory for Trained Neural Network ===#
+    if not os.path.exists(run_options.NN_savefile_directory):
+        os.makedirs(run_options.NN_savefile_directory)
     
     #=== Tensorboard ===# Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
     if os.path.exists('../Tensorboard/' + run_options.filename): # Remove existing directory because Tensorboard graphs mess up of you write over it
@@ -51,7 +55,7 @@ def optimize(hyper_p, run_options, NN, data_loss, accuracy, data_and_labels_trai
     #####################################
     #   Training Current Architecture   #
     #####################################
-    while loss_validation > hyper_p.error_TOL and trainable_hidden_layer_index < hyper_p.max_hidden_layers:    
+    while loss_validation > hyperp.error_TOL and trainable_hidden_layer_index < hyperp.max_hidden_layers:    
         #=== Initial Loss and Accuracy ===#
         for batch_num, (data_train, labels_train) in data_and_labels_train.enumerate():
             output = NN(data_train)
@@ -80,14 +84,14 @@ def optimize(hyper_p, run_options, NN, data_loss, accuracy, data_and_labels_trai
         
         #=== Begin Training ===#
         print('Beginning Training')
-        for epoch in range(hyper_p.num_epochs):
+        for epoch in range(hyperp.num_epochs):
             print('================================')
             print('            Epoch %d            ' %(epoch))
             print('================================')
             print(run_options.filename)
             print('Trainable Hidden Layer Index: %d' %(trainable_hidden_layer_index))
-            print('GPU: ' + hyper_p.gpu + '\n')
-            print('Optimizing %d batches of size %d:' %(num_batches_train, hyper_p.batch_size))
+            print('GPU: ' + hyperp.gpu + '\n')
+            print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
             start_time_epoch = time.time()
             for batch_num, (data_train, labels_train) in data_and_labels_train.enumerate():
                 with tf.GradientTape() as tape:
@@ -171,7 +175,7 @@ def optimize(hyper_p, run_options, NN, data_loss, accuracy, data_and_labels_trai
         
         #=== Sparsify Weights of Trained Layer ===#
         if run_options.use_L1 == 1:
-            relative_number_zeros = NN.sparsify_weights_and_get_relative_number_of_zeros(hyper_p.node_TOL)
+            relative_number_zeros = NN.sparsify_weights_and_get_relative_number_of_zeros(hyperp.node_TOL)
             print('Relative Number of Zeros for Last Layer: %d\n' %(relative_number_zeros))
             storage_relative_number_zeros_array = np.append(storage_relative_number_zeros_array, relative_number_zeros)
         

@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 plt.ioff() # Turn interactive plotting off
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def plot_and_save_figures(hyper_p, run_options):
+def plot_and_save_figures(hyperp, run_options):
     print('================================')
     print('            Plotting            ')
     print('================================')
@@ -23,8 +23,8 @@ def plot_and_save_figures(hyper_p, run_options):
 ###############################################################################       
     #=== Plot and Save Losses===#
     fig_loss = plt.figure()
-    x_axis = np.linspace(1, hyper_p.num_epochs-1, hyper_p.num_epochs-1, endpoint = True)
-    for l in range(first_trainable_hidden_layer_index, hyper_p.max_hidden_layers):
+    x_axis = np.linspace(1, hyperp.num_epochs-1, hyperp.num_epochs-1, endpoint = True)
+    for l in range(first_trainable_hidden_layer_index, hyperp.max_hidden_layers):
         #=== Load Metrics and Plot ===#
         print('Loading Metrics for Hidden Layer %d' %(l))
         df_metrics = pd.read_csv(run_options.NN_savefile_name + "_metrics_hl" + str(l) + '.csv')
@@ -49,8 +49,8 @@ def plot_and_save_figures(hyper_p, run_options):
 #                                  Accuracy                                   #
 ###############################################################################
     fig_accuracy = plt.figure()
-    x_axis = np.linspace(1, hyper_p.num_epochs-1, hyper_p.num_epochs-1, endpoint = True)
-    for l in range(first_trainable_hidden_layer_index, hyper_p.max_hidden_layers):
+    x_axis = np.linspace(1, hyperp.num_epochs-1, hyperp.num_epochs-1, endpoint = True)
+    for l in range(first_trainable_hidden_layer_index, hyperp.max_hidden_layers):
         #=== Load Metrics and Plot ===#
         print('Loading Metrics for Hidden Layer %d' %(l))
         df_metrics = pd.read_csv(run_options.NN_savefile_name + "_metrics_hl" + str(l) + '.csv')
@@ -87,7 +87,7 @@ def plot_and_save_figures(hyper_p, run_options):
     if rel_zeros_array_exists:
         #=== Figure Properties ===# 
         fig_accuracy = plt.figure()
-        x_axis = np.linspace(2, hyper_p.max_hidden_layers-1, hyper_p.max_hidden_layers-2, endpoint = True)
+        x_axis = np.linspace(2, hyperp.max_hidden_layers-1, hyperp.max_hidden_layers-2, endpoint = True)
         plt.plot(x_axis, rel_zeros_array, label = 'relative # of 0s')
         plt.title(run_options.filename)
         plt.xlabel('Layer Number')

@@ -13,14 +13,14 @@ import pandas as pd
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class FCLayerwise(tf.keras.Model):
-    def __init__(self, hyper_p, run_options, data_input_shape, output_dimensions, kernel_regularizer, bias_regularizer, savefilepath):
+    def __init__(self, hyperp, run_options, data_input_shape, output_dimensions, kernel_regularizer, bias_regularizer, savefilepath):
         super(FCLayerwise, self).__init__()
 ###############################################################################
 #                  Construct Initial Neural Network Architecture               #
 ###############################################################################
         #=== Defining Attributes ===#
         self.data_input_shape = data_input_shape
-        self.num_hidden_nodes = hyper_p.num_hidden_nodes
+        self.num_hidden_nodes = hyperp.num_hidden_nodes
         self.architecture = [] # storage for layer information, each entry is [filter_size, num_filters]
         self.kernel_regularizer = kernel_regularizer
         self.bias_regularizer = bias_regularizer
