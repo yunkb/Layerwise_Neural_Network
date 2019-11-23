@@ -18,7 +18,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, NN, data_loss, accuracy, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train):
+def optimize(hyperp, run_options, file_paths, NN, data_loss, accuracy, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train):
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
     reset_optimizer = tf.group([v.initializer for v in optimizer.variables()])
@@ -34,13 +34,13 @@ def optimize(hyperp, run_options, NN, data_loss, accuracy, data_and_labels_train
     storage_accuracy_array = np.array([])
     
     #=== Creating Directory for Trained Neural Network ===#
-    if not os.path.exists(run_options.NN_savefile_directory):
-        os.makedirs(run_options.NN_savefile_directory)
+    if not os.path.exists(file_paths.NN_savefile_directory):
+        os.makedirs(file_paths.NN_savefile_directory)
     
     #=== Tensorboard ===# Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
-    if os.path.exists('../Tensorboard/' + run_options.filename): # Remove existing directory because Tensorboard graphs mess up of you write over it
-        shutil.rmtree('../Tensorboard/' + run_options.filename)  
-    summary_writer = tf.summary.create_file_writer('../Tensorboard/' + run_options.filename)
+    if os.path.exists('../Tensorboard/' + file_paths.filename): # Remove existing directory because Tensorboard graphs mess up of you write over it
+        shutil.rmtree('../Tensorboard/' + file_paths.filename)  
+    summary_writer = tf.summary.create_file_writer('../Tensorboard/' + file_paths.filename)
 
 ###############################################################################
 #                             Train Neural Network                            #
@@ -88,9 +88,9 @@ def optimize(hyperp, run_options, NN, data_loss, accuracy, data_and_labels_train
             print('================================')
             print('            Epoch %d            ' %(epoch))
             print('================================')
-            print(run_options.filename)
+            print(file_paths.filename)
             print('Trainable Hidden Layer Index: %d' %(trainable_hidden_layer_index))
-            print('GPU: ' + hyperp.gpu + '\n')
+            print('GPU: ' + run_options.which_gpu + '\n')
             print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
             start_time_epoch = time.time()
             for batch_num, (data_train, labels_train) in data_and_labels_train.enumerate():
@@ -171,7 +171,7 @@ def optimize(hyperp, run_options, NN, data_loss, accuracy, data_and_labels_train
         metrics_dict['loss'] = storage_loss_array
         metrics_dict['accuracy'] = storage_accuracy_array
         df_metrics = pd.DataFrame(metrics_dict)
-        df_metrics.to_csv(run_options.NN_savefile_name + "_metrics_hl" + str(trainable_hidden_layer_index) + '.csv', index=False)
+        df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics_hl" + str(trainable_hidden_layer_index) + '.csv', index=False)
         
         #=== Sparsify Weights of Trained Layer ===#
         if run_options.use_L1 == 1:
@@ -183,7 +183,7 @@ def optimize(hyperp, run_options, NN, data_loss, accuracy, data_and_labels_train
             relative_number_zeros_dict = {}
             relative_number_zeros_dict['rel_zeros'] = storage_relative_number_zeros_array
             df_relative_number_zeros = pd.DataFrame(relative_number_zeros_dict)
-            df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)
+            df_relative_number_zeros.to_csv(file_paths.NN_savefile_name + "_relzeros" + '.csv', index=False)
        
         #=== Add Layer ===#
         trainable_hidden_layer_index += 1
@@ -198,7 +198,7 @@ def optimize(hyperp, run_options, NN, data_loss, accuracy, data_and_labels_train
     #   Save Final Model   #
     ########################            
     #=== Saving Trained Model ===#          
-    NN.save_weights(run_options.NN_savefile_name)
+    NN.save_weights(file_paths.NN_savefile_name)
     print('Final Model Saved') 
         
 

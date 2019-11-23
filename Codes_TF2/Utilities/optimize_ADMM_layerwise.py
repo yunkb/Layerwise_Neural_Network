@@ -18,21 +18,9 @@ import time
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
-#                             Loss and Accuracy                               #
-###############################################################################
-def data_loss(y_pred, y_true, label_dimensions):
-    y_true = tf.one_hot(tf.cast(y_true,tf.int64), label_dimensions, dtype=tf.float32)
-    return  tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(y_true,y_pred))
-
-def accuracy(y_pred,y_true):
-    correct = tf.math.in_top_k(tf.cast(tf.squeeze(y_true),tf.int64),tf.cast(y_pred, tf.float32),  1)
-    accuracy = tf.reduce_mean(tf.cast(correct, tf.float32))
-    return accuracy
-
-###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize_ADMM(hyper_p, run_options, NN, data_loss, accuracy, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train):
+def optimize_ADMM(hyper_p, run_options, file_paths, NN, data_loss, accuracy, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train):
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
     reset_optimizer = tf.group([v.initializer for v in optimizer.variables()])
@@ -51,13 +39,13 @@ def optimize_ADMM(hyper_p, run_options, NN, data_loss, accuracy, data_and_labels
     storage_accuracy_array = np.array([])
     
     #=== Creating Directory for Trained Neural Network ===#
-    if not os.path.exists(run_options.NN_savefile_directory):
-        os.makedirs(run_options.NN_savefile_directory)
+    if not os.path.exists(file_paths.NN_savefile_directory):
+        os.makedirs(file_paths.NN_savefile_directory)
     
     #=== Tensorboard ===# Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
-    if os.path.exists(run_options.tensorboard_directory): # Remove existing directory because Tensorboard graphs mess up of you write over it
-        shutil.rmtree(run_options.tensorboard_directory)  
-    summary_writer = tf.summary.create_file_writer(run_options.tensorboard_directory)
+    if os.path.exists(file_paths.tensorboard_directory): # Remove existing directory because Tensorboard graphs mess up of you write over it
+        shutil.rmtree(file_paths.tensorboard_directory)  
+    summary_writer = tf.summary.create_file_writer(file_paths.tensorboard_directory)
 
 ###############################################################################
 #                             Train Neural Network                            #
@@ -109,9 +97,9 @@ def optimize_ADMM(hyper_p, run_options, NN, data_loss, accuracy, data_and_labels
             print('================================')
             print('            Epoch %d            ' %(epoch))
             print('================================')
-            print(run_options.filename)
+            print(file_paths.filename)
             print('Trainable Hidden Layer Index: %d' %(trainable_hidden_layer_index))
-            print('GPU: ' + hyper_p.gpu + '\n')
+            print('GPU: ' + run_options.which_gpu + '\n')
             print('Optimizing %d batches of size %d:' %(num_batches_train, hyper_p.batch_size))
             start_time_epoch = time.time()
             for batch_num, (data_train, labels_train) in data_and_labels_train.enumerate():
@@ -208,7 +196,7 @@ def optimize_ADMM(hyper_p, run_options, NN, data_loss, accuracy, data_and_labels
         metrics_dict['loss'] = storage_loss_array
         metrics_dict['accuracy'] = storage_accuracy_array
         df_metrics = pd.DataFrame(metrics_dict)
-        df_metrics.to_csv(run_options.NN_savefile_name + "_metrics_hl" + str(trainable_hidden_layer_index) + '.csv', index=False)
+        df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics_hl" + str(trainable_hidden_layer_index) + '.csv', index=False)
         
         #=== Sparsify Weights of Trained Layer ===#
         relative_number_zeros = NN.sparsify_weights_and_get_relative_number_of_zeros(hyper_p.node_TOL)
@@ -219,7 +207,7 @@ def optimize_ADMM(hyper_p, run_options, NN, data_loss, accuracy, data_and_labels
         relative_number_zeros_dict = {}
         relative_number_zeros_dict['rel_zeros'] = storage_relative_number_zeros_array
         df_relative_number_zeros = pd.DataFrame(relative_number_zeros_dict)
-        df_relative_number_zeros.to_csv(run_options.NN_savefile_name + "_relzeros" + '.csv', index=False)  
+        df_relative_number_zeros.to_csv(file_paths.NN_savefile_name + "_relzeros" + '.csv', index=False)  
         
         #=== Add Layer ===#
         trainable_hidden_layer_index += 1
@@ -235,7 +223,7 @@ def optimize_ADMM(hyper_p, run_options, NN, data_loss, accuracy, data_and_labels
     #   Save Final Model   #
     ########################  
     #=== Saving Trained Model ===#          
-    NN.save_weights(run_options.NN_savefile_name)
+    NN.save_weights(file_paths.NN_savefile_name)
     print('Final Model Saved') 
         
 

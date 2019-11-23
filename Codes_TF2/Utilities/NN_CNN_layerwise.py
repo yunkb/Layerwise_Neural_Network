@@ -13,7 +13,7 @@ import pandas as pd
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class CNNLayerwise(tf.keras.Model):
-    def __init__(self, hyperp, run_options, data_input_shape, label_dimensions, num_channels, kernel_regularizer, bias_regularizer, savefilepath):
+    def __init__(self, hyperp, run_options, data_input_shape, label_dimensions, num_channels, kernel_regularizer, bias_regularizer):
         super(CNNLayerwise, self).__init__()
 ###############################################################################
 #                  Construct Initial Neural Network Architecture               #
@@ -23,18 +23,19 @@ class CNNLayerwise(tf.keras.Model):
         self.architecture = [] # storage for layer information, each entry is [filter_size, num_filters]
         self.num_filters = hyperp.num_filters
         self.kernel_size = hyperp.filter_size
+        self.activation = hyperp.activation
         self.kernel_regularizer = kernel_regularizer
         self.bias_regularizer = bias_regularizer
         self.hidden_layers_list = [] # This will be a list of Keras layers
 
         #=== Define Initial Architecture and Create Layer Storage ===#
         self.architecture.append([self.data_input_shape[0], num_channels]) # input information
-        self.architecture.append([1, self.num_filters]) # 1x1 convolutional layer for upsampling data
+        self.architecture.append([3, self.num_filters]) # 3x3 convolutional layer for upsampling data
         self.architecture.append([hyperp.filter_size, self.num_filters]) # First hidden layer
-        self.architecture.append([1, num_channels]) # 1x1 convolutional layer for downsampling features
+        self.architecture.append([3, num_channels]) # 3x3 convolutional layer for downsampling features
         self.architecture.append(label_dimensions) # fully-connected output layer
         print(self.architecture)
-
+        
         #=== Weights and Biases Initializer ===#
         kernel_initializer = RandomNormal(mean=0.0, stddev=0.05)
         bias_initializer = 'zeros'
@@ -51,7 +52,7 @@ class CNNLayerwise(tf.keras.Model):
         #=== Define Hidden Layers ===#
         l = 2
         conv_layer = Conv2D(self.architecture[l][1], (self.architecture[l][0], self.architecture[l][0]), padding = 'same', 
-                            activation = 'elu', use_bias = True, 
+                            activation = self.activation, use_bias = True, 
                             input_shape = (None, self.data_input_shape[0], self.data_input_shape[1], self.num_filters),
                             kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
                             kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
@@ -100,7 +101,7 @@ class CNNLayerwise(tf.keras.Model):
         bias_initializer = 'zeros'
         if add:
             conv_layer = Conv2D(self.num_filters, (self.kernel_size, self.kernel_size), padding = 'same',
-                                activation ='elu', use_bias = True,
+                                activation = self.activation, use_bias = True,
                                 input_shape = (None, self.data_input_shape[0], self.data_input_shape[1], self.num_filters),
                                 kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
                                 kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,

@@ -13,7 +13,7 @@ import pandas as pd
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class FCLayerwise(tf.keras.Model):
-    def __init__(self, hyperp, run_options, data_input_shape, output_dimensions, kernel_regularizer, bias_regularizer, savefilepath):
+    def __init__(self, hyperp, run_options, data_input_shape, output_dimensions, kernel_regularizer, bias_regularizer):
         super(FCLayerwise, self).__init__()
 ###############################################################################
 #                  Construct Initial Neural Network Architecture               #
@@ -22,6 +22,7 @@ class FCLayerwise(tf.keras.Model):
         self.data_input_shape = data_input_shape
         self.num_hidden_nodes = hyperp.num_hidden_nodes
         self.architecture = [] # storage for layer information, each entry is [filter_size, num_filters]
+        self.activation = hyperp.activation
         self.kernel_regularizer = kernel_regularizer
         self.bias_regularizer = bias_regularizer
         self.hidden_layers_list = [] # This will be a list of Keras layers
@@ -48,7 +49,7 @@ class FCLayerwise(tf.keras.Model):
         #=== Define Hidden Layers ===#
         l = 2
         dense_layer = Dense(units = self.architecture[l],
-                           activation = 'elu', use_bias = True,
+                           activation = self.activation, use_bias = True,
                            kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
                            kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
                            name = "W" + str(l))
@@ -84,7 +85,7 @@ class FCLayerwise(tf.keras.Model):
         bias_initializer = 'zeros'
         if add:
             dense_layer = Dense(units = self.num_hidden_nodes,
-                                activation = 'elu', use_bias = True,
+                                activation = self.activation, use_bias = True,
                                 kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
                                 kernel_regularizer = self.kernel_regularizer, bias_regularizer = self.bias_regularizer,
                                 name = "W" + str(trainable_hidden_layer_index))
