@@ -113,14 +113,14 @@ def optimize_ADMM(hyper_p, run_options, file_paths, NN, data_loss, accuracy, dat
                     ADMM_penalty = update_ADMM_penalty_terms(hyper_p.penalty, NN.weights, z, lagrange)
                     data_loss_train_batch = data_loss(output, labels_train, label_dimensions) 
                     loss_train_batch = data_loss_train_batch + ADMM_penalty
-                    gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
-                    optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
-                    elapsed_time_batch = time.time() - start_time_batch
-                    if batch_num  == 0:
-                        print('Time per Batch: %.2f' %(elapsed_time_batch))
-                    #=== Update ADMM Objects ===#
-                    if batch_num != 0 and batch_num % 10 == 0 and epoch >= 5: # Warm start and updating before w is fully minimized
-                        z, lagrange = update_z_and_lagrange_multiplier(NN.get_weights(), hyper_p.regularization, hyper_p.penalty, z, lagrange)
+                gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
+                optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
+                elapsed_time_batch = time.time() - start_time_batch
+                if batch_num  == 0:
+                    print('Time per Batch: %.2f' %(elapsed_time_batch))
+                #=== Update ADMM Objects ===#
+                if batch_num != 0 and batch_num % 10 == 0 and epoch >= 5: # Warm start and updating before w is fully minimized
+                    z, lagrange = update_z_and_lagrange_multiplier(NN.get_weights(), hyper_p.regularization, hyper_p.penalty, z, lagrange)
                 data_loss_train_batch_average(data_loss_train_batch)
                 loss_train_batch_average(loss_train_batch) 
                 accuracy_train_batch_average(accuracy(output, labels_train))

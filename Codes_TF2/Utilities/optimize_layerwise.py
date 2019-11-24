@@ -102,11 +102,11 @@ def optimize(hyperp, run_options, file_paths, NN, data_loss, accuracy, data_and_
                         NN.summary()
                     loss_train_batch = data_loss(output, labels_train, label_dimensions)
                     loss_train_batch += sum(NN.losses)
-                    gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
-                    optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
-                    elapsed_time_batch = time.time() - start_time_batch
-                    if batch_num  == 0:
-                        print('Time per Batch: %.2f' %(elapsed_time_batch))
+                gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
+                optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
+                elapsed_time_batch = time.time() - start_time_batch
+                if batch_num  == 0:
+                    print('Time per Batch: %.2f' %(elapsed_time_batch))
                 loss_train_batch_average(loss_train_batch) 
                 accuracy_train_batch_average(accuracy(output, labels_train))
                                         
