@@ -99,7 +99,7 @@ def trainer(hyperp, run_options, file_paths):
     = load_data(file_paths.NN_type, file_paths.dataset, hyperp.batch_size, run_options.random_seed) 
     
     #=== Construct Validation Set and Batches ===# 
-    data_and_labels_train, data_and_labels_test, data_and_labels_val,\
+    data_and_labels_train, data_and_labels_val, data_and_labels_test,\
     num_training_data, num_batches_train, num_batches_val\
     = form_train_val_test_batches(len(data_train), data_train, labels_train, \
                                   data_test, labels_test, \
