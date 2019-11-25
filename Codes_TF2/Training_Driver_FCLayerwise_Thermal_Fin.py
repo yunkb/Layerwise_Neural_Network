@@ -42,7 +42,7 @@ import sys
 class Hyperparameters:
     data_type         = 'full'
     max_hidden_layers = 5 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
-    num_hidden_nodes  = 50
+    num_hidden_nodes  = 500
     activation        = 'elu'
     regularization    = 0.001
     node_TOL          = 1e-4
