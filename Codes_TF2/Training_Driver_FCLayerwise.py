@@ -124,7 +124,7 @@ def trainer(hyperp, run_options, file_paths):
                       kernel_regularizer, bias_regularizer)    
     
     #=== Training ===#
-    optimize(hyperp, run_options, file_paths, NN, data_loss_classification, accuracy_classification, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
+    optimize(hyperp, run_options, file_paths, NN, data_loss_classification, accuracy_classification, data_and_labels_train, data_and_labels_val, data_and_labels_test, label_dimensions, num_batches_train)
     
 ###############################################################################
 #                                 Driver                                      #

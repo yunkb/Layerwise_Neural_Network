@@ -63,8 +63,8 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_training_data = 200
-        self.num_testing_data = 200
+        self.num_data_train = 200
+        self.num_data_test = 200
         
         #=== Data Dimensions ===#
         self.fin_dimensions_2D = 1
@@ -119,10 +119,10 @@ class FilePaths():
 
         #=== Loading and saving data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
-        self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(run_options.num_training_data) + fin_dimension + parameter_type
-        self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(run_options.num_training_data) + fin_dimension + '_' + hyperp.data_type + parameter_type
-        self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(run_options.num_testing_data) + fin_dimension + parameter_type 
-        self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(run_options.num_testing_data) + fin_dimension + '_' + hyperp.data_type + parameter_type
+        self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(run_options.num_data_train) + fin_dimension + parameter_type
+        self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(run_options.num_data_train) + fin_dimension + '_' + hyperp.data_type + parameter_type
+        self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(run_options.num_data_test) + fin_dimension + parameter_type 
+        self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(run_options.num_data_test) + fin_dimension + '_' + hyperp.data_type + parameter_type
 
         #=== Saving Trained Neural Network and Tensorboard ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
@@ -141,13 +141,14 @@ def trainer(hyperp, run_options, file_paths):
     obs_indices, parameter_train, state_obs_train,\
     parameter_test, state_obs_test,\
     data_input_shape, parameter_dimension\
-    = load_thermal_fin_data(file_paths, run_options.num_training_data, run_options.num_testing_data, run_options.parameter_dimensions)    
+    = load_thermal_fin_data(file_paths, run_options.num_data_train, run_options.num_data_test, run_options.parameter_dimensions)    
     output_dimensions = len(obs_indices)
     
     #=== Construct Validation Set and Batches ===#   
     parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
-    num_training_data, num_batches_train, num_batches_val\
-    = form_train_val_test_batches(run_options.num_training_data, parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
+    run_options.num_data_train, num_data_val, run_options.num_data_test,\
+    num_batches_train, num_batches_val, num_batches_test\
+    = form_train_val_test_batches(parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
         
     #=== Neural network ===#
     if run_options.use_L1 == 0:
@@ -160,7 +161,7 @@ def trainer(hyperp, run_options, file_paths):
                      kernel_regularizer, bias_regularizer)    
     
     #=== Training ===#
-    optimize(hyperp, run_options, file_paths, NN, data_loss_regression, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, output_dimensions, num_batches_train)
+    optimize(hyperp, run_options, file_paths, NN, data_loss_regression, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test, output_dimensions, num_batches_train)
     
 ###############################################################################
 #                                 Driver                                      #

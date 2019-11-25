@@ -110,7 +110,7 @@ def trainer(hyperp, run_options, file_paths):
                       None, None)     
     
     #=== Training ===#
-    optimize_ADMM(hyperp, run_options, file_paths, NN, data_loss_classification, accuracy_classification, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train)
+    optimize_ADMM(hyperp, run_options, file_paths, NN, data_loss_classification, accuracy_classification, data_and_labels_train, data_and_labels_val, data_and_labels_test, label_dimensions, num_batches_train)
     
 ###############################################################################
 #                                 Driver                                      #

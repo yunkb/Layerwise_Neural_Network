@@ -20,7 +20,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize_ADMM(hyper_p, run_options, file_paths, NN, data_loss, accuracy, data_and_labels_train, data_and_labels_test, data_and_labels_val, label_dimensions, num_batches_train):
+def optimize_ADMM(hyper_p, run_options, file_paths, NN, data_loss, accuracy, data_and_labels_train, data_and_labels_val, data_and_labels_test, label_dimensions, num_batches_train):
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
     reset_optimizer = tf.group([v.initializer for v in optimizer.variables()])
