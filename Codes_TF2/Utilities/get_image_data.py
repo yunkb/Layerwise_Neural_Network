@@ -10,7 +10,7 @@ from tensorflow.keras import datasets
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def load_data(NN_type, dataset, batch_size, random_seed):
+def load_data(NN_type, dataset, random_seed):
     #=== Load Data ==#
     if dataset == 'MNIST':
         (data_train, labels_train), (data_test, labels_test) = datasets.mnist.load_data()
