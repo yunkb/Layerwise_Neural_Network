@@ -65,24 +65,24 @@ def optimize_ADMM(hyper_p, run_options, file_paths, NN, data_loss, accuracy, dat
         #=== Initial Loss and Accuracy ===#
         for batch_num, (data_train, labels_train) in data_and_labels_train.enumerate():
             output = NN(data_train)
-            data_loss_train_batch = data_loss(output, labels_train, label_dimensions)
+            data_loss_train_batch = tf.reduce_mean(data_loss(output, labels_train, label_dimensions))
             loss_train_batch = data_loss_train_batch # ADMM penalty equals 0
             data_loss_train_batch_average(data_loss_train_batch)
             loss_train_batch_average(loss_train_batch) 
-            accuracy_train_batch_average(accuracy(output, labels_train))
+            accuracy_train_batch_average(tf.reduce_mean(accuracy(output, labels_train)))
         for data_val, labels_val in data_and_labels_val:
             output_val = NN(data_val)
-            data_loss_val_batch = data_loss(output, labels_train, label_dimensions)
+            data_loss_val_batch = tf.reduce_mean(data_loss(output, labels_train, label_dimensions))
             loss_val_batch = data_loss_val_batch # ADMM penalty equals 0
             data_loss_train_batch_average(data_loss_val_batch)
             loss_val_batch_average(loss_val_batch)
-            accuracy_val_batch_average(accuracy(output_val, labels_val))
+            accuracy_val_batch_average(tf.reduce_mean(accuracy(output_val, labels_val)))
         for data_test, labels_test in data_and_labels_test:
             output_test = NN(data_test)
-            data_loss_test_batch = data_loss(output_test, labels_test, label_dimensions)
+            data_loss_test_batch = tf.reduce_mean(data_loss(output_test, labels_test, label_dimensions))
             loss_test_batch = data_loss_test_batch # ADMM penalty equals 0
             loss_test_batch_average(loss_test_batch)
-            accuracy_test_batch_average(accuracy(output_test, labels_test))
+            accuracy_test_batch_average(tf.reduce_mean(accuracy(output_test, labels_test)))
         storage_data_loss_array = np.append(storage_data_loss_array, data_loss_train_batch_average.result())
         storage_loss_array = np.append(storage_loss_array, loss_train_batch_average.result())
         storage_accuracy_array = np.append(storage_accuracy_array, accuracy_test_batch_average.result())
@@ -111,7 +111,7 @@ def optimize_ADMM(hyper_p, run_options, file_paths, NN, data_loss, accuracy, dat
                         NN.summary()
                         z, lagrange = initialize_z_and_lagrange_multiplier(NN.get_weights()) 
                     ADMM_penalty = update_ADMM_penalty_terms(hyper_p.penalty, NN.weights, z, lagrange)
-                    data_loss_train_batch = data_loss(output, labels_train, label_dimensions) 
+                    data_loss_train_batch = tf.reduce_mean(data_loss(output, labels_train, label_dimensions))
                     loss_train_batch = data_loss_train_batch + ADMM_penalty
                 gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
                 optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
@@ -128,20 +128,20 @@ def optimize_ADMM(hyper_p, run_options, file_paths, NN, data_loss, accuracy, dat
             #=== Computing Validation Metrics ===#
             for data_val, labels_val in data_and_labels_val:
                 output_val = NN(data_val)
-                data_loss_val_batch = data_loss(output_val, labels_val, label_dimensions)
+                data_loss_val_batch = tf.reduce_mean(data_loss(output_val, labels_val, label_dimensions))
                 loss_val_batch = data_loss_val_batch + ADMM_penalty
                 data_loss_val_batch_average(data_loss_val_batch)
                 loss_val_batch_average(loss_val_batch)
-                accuracy_val_batch_average(accuracy(output_val, labels_val))
+                accuracy_val_batch_average(tf.reduce_mean(accuracy(output_val, labels_val)))
                 
             #=== Computing Testing Metrics ===#
             for data_test, labels_test in data_and_labels_test:
                 output_test = NN(data_test)
-                data_loss_test_batch = data_loss(output_test, labels_test, label_dimensions)
+                data_loss_test_batch = tf.reduce_mean(data_loss(output_test, labels_test, label_dimensions))
                 loss_test_batch += data_loss_test_batch + ADMM_penalty
                 data_loss_test_batch_average(data_loss_test_batch)
                 loss_test_batch_average(loss_test_batch)
-                accuracy_test_batch_average(accuracy(output_test, labels_test))
+                accuracy_test_batch_average(tf.reduce_mean(accuracy(output_test, labels_test)))
             
             #=== Track Training Metrics, Weights and Gradients ===#
             with summary_writer.as_default():
