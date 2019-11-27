@@ -51,9 +51,6 @@ def optimize(hyperp, run_options, file_paths, NN, data_loss, accuracy, data_and_
     loss_validation = 1e5
     trainable_hidden_layer_index = 2
     relative_number_zeros = 0
-    storage_array_loss = np.array([])
-    storage_array_accuracy = np.array([])
-    storage_array_relative_number_zeros = np.array([])
     
     #####################################
     #   Training Current Architecture   #
