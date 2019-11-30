@@ -26,13 +26,13 @@ import sys
 class Hyperparameters:
     max_hidden_layers = 3 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     filter_size       = 3
-    num_filters       = 12
-    activation        = 'elu'
+    num_filters       = 128
+    activation        = 'tanh'
     regularization    = 0.001
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
-    num_epochs        = 3
+    num_epochs        = 30
     
 class RunOptions:
     def __init__(self):    
@@ -44,8 +44,8 @@ class RunOptions:
         self.use_L2 = 0
         
         #=== Choose Data Set ===#
-        self.data_MNIST = 1
-        self.data_CIFAR10 = 0 
+        self.data_MNIST = 0
+        self.data_CIFAR10 = 1 
         self.data_CIFAR100 = 0
         
         #=== Random Seed ===#

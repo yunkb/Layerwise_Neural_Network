@@ -40,7 +40,7 @@ import sys
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class Hyperparameters:
-    data_type         = 'full'
+    data_type         = 'bnd'
     max_hidden_layers = 5 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     num_hidden_nodes  = 500
     activation        = 'elu'
@@ -48,7 +48,7 @@ class Hyperparameters:
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
-    num_epochs        = 10
+    num_epochs        = 1000
     
 class RunOptions:
     def __init__(self):    
