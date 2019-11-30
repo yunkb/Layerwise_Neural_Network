@@ -80,9 +80,9 @@ class FilePaths():
         
         #=== File Name ===#
         if run_options.use_L1 == 0 and run_options.use_L2 == 0:
-            self.filename = self.dataset + '_' + self.NN_type + '_mhl%d_fs%d_nf%d_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.filter_size, hyperp.num_filters, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.dataset + '_' + self.NN_type + '_mhl%d_fs%d_nf%d_%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.filter_size, hyperp.num_filters, hyperp.activation, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
         else:
-            self.filename = self.dataset + '_' + self.NN_type + reg_string + '_mhl%d_fs%d_nf%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.filter_size, hyperp.num_filters, regularization_string, node_TOL_string, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.dataset + '_' + self.NN_type + reg_string + '_mhl%d_fs%d_nf%d_%s_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.filter_size, hyperp.num_filters, hyperp.activation, regularization_string, node_TOL_string, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
 
         #=== Saving Trained Neural Network and Tensorboard ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
