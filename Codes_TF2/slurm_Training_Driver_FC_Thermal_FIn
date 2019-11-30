@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#SBATCH -J Layerwise_Thermal_Fin_full_noisy
+#SBATCH -J Layerwise_Thermal_Fin_bnd_noisy
 #SBATCH -p gtx
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -t 5:00:00
-#SBATCH -o Training_Driver_FC_Thermal_Fin_full_noisy.out
+#SBATCH -o Training_Driver_FC_Thermal_Fin_bnd_noisy.out
 #SBATCH --mail-user=Hwan.Goh@gmail.com
 #SBATCH --mail-type=all
 
