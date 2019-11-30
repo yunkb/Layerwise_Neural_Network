@@ -53,7 +53,7 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self):    
         #=== Choose Which GPU to Use ===#
-        self.which_gpu = '1'
+        self.which_gpu = '3'
         
         #=== Use L_1 Regularization ===#
         self.use_L1 = 1
