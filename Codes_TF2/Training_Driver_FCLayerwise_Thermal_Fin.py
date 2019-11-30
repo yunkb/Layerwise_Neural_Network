@@ -41,7 +41,7 @@ import sys
 ###############################################################################
 class Hyperparameters:
     data_type         = 'bnd'
-    max_hidden_layers = 5 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
+    max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     num_hidden_nodes  = 500
     activation        = 'elu'
     regularization    = 0.001
