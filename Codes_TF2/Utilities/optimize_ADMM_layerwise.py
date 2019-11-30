@@ -65,24 +65,24 @@ def optimize_ADMM(hyper_p, run_options, file_paths, NN, data_loss, accuracy, dat
         #=== Initial Loss and Accuracy ===#
         for batch_num, (batch_data_train, batch_labels_train) in data_and_labels_train.enumerate():
             batch_pred_train = NN(batch_data_train)
-            batch_data_loss_train = tf.reduce_mean(data_loss(batch_pred_train, batch_labels_train, label_dimensions))
+            batch_data_loss_train = data_loss(batch_pred_train, batch_labels_train, label_dimensions)
             batch_loss_train = batch_data_loss_train # ADMM penalty equals 0
             mean_data_loss_train(batch_data_loss_train)
             mean_loss_train(batch_loss_train) 
-            mean_accuracy_train(tf.reduce_mean(accuracy(batch_pred_train, batch_labels_train)))
+            mean_accuracy_train(accuracy(batch_pred_train, batch_labels_train))
         for batch_data_val, batch_labels_val in data_and_labels_val:
             batch_pred_val = NN(batch_data_val)
-            batch_data_loss_val = tf.reduce_mean(data_loss(batch_pred_val, batch_labels_val, label_dimensions))
+            batch_data_loss_val = data_loss(batch_pred_val, batch_labels_val, label_dimensions)
             batch_loss_val = batch_data_loss_val # ADMM penalty equals 0
             mean_data_loss_train(batch_data_loss_val)
             mean_loss_val(batch_loss_val)
-            mean_accuracy_val(tf.reduce_mean(accuracy(batch_pred_val, batch_labels_val)))
+            mean_accuracy_val(accuracy(batch_pred_val, batch_labels_val))
         for batch_data_test, batch_labels_test in data_and_labels_test:
             batch_pred_test = NN(batch_data_test)
-            batch_data_loss_test = tf.reduce_mean(data_loss(batch_pred_test, batch_labels_test, label_dimensions))
+            batch_data_loss_test = data_loss(batch_pred_test, batch_labels_test, label_dimensions)
             batch_loss_test = batch_data_loss_test # ADMM penalty equals 0
             mean_loss_test(batch_loss_test)
-            mean_accuracy_test(tf.reduce_mean(accuracy(batch_pred_test, batch_labels_test)))
+            mean_accuracy_test(accuracy(batch_pred_test, batch_labels_test))
         storage_array_data_loss = np.append(storage_array_data_loss, mean_data_loss_train.result())
         storage_array_loss = np.append(storage_array_loss, mean_loss_train.result())
         storage_array_accuracy = np.append(storage_array_accuracy, mean_accuracy_test.result())
@@ -111,7 +111,7 @@ def optimize_ADMM(hyper_p, run_options, file_paths, NN, data_loss, accuracy, dat
                         NN.summary()
                         z, lagrange = initialize_z_and_lagrange_multiplier(NN.get_weights()) 
                     ADMM_penalty = update_ADMM_penalty_terms(hyper_p.penalty, NN.weights, z, lagrange)
-                    batch_data_loss_train = tf.reduce_mean(data_loss(batch_pred_train, batch_labels_train, label_dimensions))
+                    batch_data_loss_train = data_loss(batch_pred_train, batch_labels_train, label_dimensions)
                     batch_loss_train = batch_data_loss_train + ADMM_penalty
                 gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
                 optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
@@ -128,20 +128,20 @@ def optimize_ADMM(hyper_p, run_options, file_paths, NN, data_loss, accuracy, dat
             #=== Computing Validation Metrics ===#
             for batch_data_val, batch_labels_val in data_and_labels_val:
                 batch_pred_val = NN(batch_data_val)
-                batch_data_loss_val = tf.reduce_mean(data_loss(batch_pred_val, batch_labels_val, label_dimensions))
+                batch_data_loss_val = data_loss(batch_pred_val, batch_labels_val, label_dimensions)
                 batch_loss_val = batch_data_loss_val + ADMM_penalty
                 mean_data_loss_val(batch_data_loss_val)
                 mean_loss_val(batch_loss_val)
-                mean_accuracy_val(tf.reduce_mean(accuracy(batch_pred_val, batch_labels_val)))
+                mean_accuracy_val(accuracy(batch_pred_val, batch_labels_val))
                 
             #=== Computing Testing Metrics ===#
             for batch_data_test, batch_labels_test in data_and_labels_test:
                 batch_pred_test = NN(batch_data_test)
-                batch_data_loss_test = tf.reduce_mean(data_loss(batch_pred_test, batch_labels_test, label_dimensions))
+                batch_data_loss_test = data_loss(batch_pred_test, batch_labels_test, label_dimensions)
                 batch_loss_test += batch_data_loss_test + ADMM_penalty
                 mean_data_loss_test(batch_data_loss_test)
                 mean_loss_test(batch_loss_test)
-                mean_accuracy_test(tf.reduce_mean(accuracy(batch_pred_test, batch_labels_test)))
+                mean_accuracy_test(accuracy(batch_pred_test, batch_labels_test))
             
             #=== Track Training Metrics, Weights and Gradients ===#
             with summary_writer.as_default():
@@ -170,7 +170,7 @@ def optimize_ADMM(hyper_p, run_options, file_paths, NN, data_loss, accuracy, dat
             print('Time per Epoch: %.2f\n' %(elapsed_time_epoch))
             print('Training Set: Data Loss: %.3e, Loss: %.3e, Accuracy: %.3f' %(mean_data_loss_train.result(), mean_loss_train.result(), mean_accuracy_train.result()))
             print('Validation Set: Data Loss: %.3e, Loss: %.3e, Accuracy: %.3f' %(mean_data_loss_val.result(), mean_loss_val.result(), mean_accuracy_val.result()))
-            print('Test Set: Data_Loss: %.3e, Loss: %.3e, Accuracy: %.3f\n' %(mean_data_loss_test.result(), mean_loss_test.result(), mean_accuracy_test.result()))
+            print('Test Set: Data_Loss: %.3e, Loss: %.3e, Accuracy: %.3f' %(mean_data_loss_test.result(), mean_loss_test.result(), mean_accuracy_test.result()))
             print('Previous Layer Relative # of 0s: %.7f\n' %(relative_number_zeros))
             start_time_epoch = time.time() 
             

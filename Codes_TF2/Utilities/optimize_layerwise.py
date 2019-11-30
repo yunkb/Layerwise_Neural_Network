@@ -59,22 +59,22 @@ def optimize(hyperp, run_options, file_paths, NN, data_loss, accuracy, data_and_
         #=== Initial Loss and Accuracy ===#
         for batch_num, (batch_data_train, batch_labels_train) in data_and_labels_train.enumerate():
             batch_pred_train = NN(batch_data_train)
-            batch_loss_train = tf.reduce_mean(data_loss(batch_pred_train, batch_labels_train, label_dimensions))
+            batch_loss_train = data_loss(batch_pred_train, batch_labels_train, label_dimensions)
             batch_loss_train += sum(NN.losses)
             mean_loss_train(batch_loss_train) 
-            mean_accuracy_train(tf.reduce_mean(accuracy(batch_pred_train, batch_labels_train)))
+            mean_accuracy_train(accuracy(batch_pred_train, batch_labels_train))
         for batch_data_val, batch_labels_val in data_and_labels_val:
             batch_pred_val = NN(batch_data_val)
-            batch_loss_val = tf.reduce_mean(data_loss(batch_pred_val, batch_labels_val, label_dimensions))
+            batch_loss_val = data_loss(batch_pred_val, batch_labels_val, label_dimensions)
             batch_loss_val += sum(NN.losses)
             mean_loss_val(batch_loss_val)
-            mean_accuracy_val(tf.reduce_mean(accuracy(batch_pred_val, batch_labels_val)))
+            mean_accuracy_val(accuracy(batch_pred_val, batch_labels_val))
         for batch_data_test, batch_labels_test in data_and_labels_test:
             batch_pred_test = NN(batch_data_test)
-            batch_loss_test = tf.reduce_mean(data_loss(batch_pred_test, batch_labels_test, label_dimensions))
+            batch_loss_test = data_loss(batch_pred_test, batch_labels_test, label_dimensions)
             batch_loss_test += sum(NN.losses)
             mean_loss_test(batch_loss_test)
-            mean_accuracy_test(tf.reduce_mean(accuracy(batch_pred_test, batch_labels_test)))
+            mean_accuracy_test(accuracy(batch_pred_test, batch_labels_test))
         storage_array_loss = np.append(storage_array_loss, mean_loss_train.result())
         storage_array_accuracy = np.append(storage_array_accuracy, mean_accuracy_test.result())
         print('Initial Losses:')
@@ -100,7 +100,7 @@ def optimize(hyperp, run_options, file_paths, NN, data_loss, accuracy, data_and_
                     #=== Display Model Summary ===#
                     if batch_num == 0 and epoch == 0:
                         NN.summary()
-                    batch_loss_train = tf.reduce_mean(data_loss(batch_pred_train, batch_labels_train, label_dimensions))
+                    batch_loss_train = data_loss(batch_pred_train, batch_labels_train, label_dimensions)
                     batch_loss_train += sum(NN.losses)
                 gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
                 optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
@@ -108,24 +108,24 @@ def optimize(hyperp, run_options, file_paths, NN, data_loss, accuracy, data_and_
                 if batch_num  == 0:
                     print('Time per Batch: %.2f' %(elapsed_time_batch))
                 mean_loss_train(batch_loss_train) 
-                mean_accuracy_train(tf.reduce_mean(accuracy(batch_pred_train, batch_labels_train)))
+                mean_accuracy_train(accuracy(batch_pred_train, batch_labels_train))
                                         
             #=== Computing Validation Metrics ===#
             for batch_data_val, batch_labels_val in data_and_labels_val:
                 batch_pred_val = NN(batch_data_val)
-                batch_loss_val = tf.reduce_mean(data_loss(batch_pred_val, batch_labels_val, label_dimensions))
+                batch_loss_val = data_loss(batch_pred_val, batch_labels_val, label_dimensions)
                 batch_loss_val += sum(NN.losses)
                 mean_loss_val(batch_loss_val)
-                mean_accuracy_val(tf.reduce_mean(accuracy(batch_pred_val, batch_labels_val)))
+                mean_accuracy_val(accuracy(batch_pred_val, batch_labels_val))
             
             #=== Computing Testing Metrics ===#
             for batch_data_test, batch_labels_test in data_and_labels_test:
                 batch_pred_test = NN(batch_data_test)
-                batch_loss_test = tf.reduce_mean(data_loss(batch_pred_test, batch_labels_test, label_dimensions))
+                batch_loss_test = data_loss(batch_pred_test, batch_labels_test, label_dimensions)
                 batch_loss_test += sum(NN.losses)
                 mean_loss_test(batch_loss_test)
-                mean_accuracy_test(tf.reduce_mean(accuracy(batch_pred_test, batch_labels_test)))
-            
+                mean_accuracy_test(accuracy(batch_pred_test, batch_labels_test))
+    
             #=== Track Training Metrics, Weights and Gradients ===#
             with summary_writer.as_default():
                 tf.summary.scalar('loss_training', mean_loss_train.result(), step=epoch)
