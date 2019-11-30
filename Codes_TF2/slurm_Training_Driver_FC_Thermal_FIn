@@ -1,14 +1,14 @@
 #!/bin/bash
 
-#SBATCH -J Layerwise_L1_CIFAR_10_tanh
+#SBATCH -J Layerwise_Thermal_Fin
 #SBATCH -p gtx
 #SBATCH -N 1
 #SBATCH -n 1
 #SBATCH -t 5:00:00
-#SBATCH -o Training_Driver_CNNLayerwise_CIFAR_10_tanh.out
+#SBATCH -o Training_Driver_FC_Thermal_Fin.out
 #SBATCH --mail-user=Hwan.Goh@gmail.com
 #SBATCH --mail-type=all
 
 module load intel/17.0.4 python3/3.6.3 cuda/10.0 cudnn/7.6.2 nccl/2.4.7
 
-ibrun ./Training_Driver_CNNLayerwise.py
+ibrun ./Training_Driver_FCLayerwise_Thermal_Fin.py
