@@ -6,13 +6,14 @@ Created on Sun Nov  3 10:16:28 2019
 @author: hwan
 """
 import tensorflow as tf
+import numpy as np
 import pandas as pd
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
 #                                 All Data                                    #
 ###############################################################################
-def load_thermal_fin_data(file_paths, num_training_data, num_testing_data, parameter_dimensions):
+def load_thermal_fin_data(file_paths, num_training_data, num_testing_data, parameter_dimensions, noise_level):
     
     #=== Load observation indices ===# 
     print('Loading Boundary Indices')
@@ -34,6 +35,10 @@ def load_thermal_fin_data(file_paths, num_training_data, num_testing_data, param
     state_obs_test = df_state_obs_test.to_numpy()
     parameter_test = parameter_test.reshape((num_testing_data, parameter_dimensions))
     state_obs_test = state_obs_test.reshape((num_testing_data, len(obs_indices)))
+
+    #=== Adding Noise ===#
+    max_signal = np.amax(state_obs_train)
+    state_obs_train = state_obs_train + noise_level*max_signal*np.random.randn(state_obs_train.shape[0], state_obs_train.shape[1])
 
     #=== Casting as float32 ===#
     parameter_train = tf.cast(parameter_train,tf.float32)

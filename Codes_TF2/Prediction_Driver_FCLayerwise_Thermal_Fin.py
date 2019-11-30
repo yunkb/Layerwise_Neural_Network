@@ -1,40 +1,17 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Nov 14 21:41:12 2019
+Created on Sat Oct 26 21:23:46 2019
 
 @author: hwan
 """
 
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Nov  4 09:55:12 2019
-
-@author: hwan
-"""
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Oct 28 14:13:20 2019
-
-@author: hwan
-"""
-import tensorflow as tf
-
-from Utilities.get_thermal_fin_data import load_thermal_fin_data
-from Utilities.form_train_val_test_batches import form_train_val_test_batches
-from Utilities.NN_FC_layerwise import FCLayerwise
-from Utilities.loss_and_accuracies import data_loss_regression, relative_error
-from Utilities.optimize_layerwise import optimize
-
+from Utilities.predict_and_save_layerwise import predict_and_save
 from decimal import Decimal # for filenames
-
-import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
-
 import os
 import sys
+
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
 #                       HyperParameters and RunOptions                        #
@@ -70,9 +47,6 @@ class RunOptions:
         self.fin_dimensions_2D = 0
         self.fin_dimensions_3D = 1
         
-        #=== Add Noise ===#
-        self.noise_level = 0.005
-        
         #=== Random Seed ===#
         self.random_seed = 1234
         
@@ -103,11 +77,6 @@ class FilePaths():
             fin_dimension = ''
         if run_options.fin_dimensions_3D == 1:
             fin_dimension = '_3D'
-        if run_options.noise_level > 0:
-            noise_string = str(run_options.noise_level)
-            noise_string = '_npt' + noise_string[2:]
-        else:
-            noise_string = ''
         if hyperp.regularization >= 1:
             hyperp.regularization = int(hyperp.regularization)
             regularization_string = str(hyperp.regularization)
@@ -121,61 +90,38 @@ class FilePaths():
         
         #=== File Name ===#        
         if run_options.use_L1 == 0:
-            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '%s_mhl%d_hl%d_%s_eTOL%s_b%d_e%d' %(noise_string, hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_mhl%d_hl%d_%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
         else:
-            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_L1%s_mhl%d_hl%d_%s_r%s_nTOL%s_eTOL%s_b%d_e%d' %(noise_string, hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, regularization_string, node_TOL_string, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
-
+            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_L1_mhl%d_hl%d_%s_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, regularization_string, node_TOL_string, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
+        
         #=== Loading and saving data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
         self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(run_options.num_data_train) + fin_dimension + parameter_type
         self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(run_options.num_data_train) + fin_dimension + '_' + hyperp.data_type + parameter_type
         self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(run_options.num_data_test) + fin_dimension + parameter_type 
         self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(run_options.num_data_test) + fin_dimension + '_' + hyperp.data_type + parameter_type
-
-        #=== Saving Trained Neural Network and Tensorboard ===#
-        self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
-        self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
-        self.tensorboard_directory = '../Tensorboard/' + self.filename
-
+          
+        #=== Saving neural network ===#
+        self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
+        self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the saved parameters
+            
+        #=== Save File Path for One Instance of Test Data ===#
+        self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test' + fin_dimension
+        if hyperp.data_type == 'full':
+            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test' + fin_dimension
+        if hyperp.data_type == 'bnd':
+            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd' + fin_dimension
+         
+        #=== Save File Path for Predictions ===#    
+        self.savefile_name_parameter_test = self.NN_savefile_directory + '/' + 'parameter_test' + fin_dimension
+        self.savefile_name_state_test = self.NN_savefile_directory + '/' + 'state_test' + fin_dimension
+        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred' + fin_dimension     
+      
 ###############################################################################
-#                                 Training                                    #
+#                                  Driver                                     #
 ###############################################################################
-def trainer(hyperp, run_options, file_paths):
-    #=== GPU Settings ===#
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-    os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
+if __name__ == "__main__":
     
-    #=== Load Data ===#       
-    obs_indices, parameter_train, state_obs_train,\
-    parameter_test, state_obs_test,\
-    data_input_shape, parameter_dimension\
-    = load_thermal_fin_data(file_paths, run_options.num_data_train, run_options.num_data_test, run_options.parameter_dimensions, run_options.noise_level)    
-    output_dimensions = len(obs_indices)
-    
-    #=== Construct Validation Set and Batches ===#   
-    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
-    run_options.num_data_train, num_data_val, run_options.num_data_test,\
-    num_batches_train, num_batches_val, num_batches_test\
-    = form_train_val_test_batches(parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
-        
-    #=== Neural network ===#
-    if run_options.use_L1 == 0:
-        kernel_regularizer = None
-        bias_regularizer = None  
-    else:
-        kernel_regularizer = tf.keras.regularizers.l1(hyperp.regularization)
-        bias_regularizer = tf.keras.regularizers.l1(hyperp.regularization)
-    NN = FCLayerwise(hyperp, run_options, data_input_shape, output_dimensions,
-                     kernel_regularizer, bias_regularizer)    
-    
-    #=== Training ===#
-    optimize(hyperp, run_options, file_paths, NN, data_loss_regression, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test, output_dimensions, num_batches_train)
-    
-###############################################################################
-#                                 Driver                                      #
-###############################################################################     
-if __name__ == "__main__":     
-
     #=== Hyperparameters and Run Options ===#    
     hyperp = Hyperparameters()
     run_options = RunOptions()
@@ -192,10 +138,9 @@ if __name__ == "__main__":
         hyperp.num_training_data = int(sys.argv[9])
         hyperp.batch_size        = int(sys.argv[10])
         hyperp.num_epochs        = int(sys.argv[11])
-        run_options.which_gpu    = int(sys.argv[12])
             
     #=== File Names ===#
     file_paths = FilePaths(hyperp, run_options)
     
-    #=== Initiate training ===#
-    trainer(hyperp, run_options, file_paths) 
+    #=== Plot and save figures ===#
+    predict_and_save(hyperp, run_options, file_paths)

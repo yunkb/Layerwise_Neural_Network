@@ -18,17 +18,20 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 class Hyperparameters:
     data_type         = 'full'
-    max_hidden_layers = 5 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
-    num_hidden_nodes  = 50
+    max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
+    num_hidden_nodes  = 500
     activation        = 'elu'
     regularization    = 0.001
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
-    num_epochs        = 10
+    num_epochs        = 30
     
 class RunOptions:
-    def __init__(self):            
+    def __init__(self):    
+        #=== Choose Which GPU to Use ===#
+        self.which_gpu = '3'
+        
         #=== Use L_1 Regularization ===#
         self.use_L1 = 1
         
@@ -37,12 +40,12 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_training_data = 200
-        self.num_testing_data = 200
+        self.num_data_train = 50000
+        self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 1
-        self.fin_dimensions_3D = 0
+        self.fin_dimensions_2D = 0
+        self.fin_dimensions_3D = 1
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -84,20 +87,39 @@ class FilePaths():
         node_TOL_string = node_TOL_string[-1]
         error_TOL_string = str('%.2e' %Decimal(hyperp.error_TOL))
         error_TOL_string = error_TOL_string[-1]
-                
+        
         #=== File Name ===#        
         if run_options.use_L1 == 0:
-            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_mhl%d_hl%d_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_mhl%d_hl%d_%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
         else:
-            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_L1_mhl%d_hl%d_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, regularization_string, node_TOL_string, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_L1_mhl%d_hl%d_%s_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, regularization_string, node_TOL_string, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
                   
-        #=== Saving neural network ===#
-        self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we save the parameters for each layer separately, we need to create a new folder for each model
-        self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the saved parameters
-
-        #=== Saving Figures ===#
+        #=== Save File Directory ===#
+        self.NN_savefile_directory = '../Trained_NNs/' + self.filename
+        self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
+  
+        #=== Save File Path ===#
+        self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
+    
+        #=== Save File Path for One Instance of Test Data ===#
+        self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test' + fin_dimension
+        if hyperp.data_type == 'full':
+            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test' + fin_dimension
+        if hyperp.data_type == 'bndonly':
+            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd' + fin_dimension           
+            
+        #=== Loading Predictions ===#    
+        self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred' + fin_dimension
+        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred' + fin_dimension
+            
+        #=== Savefile Path for Figures ===#    
         self.figures_savefile_directory = '../Figures/' + self.filename
-
+        self.figures_savefile_name = self.figures_savefile_directory + '/' + self.filename
+        self.figures_savefile_name_parameter_test = self.figures_savefile_directory + '/' + 'parameter_test' + fin_dimension
+        self.figures_savefile_name_state_test = self.figures_savefile_directory + '/' + 'state_test' + fin_dimension
+        self.figures_savefile_name_parameter_pred = self.figures_savefile_name + '_parameter_pred' + fin_dimension
+        self.figures_savefile_name_state_pred = self.figures_savefile_name + '_state_pred' + fin_dimension
+        
         #=== Creating Directories ===#
         if not os.path.exists(self.figures_savefile_directory):
             os.makedirs(self.figures_savefile_directory)
