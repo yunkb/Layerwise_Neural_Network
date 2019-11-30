@@ -48,7 +48,7 @@ class Hyperparameters:
     node_TOL          = 1e-4
     error_TOL         = 1e-4
     batch_size        = 1000
-    num_epochs        = 1000
+    num_epochs        = 30
     
 class RunOptions:
     def __init__(self):    
