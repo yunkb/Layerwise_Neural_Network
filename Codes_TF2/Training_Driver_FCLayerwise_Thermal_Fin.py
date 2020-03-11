@@ -40,7 +40,7 @@ import sys
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class Hyperparameters:
-    data_type         = 'bnd'
+    data_type         = 'full'
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     num_hidden_nodes  = 500
     activation        = 'elu'
@@ -71,7 +71,7 @@ class RunOptions:
         self.fin_dimensions_3D = 1
         
         #=== Add Noise ===#
-        self.noise_level = 0.005
+        self.noise_level = 0.000
         
         #=== Random Seed ===#
         self.random_seed = 1234
