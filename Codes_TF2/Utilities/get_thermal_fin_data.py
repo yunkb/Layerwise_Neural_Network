@@ -6,14 +6,15 @@ Created on Sun Nov  3 10:16:28 2019
 @author: hwan
 """
 import tensorflow as tf
-import numpy as np
 import pandas as pd
+import time
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
 #                                 All Data                                    #
 ###############################################################################
-def load_thermal_fin_data(file_paths, num_training_data, num_testing_data, parameter_dimensions, noise_level):
+def load_thermal_fin_data(file_paths, num_training_data, num_testing_data, parameter_dimensions):
+    start_time_load_data = time.time()
     
     #=== Load observation indices ===# 
     print('Loading Boundary Indices')
@@ -36,10 +37,6 @@ def load_thermal_fin_data(file_paths, num_training_data, num_testing_data, param
     parameter_test = parameter_test.reshape((num_testing_data, parameter_dimensions))
     state_obs_test = state_obs_test.reshape((num_testing_data, len(obs_indices)))
 
-    #=== Adding Noise ===#
-    max_signal = np.amax(state_obs_train)
-    state_obs_train = state_obs_train + noise_level*max_signal*np.random.randn(state_obs_train.shape[0], state_obs_train.shape[1])
-
     #=== Casting as float32 ===#
     parameter_train = tf.cast(parameter_train,tf.float32)
     state_obs_train = tf.cast(state_obs_train, tf.float32)
@@ -49,13 +46,16 @@ def load_thermal_fin_data(file_paths, num_training_data, num_testing_data, param
     #=== Define Outputs ===#
     data_input_shape = parameter_train.shape[1:]
     parameter_dimension = parameter_train.shape[-1]
+    
+    elapsed_time_load_data = time.time() - start_time_load_data
+    print('Time taken to load data: %.4f' %(elapsed_time_load_data))
 
     return obs_indices, parameter_train, state_obs_train, parameter_test, state_obs_test, data_input_shape, parameter_dimension
 
 ###############################################################################
 #                                 Test Data                                   #
 ###############################################################################
-def load_thermal_fin_test_data(file_paths, num_testing_data, parameter_dimensions, batch_size, random_seed):
+def load_thermal_fin_test_data(file_paths, num_testing_data, parameter_dimensions):
     
     #=== Load observation indices ===# 
     print('Loading Boundary Indices')
@@ -78,7 +78,4 @@ def load_thermal_fin_test_data(file_paths, num_testing_data, parameter_dimension
     data_input_shape = parameter_test.shape[1:]
     parameter_dimension = parameter_test.shape[-1]
     
-    #=== Shuffling Data ===#
-    parameter_and_state_obs_test = tf.data.Dataset.from_tensor_slices((parameter_test, state_obs_test)).shuffle(8192, seed=random_seed).batch(batch_size)
-    
-    return obs_indices, parameter_and_state_obs_test, data_input_shape, parameter_dimension
+    return obs_indices, parameter_test, state_obs_test, data_input_shape, parameter_dimension
