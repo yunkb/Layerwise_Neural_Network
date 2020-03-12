@@ -1,27 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Nov 14 21:41:12 2019
-
-@author: hwan
-"""
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Nov  4 09:55:12 2019
-
-@author: hwan
-"""
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
 Created on Mon Oct 28 14:13:20 2019
 
 @author: hwan
 """
 import tensorflow as tf
+import numpy as np
 
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
@@ -40,7 +25,7 @@ import sys
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class Hyperparameters:
-    data_type         = 'full'
+    data_type         = 'bnd'
     max_hidden_layers = 8 # For this architecture, need at least 2. One for the mapping to the feature space, one as a trainable hidden layer. EXCLUDES MAPPING BACK TO DATA SPACE
     num_hidden_nodes  = 500
     activation        = 'elu'
@@ -62,16 +47,17 @@ class RunOptions:
         self.data_thermal_fin_nine = 0
         self.data_thermal_fin_vary = 1
         
+        #=== Mapping Type ===#
+        self.forward_mapping = 0
+        self.inverse_mapping = 1
+        
         #=== Data Set Size ===#
         self.num_data_train = 50000
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
-        
-        #=== Add Noise ===#
-        self.noise_level = 0.000
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -103,11 +89,6 @@ class FilePaths():
             fin_dimension = ''
         if run_options.fin_dimensions_3D == 1:
             fin_dimension = '_3D'
-        if run_options.noise_level > 0:
-            noise_string = str(run_options.noise_level)
-            noise_string = '_npt' + noise_string[2:]
-        else:
-            noise_string = ''
         if hyperp.regularization >= 1:
             hyperp.regularization = int(hyperp.regularization)
             regularization_string = str(hyperp.regularization)
@@ -121,9 +102,9 @@ class FilePaths():
         
         #=== File Name ===#        
         if run_options.use_L1 == 0:
-            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '%s_mhl%d_hl%d_%s_eTOL%s_b%d_e%d' %(noise_string, hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_mhl%d_hl%d_%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
         else:
-            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_L1%s_mhl%d_hl%d_%s_r%s_nTOL%s_eTOL%s_b%d_e%d' %(noise_string, hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, regularization_string, node_TOL_string, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_L1_mhl%d_hl%d_%s_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, regularization_string, node_TOL_string, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
 
         #=== Loading and saving data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
@@ -148,15 +129,30 @@ def trainer(hyperp, run_options, file_paths):
     #=== Load Data ===#       
     obs_indices, parameter_train, state_obs_train,\
     parameter_test, state_obs_test,\
-    data_input_shape, parameter_dimension\
-    = load_thermal_fin_data(file_paths, run_options.num_data_train, run_options.num_data_test, run_options.parameter_dimensions, run_options.noise_level)    
-    output_dimensions = len(obs_indices)
+    data_input_shape_temp, parameter_dimension\
+    = load_thermal_fin_data(file_paths, run_options.num_data_train, run_options.num_data_test, run_options.parameter_dimensions)    
+    output_dimensions_temp = len(obs_indices)
+    
+    #=== Forward or Inverse Mapping Input and Output Dimensions ===#
+    if run_options.forward_mapping == 1:
+        data_input_shape = data_input_shape_temp
+        output_dimensions = output_dimensions_temp
+    if run_options.inverse_mapping == 1:
+        data_input_shape = np.array([output_dimensions_temp, 1])
+        output_dimensions = data_input_shape_temp[0]
     
     #=== Construct Validation Set and Batches ===#   
-    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
-    run_options.num_data_train, num_data_val, run_options.num_data_test,\
-    num_batches_train, num_batches_val, num_batches_test\
-    = form_train_val_test_batches(parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
+    if run_options.forward_mapping == 1:
+        parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
+        run_options.num_data_train, num_data_val, run_options.num_data_test,\
+        num_batches_train, num_batches_val, num_batches_test\
+        = form_train_val_test_batches(parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
+   
+    if run_options.inverse_mapping == 1:
+        parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
+        run_options.num_data_train, num_data_val, run_options.num_data_test,\
+        num_batches_train, num_batches_val, num_batches_test\
+        = form_train_val_test_batches(state_obs_train, parameter_train, state_obs_test, parameter_test, hyperp.batch_size, run_options.random_seed)
         
     #=== Neural network ===#
     if run_options.use_L1 == 0:
