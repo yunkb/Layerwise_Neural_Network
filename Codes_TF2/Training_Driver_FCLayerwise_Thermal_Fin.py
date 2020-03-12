@@ -48,8 +48,8 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Mapping Type ===#
-        self.forward_mapping = 0
-        self.inverse_mapping = 1
+        self.forward_mapping = 1
+        self.inverse_mapping = 0
         
         #=== Data Set Size ===#
         self.num_data_train = 50000
@@ -79,6 +79,10 @@ class FilePaths():
     def __init__(self, hyperp, run_options): 
         #=== Declaring File Name Components ===#
         self.NN_type = 'FC'
+        if run_options.forward_mapping == 1:
+            mapping_type = '_fwd'
+        if run_options.inverse_mapping == 1:
+            mapping_type = '_inv'
         if run_options.data_thermal_fin_nine == 1:
             self.dataset = 'thermalfin9'
             parameter_type = '_nine'
@@ -102,9 +106,9 @@ class FilePaths():
         
         #=== File Name ===#        
         if run_options.use_L1 == 0:
-            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_mhl%d_hl%d_%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.dataset + mapping_type + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_mhl%d_hl%d_%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
         else:
-            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_L1_mhl%d_hl%d_%s_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, regularization_string, node_TOL_string, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.dataset + mapping_type + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_L1_mhl%d_hl%d_%s_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, regularization_string, node_TOL_string, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
 
         #=== Loading and saving data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
