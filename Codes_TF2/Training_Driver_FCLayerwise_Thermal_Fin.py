@@ -38,7 +38,7 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self):    
         #=== Choose Which GPU to Use ===#
-        self.which_gpu = '1'
+        self.which_gpu = '0'
         
         #=== Use L_1 Regularization ===#
         self.use_L1 = 1
@@ -56,8 +56,8 @@ class RunOptions:
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 1
-        self.fin_dimensions_3D = 0
+        self.fin_dimensions_2D = 0
+        self.fin_dimensions_3D = 1
         
         #=== Random Seed ===#
         self.random_seed = 1234
