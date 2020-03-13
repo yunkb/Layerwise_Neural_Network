@@ -42,22 +42,22 @@ class RunOptions:
         
         #=== Use L_1 Regularization ===#
         self.use_L1 = 1
+
+        #=== Mapping Type ===#
+        self.forward_mapping = 1
+        self.inverse_mapping = 0
         
         #=== Data Set ===#
         self.data_thermal_fin_nine = 0
         self.data_thermal_fin_vary = 1
-        
-        #=== Mapping Type ===#
-        self.forward_mapping = 1
-        self.inverse_mapping = 0
         
         #=== Data Set Size ===#
         self.num_data_train = 50000
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234

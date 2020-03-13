@@ -35,6 +35,10 @@ class RunOptions:
         #=== Use L_1 Regularization ===#
         self.use_L1 = 1
         
+        #=== Mapping Type ===#
+        self.forward_mapping = 1
+        self.inverse_mapping = 0
+        
         #=== Data Set ===#
         self.data_thermal_fin_nine = 0
         self.data_thermal_fin_vary = 1
@@ -67,6 +71,10 @@ class FilePaths():
     def __init__(self, hyperp, run_options): 
         #=== Declaring File Name Components ===#
         self.NN_type = 'FC'
+        if run_options.forward_mapping == 1:
+            mapping_type = '_fwd'
+        if run_options.inverse_mapping == 1:
+            mapping_type = '_inv'
         if run_options.data_thermal_fin_nine == 1:
             self.dataset = 'thermalfin9'
             parameter_type = '_nine'
@@ -88,11 +96,11 @@ class FilePaths():
         error_TOL_string = str('%.2e' %Decimal(hyperp.error_TOL))
         error_TOL_string = error_TOL_string[-1]
         
-        #=== File Name ===#        
+        #=== File Name ===#
         if run_options.use_L1 == 0:
-            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_mhl%d_hl%d_%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.dataset + mapping_type + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_mhl%d_hl%d_%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
         else:
-            self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_L1_mhl%d_hl%d_%s_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, regularization_string, node_TOL_string, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.dataset + mapping_type + '_' + hyperp.data_type + fin_dimension + '_' + self.NN_type + '_L1_mhl%d_hl%d_%s_r%s_nTOL%s_eTOL%s_b%d_e%d' %(hyperp.max_hidden_layers, hyperp.num_hidden_nodes, hyperp.activation, regularization_string, node_TOL_string, error_TOL_string, hyperp.batch_size, hyperp.num_epochs)
         
         #=== Loading and saving data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
@@ -106,16 +114,14 @@ class FilePaths():
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the saved parameters
             
         #=== Save File Path for One Instance of Test Data ===#
-        self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test' + fin_dimension
-        if hyperp.data_type == 'full':
-            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test' + fin_dimension
-        if hyperp.data_type == 'bnd':
-            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd' + fin_dimension
+        self.loadfile_name_parameter_test = '../../Datasets/Thermal_Fin/' + 'parameter_test' + fin_dimension + parameter_type
+        self.loadfile_name_state_test = '../../Datasets/Thermal_Fin/' + 'state_test' + fin_dimension + parameter_type
          
         #=== Save File Path for Predictions ===#    
-        self.savefile_name_parameter_test = self.NN_savefile_directory + '/' + 'parameter_test' + fin_dimension
-        self.savefile_name_state_test = self.NN_savefile_directory + '/' + 'state_test' + fin_dimension
-        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred' + fin_dimension     
+        self.savefile_name_parameter_test = self.NN_savefile_directory + '/' + 'parameter_test' + fin_dimension + parameter_type
+        self.savefile_name_state_test = self.NN_savefile_directory + '/' + 'state_test' + fin_dimension + parameter_type
+        self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'
+        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred'    
       
 ###############################################################################
 #                                  Driver                                     #
