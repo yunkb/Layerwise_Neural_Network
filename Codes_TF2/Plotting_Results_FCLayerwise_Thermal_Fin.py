@@ -49,8 +49,8 @@ class RunOptions:
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -159,8 +159,8 @@ if __name__ == "__main__":
     file_paths = FilePaths(hyperp, run_options)
     
     #=== Plot and save figures ===#
-    #fig_size = (5,5)
-    #plot_and_save_predictions(hyperp, run_options, file_paths, fig_size)
+    fig_size = (5,5)
+    plot_and_save_predictions(hyperp, run_options, file_paths, fig_size)
     
     #=== Plot and Save vtkfiles ===#
-    plot_and_save_predictions_vtkfiles(hyperp, run_options, file_paths)
+    #plot_and_save_predictions_vtkfiles(hyperp, run_options, file_paths)

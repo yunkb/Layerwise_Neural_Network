@@ -252,9 +252,9 @@ def plot_and_save_predictions(hyperp, run_options, file_paths, fig_size):
         fig_accuracy = plt.figure()
         x_axis = np.linspace(2, hyperp.max_hidden_layers-1, hyperp.max_hidden_layers-2, endpoint = True)
         plt.plot(x_axis, rel_zeros_array, label = 'relative # of 0s')
-        plt.title(file_paths.filename)
+        plt.title('Relative Number of Zeros')
         plt.xlabel('Layer Number')
-        plt.ylabel('Number of Zeros')
+        plt.ylabel('Relative Number of Zeros')
         plt.legend()
         
         #=== Saving Figure ===#
